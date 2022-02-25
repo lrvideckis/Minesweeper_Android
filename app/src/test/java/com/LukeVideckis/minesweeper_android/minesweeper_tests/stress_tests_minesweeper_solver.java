@@ -1,25 +1,24 @@
 package com.LukeVideckis.minesweeper_android.minesweeper_tests;
 
-import org.junit.Test;
-
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
-import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
-
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
-import com.LukeVideckis.minesweeper_android.test_helpers.NoSolutionFoundException;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MyBacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.test_helpers.OldBacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.test_helpers.SlowBacktrackingSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ArrayBounds;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ConvertGameBoardFormat;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CreateSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MyBacktrackingSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
+import com.LukeVideckis.minesweeper_android.test_helpers.NoSolutionFoundException;
+import com.LukeVideckis.minesweeper_android.test_helpers.OldBacktrackingSolver;
+import com.LukeVideckis.minesweeper_android.test_helpers.SlowBacktrackingSolver;
+
+import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

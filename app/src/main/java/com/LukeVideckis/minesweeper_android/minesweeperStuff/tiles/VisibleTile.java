@@ -49,11 +49,6 @@ public class VisibleTile {
                 numberSurroundingMines == other.numberSurroundingMines;
     }
 
-    private void reset() {
-        isLogicalFree = isLogicalMine = isVisible = false;
-        numberSurroundingMines = 0;
-    }
-
     public boolean getIsVisible() {
         return isVisible;
     }
@@ -96,5 +91,10 @@ public class VisibleTile {
         reset();
         this.isVisible = isVisible;
         this.numberSurroundingMines = numberSurroundingMines;
+    }
+
+    private void reset() {
+        isLogicalFree = isLogicalMine = isVisible = false;
+        numberSurroundingMines = 0;
     }
 }

@@ -5,14 +5,11 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;;
+import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
 
-
 public class GetConnectedComponentsOld {
-
-
 	private static int rows, cols;
 
 	public static ArrayList<ArrayList<Pair<Integer, Integer>>> getComponentsWithKnownCellsOld(VisibleTile[][] board) throws Exception {
