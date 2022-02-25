@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/startScreenLayout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/reallyLightGrey"
+	android:tag="@string/is_relative_layout">
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/gameControls"
+		android:layout_alignParentTop="true"
+		android:gravity="center"
+		android:text="@string/minesweeper"
+		android:textSize="40sp" />
+
+	<LinearLayout
+		android:id="@+id/gameControls"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:orientation="vertical">
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/rowsText"
+				android:layout_width="70dp"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_marginStart="10dp"
+				android:text="Height: 8"
+				tools:ignore="HardcodedText" />
+
+			<SeekBar
+				android:id="@+id/rowsInput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_toStartOf="@id/rowsDecrement"
+				android:layout_toEndOf="@id/rowsText"
+				android:paddingTop="10dp"
+				android:paddingBottom="10dp"
+				android:theme="@style/Widget.AppCompat.SeekBar.Discrete" />
+
+			<Button
+				android:id="@+id/rowsDecrement"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_toStartOf="@id/rowsIncrement"
+				android:height="@android:dimen/app_icon_size"
+				android:text="@string/decrement" />
+
+			<Button
+				android:id="@+id/rowsIncrement"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_alignParentEnd="true"
+				android:layout_marginEnd="10dp"
+				android:text="@string/increment" />
+
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/colsText"
+				android:layout_width="70dp"
+				android:layout_height="wrap_content"
+				android:layout_alignParentStart="true"
+				android:layout_centerVertical="true"
+				android:layout_marginStart="10dp"
+				android:text="Width: 8"
+				tools:ignore="HardcodedText" />
+
+			<SeekBar
+				android:id="@+id/colsInput"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_toStartOf="@id/colsDecrement"
+				android:layout_toEndOf="@id/colsText"
+				android:paddingTop="10dp"
+				android:paddingBottom="10dp"
+				android:theme="@style/Widget.AppCompat.SeekBar.Discrete" />
+
+			<Button
+				android:id="@+id/colsDecrement"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_toStartOf="@id/colsIncrement"
+				android:text="@string/decrement" />
+
+			<Button
+				android:id="@+id/colsIncrement"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_alignParentEnd="true"
+				android:layout_marginEnd="10dp"
+				android:text="@string/increment" />
+
+
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/mineText"
+				android:layout_width="70dp"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_marginStart="10dp"
+				android:text="Mines: 0\n0.00%"
+				tools:ignore="HardcodedText" />
+
+			<SeekBar
+				android:id="@+id/mineInput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_toStartOf="@id/minesDecrement"
+				android:layout_toEndOf="@id/mineText"
+				android:paddingTop="10dp"
+				android:paddingBottom="10dp"
+				android:theme="@style/Widget.AppCompat.SeekBar.Discrete" />
+
+			<Button
+				android:id="@+id/minesDecrement"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_toStartOf="@id/minesIncrement"
+				android:text="@string/decrement" />
+
+			<Button
+				android:id="@+id/minesIncrement"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_alignParentEnd="true"
+				android:layout_marginEnd="10dp"
+				android:text="@string/increment" />
+
+		</RelativeLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="60dp"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/beginner"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_marginStart="10dp"
+				android:layout_weight="1"
+				android:text="@string/beginner"
+				android:textColor="@color/black"
+				android:textSize="12sp"
+				tools:ignore="ButtonStyle" />
+
+			<Button
+				android:id="@+id/intermediate"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:text="@string/intermediate"
+				android:textColor="@color/black"
+				android:textSize="12sp"
+				tools:ignore="ButtonStyle" />
+
+			<Button
+				android:id="@+id/expert"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_marginEnd="10dp"
+				android:layout_weight="1"
+				android:text="@string/expert"
+				android:textColor="@color/black"
+				android:textSize="12sp"
+				tools:ignore="ButtonStyle" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="10dp"
+			android:layout_marginBottom="10dp"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="40dp"
+				android:orientation="horizontal">
+
+				<RadioButton
+					android:id="@+id/normal_mode"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:text="@string/normal_mode" />
+
+				<RelativeLayout
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:layout_marginStart="10dp">
+
+					<TextView
+						android:id="@+id/normal_mode_info"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_centerInParent="true"
+						android:gravity="center"
+						android:text="i"
+						android:textStyle="bold"
+						tools:ignore="HardcodedText" />
+
+					<TextView
+						android:layout_width="20dp"
+						android:layout_height="20dp"
+						android:layout_centerInParent="true"
+						android:background="@drawable/circle" />
+				</RelativeLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="40dp"
+				android:orientation="horizontal">
+
+				<RadioButton
+					android:id="@+id/no_guessing_mode"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:text="@string/no_guessing_mode" />
+
+				<RelativeLayout
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:layout_marginStart="10dp">
+
+					<TextView
+						android:id="@+id/no_guessing_mode_info"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_centerInParent="true"
+						android:gravity="center"
+						android:text="i"
+						android:textStyle="bold"
+						tools:ignore="HardcodedText" />
+
+					<TextView
+						android:layout_width="20dp"
+						android:layout_height="20dp"
+						android:layout_centerInParent="true"
+						android:background="@drawable/circle" />
+				</RelativeLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="40dp"
+				android:orientation="horizontal">
+
+				<RadioButton
+					android:id="@+id/no_guessing_mode_with_an_8"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:text="@string/no_guessing_mode_with_an_8" />
+
+				<RelativeLayout
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:layout_marginStart="10dp">
+
+					<TextView
+						android:id="@+id/no_guessing_mode_with_8_info"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_centerInParent="true"
+						android:gravity="center"
+						android:text="i"
+						android:textStyle="bold"
+						tools:ignore="HardcodedText" />
+
+					<TextView
+						android:layout_width="20dp"
+						android:layout_height="20dp"
+						android:layout_centerInParent="true"
+						android:background="@drawable/circle" />
+				</RelativeLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="40dp"
+				android:orientation="horizontal">
+
+				<RadioButton
+					android:id="@+id/get_help_mode"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:text="@string/get_help_mode_text" />
+
+				<RelativeLayout
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:layout_marginStart="10dp">
+
+					<TextView
+						android:id="@+id/get_help_mode_info"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_centerInParent="true"
+						android:gravity="center"
+						android:text="i"
+						android:textStyle="bold"
+						tools:ignore="HardcodedText" />
+
+					<TextView
+						android:layout_width="20dp"
+						android:layout_height="20dp"
+						android:layout_centerInParent="true"
+						android:background="@drawable/circle" />
+				</RelativeLayout>
+			</LinearLayout>
+		</LinearLayout>
+
+		<Button
+			android:id="@+id/startNewGameButton"
+			android:layout_width="match_parent"
+			android:layout_height="70dp"
+			android:layout_marginStart="10dp"
+			android:layout_marginEnd="10dp"
+			android:text="@string/start_new_game" />
+
+	</LinearLayout>
+
+</RelativeLayout>

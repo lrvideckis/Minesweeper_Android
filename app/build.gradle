@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release_config {
+            storeFile file(findProperty('keystore_path') ?: 'default path')
+            storePassword findProperty('keystore_pw')
+            keyAlias findProperty('key_alias')
+            keyPassword findProperty('key_pw')
+        }
+    }
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId 'com.LukeVideckis.minesweeper'
+        minSdkVersion 26
+        targetSdkVersion 30
+        versionCode 5
+        versionName '1.2'
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release_config
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    tasks.withType(Test) {
+        testLogging.showStandardStreams = true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.core:core:1.3.0'
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
