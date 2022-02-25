@@ -4,11 +4,11 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.Dsu;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;;
 
 import java.util.ArrayList;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
 
 public class GetConnectedComponentsOld {
 

@@ -2,8 +2,8 @@ package com.LukeVideckis.minesweeper_android.minesweeper_tests;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
@@ -23,8 +23,6 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver.VisibleTileWithProbability;
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
 
 public class stress_tests_minesweeper_solver {
 	@SuppressWarnings("SpellCheckingInspection")

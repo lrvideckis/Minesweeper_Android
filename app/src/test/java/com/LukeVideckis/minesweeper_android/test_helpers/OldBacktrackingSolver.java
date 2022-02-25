@@ -2,6 +2,8 @@ package com.LukeVideckis.minesweeper_android.test_helpers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
