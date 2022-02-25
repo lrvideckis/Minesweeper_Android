@@ -11,8 +11,8 @@ import android.view.View;
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.activity.ScaleListener;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver.VisibleTileWithProbability;
 
 public class GameCanvas extends View {
 
