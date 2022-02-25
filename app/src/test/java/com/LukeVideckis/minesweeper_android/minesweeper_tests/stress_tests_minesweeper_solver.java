@@ -407,6 +407,146 @@ public class stress_tests_minesweeper_solver {
 			},
 	};
 
+	private static VisibleTileWithProbability[][] convertFormat(String[] stringBoard) throws Exception {
+		VisibleTileWithProbability[][] board = new VisibleTileWithProbability[stringBoard.length - 1][stringBoard[0].length()];
+		for (int i = 0; i + 1 < stringBoard.length; ++i) {
+			for (int j = 0; j < stringBoard[i].length(); ++j) {
+				if (stringBoard[i].length() != stringBoard[0].length()) {
+					throw new Exception("jagged array - not all rows are the same length");
+				}
+				board[i][j] = new VisibleTileWithProbability(stringBoard[i].charAt(j));
+			}
+		}
+		return board;
+	}
+
+	@SuppressWarnings("unused")
+	private static void printBoardDebugMines(MinesweeperGame game) {
+		System.out.println("\nmines: " + game.getNumberOfMines());
+		System.out.println("board and mines are:");
+		for (int i = 0; i < game.getRows(); ++i) {
+			for (int j = 0; j < game.getCols(); ++j) {
+				if (game.getCell(i, j).getIsVisible()) {
+					if (game.getCell(i, j).getNumberSurroundingMines() == 0) {
+						System.out.print('.');
+					} else {
+						System.out.print(game.getCell(i, j).getNumberSurroundingMines());
+					}
+				} else if (game.getCell(i, j).isMine()) {
+					System.out.print("*");
+				} else {
+					System.out.print("U");
+				}
+			}
+			System.out.println();
+		}
+
+		System.out.println();
+	}
+
+	private static void printBoardDebug(VisibleTile[][] board, int mines) {
+		System.out.println("mines: " + mines + " visible board is:");
+		for (VisibleTile[] visibleTiles : board) {
+			for (VisibleTile visibleTile : visibleTiles) {
+				if (visibleTile.getIsVisible()) {
+					if (visibleTile.getNumberSurroundingMines() == 0) {
+						System.out.print('.');
+					} else {
+						System.out.print(visibleTile.getNumberSurroundingMines());
+					}
+				} else if (visibleTile.getIsLogicalFree()) {
+					System.out.print('F');
+				} else if (visibleTile.getIsLogicalMine()) {
+					System.out.print('B');
+				} else {
+					System.out.print('U');
+				}
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
+	//throw if boards are different
+	private static void throwIfBoardsAreDifferent(
+			VisibleTileWithProbability[][] boardFast,
+			VisibleTileWithProbability[][] boardSlow,
+			int mines
+	) throws Exception {
+		int rows = boardFast.length, cols = boardFast[0].length;
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				if(boardFast[i][j].getIsVisible() != boardSlow[i][j].getIsVisible()) {
+					printBoardDebug(boardFast, mines);
+				    throw new Exception("tile visibility differs");
+				}
+				if (boardFast[i][j].getIsVisible()) {
+					continue;
+				}
+
+				VisibleTileWithProbability fastTile = boardFast[i][j];
+				VisibleTileWithProbability slowTile = boardSlow[i][j];
+
+				if (!fastTile.getMineProbability().equals(slowTile.getMineProbability()) ||
+						fastTile.getIsLogicalFree() != slowTile.getIsLogicalFree() ||
+						fastTile.getIsLogicalMine() != slowTile.getIsLogicalMine()
+				) {
+					System.out.println("here, solver outputs don't match");
+					System.out.println("i,j: " + i + " " + j);
+					System.out.println("fast solver " + fastTile.getMineProbability().getNumerator() + '/' + fastTile.getMineProbability().getDenominator());
+					System.out.println("fast logical free, mine: " + fastTile.getIsLogicalFree() + " " + fastTile.getIsLogicalMine());
+					System.out.println("slow solver " + slowTile.getMineProbability().getNumerator() + '/' + slowTile.getMineProbability().getDenominator());
+					System.out.println("slow logical free, mine: " + slowTile.getIsLogicalFree() + " " + slowTile.getIsLogicalMine());
+					System.out.println("fast solver");
+					printBoardDebug(boardFast, mines);
+					System.out.println("slow solver");
+					printBoardDebug(boardSlow, mines);
+					throw new Exception("boards don't match");
+				}
+			}
+		}
+	}
+
+	//throws exception if test failed
+	private static void throwIfFailed_compareGaussBoardToBacktrackingBoard(int rows, int cols, int mines, VisibleTile[][] boardBacktracking, VisibleTile[][] boardGauss) throws Exception {
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				if (!boardBacktracking[i][j].getIsLogicalMine() && boardGauss[i][j].getIsLogicalMine()) {
+					printBoardDebug(boardBacktracking, mines);
+					throw new Exception("it isn't a logical mine, but Gauss solver says it's a logical mine " + i + " " + j);
+				}
+				if (!boardBacktracking[i][j].getIsLogicalFree() && boardGauss[i][j].getIsLogicalFree()) {
+					printBoardDebug(boardBacktracking, mines);
+					throw new Exception("it isn't a logical free, but Gauss solver says it's a logical free " + i + " " + j);
+				}
+			}
+		}
+	}
+
+	private static VisibleTileWithProbability[][] convertToNewBoard(MinesweeperGame minesweeperGame) throws Exception {
+		final int rows = minesweeperGame.getRows();
+		final int cols = minesweeperGame.getCols();
+		VisibleTileWithProbability[][] board = new VisibleTileWithProbability[rows][cols];
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				board[i][j] = new VisibleTileWithProbability();
+				board[i][j].updateVisibilityAndSurroundingMines(minesweeperGame.getCell(i, j));
+			}
+		}
+		return board;
+	}
+
+	private static boolean noLogicalFrees(VisibleTile[][] board) {
+		for (VisibleTile[] row : board) {
+			for (VisibleTile cell : row) {
+				if (cell.getIsLogicalFree()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	@Test
 	public void testPreviouslyFailedBoards() throws Exception {
 		int testID = 1;
@@ -458,19 +598,6 @@ public class stress_tests_minesweeper_solver {
 			throwIfBoardsAreDifferent(boardSlow, boardOld, mines);
 		}
 		System.out.println("passed all tests!!!!!!!!!!!!!!!!!!!");
-	}
-
-	private static VisibleTileWithProbability[][] convertFormat(String[] stringBoard) throws Exception {
-		VisibleTileWithProbability[][] board = new VisibleTileWithProbability[stringBoard.length - 1][stringBoard[0].length()];
-		for (int i = 0; i + 1 < stringBoard.length; ++i) {
-			for (int j = 0; j < stringBoard[i].length(); ++j) {
-				if (stringBoard[i].length() != stringBoard[0].length()) {
-					throw new Exception("jagged array - not all rows are the same length");
-				}
-				board[i][j] = new VisibleTileWithProbability(stringBoard[i].charAt(j));
-			}
-		}
-		return board;
 	}
 
 	@Test
@@ -590,93 +717,6 @@ public class stress_tests_minesweeper_solver {
 		System.out.println("passed all tests!!!!!!!!!!!!!!!!!!!");
 	}
 
-	@SuppressWarnings("unused")
-	private static void printBoardDebugMines(MinesweeperGame game) {
-		System.out.println("\nmines: " + game.getNumberOfMines());
-		System.out.println("board and mines are:");
-		for (int i = 0; i < game.getRows(); ++i) {
-			for (int j = 0; j < game.getCols(); ++j) {
-				if (game.getCell(i, j).getIsVisible()) {
-					if (game.getCell(i, j).getNumberSurroundingMines() == 0) {
-						System.out.print('.');
-					} else {
-						System.out.print(game.getCell(i, j).getNumberSurroundingMines());
-					}
-				} else if (game.getCell(i, j).isMine()) {
-					System.out.print("*");
-				} else {
-					System.out.print("U");
-				}
-			}
-			System.out.println();
-		}
-
-		System.out.println();
-	}
-
-	private static void printBoardDebug(VisibleTile[][] board, int mines) {
-		System.out.println("mines: " + mines + " visible board is:");
-		for (VisibleTile[] visibleTiles : board) {
-			for (VisibleTile visibleTile : visibleTiles) {
-				if (visibleTile.getIsVisible()) {
-					if (visibleTile.getNumberSurroundingMines() == 0) {
-						System.out.print('.');
-					} else {
-						System.out.print(visibleTile.getNumberSurroundingMines());
-					}
-				} else if (visibleTile.getIsLogicalFree()) {
-					System.out.print('F');
-				} else if (visibleTile.getIsLogicalMine()) {
-					System.out.print('B');
-				} else {
-					System.out.print('U');
-				}
-			}
-			System.out.println();
-		}
-		System.out.println();
-	}
-
-	//throw if boards are different
-	private static void throwIfBoardsAreDifferent(
-			VisibleTileWithProbability[][] boardFast,
-			VisibleTileWithProbability[][] boardSlow,
-			int mines
-	) throws Exception {
-		int rows = boardFast.length, cols = boardFast[0].length;
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < cols; ++j) {
-				if(boardFast[i][j].getIsVisible() != boardSlow[i][j].getIsVisible()) {
-					printBoardDebug(boardFast, mines);
-				    throw new Exception("tile visibility differs");
-				}
-				if (boardFast[i][j].getIsVisible()) {
-					continue;
-				}
-
-				VisibleTileWithProbability fastTile = boardFast[i][j];
-				VisibleTileWithProbability slowTile = boardSlow[i][j];
-
-				if (!fastTile.getMineProbability().equals(slowTile.getMineProbability()) ||
-						fastTile.getIsLogicalFree() != slowTile.getIsLogicalFree() ||
-						fastTile.getIsLogicalMine() != slowTile.getIsLogicalMine()
-				) {
-					System.out.println("here, solver outputs don't match");
-					System.out.println("i,j: " + i + " " + j);
-					System.out.println("fast solver " + fastTile.getMineProbability().getNumerator() + '/' + fastTile.getMineProbability().getDenominator());
-					System.out.println("fast logical free, mine: " + fastTile.getIsLogicalFree() + " " + fastTile.getIsLogicalMine());
-					System.out.println("slow solver " + slowTile.getMineProbability().getNumerator() + '/' + slowTile.getMineProbability().getDenominator());
-					System.out.println("slow logical free, mine: " + slowTile.getIsLogicalFree() + " " + slowTile.getIsLogicalMine());
-					System.out.println("fast solver");
-					printBoardDebug(boardFast, mines);
-					System.out.println("slow solver");
-					printBoardDebug(boardSlow, mines);
-					throw new Exception("boards don't match");
-				}
-			}
-		}
-	}
-
 	@Test
 	public void performTestsForGaussSolver() throws Exception {
 		int numberOfTests = 20;
@@ -715,22 +755,6 @@ public class stress_tests_minesweeper_solver {
 			throwIfFailed_compareGaussBoardToBacktrackingBoard(rows, cols, mines, boardBacktracking, boardGauss);
 		}
 		System.out.println("passed all tests!!!!!!!!!!!!!!!!!!!");
-	}
-
-	//throws exception if test failed
-	private static void throwIfFailed_compareGaussBoardToBacktrackingBoard(int rows, int cols, int mines, VisibleTile[][] boardBacktracking, VisibleTile[][] boardGauss) throws Exception {
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < cols; ++j) {
-				if (!boardBacktracking[i][j].getIsLogicalMine() && boardGauss[i][j].getIsLogicalMine()) {
-					printBoardDebug(boardBacktracking, mines);
-					throw new Exception("it isn't a logical mine, but Gauss solver says it's a logical mine " + i + " " + j);
-				}
-				if (!boardBacktracking[i][j].getIsLogicalFree() && boardGauss[i][j].getIsLogicalFree()) {
-					printBoardDebug(boardBacktracking, mines);
-					throw new Exception("it isn't a logical free, but Gauss solver says it's a logical free " + i + " " + j);
-				}
-			}
-		}
 	}
 
 	@Test
@@ -921,30 +945,5 @@ public class stress_tests_minesweeper_solver {
 			}
 		}
 		System.out.println("passed all tests!!!!!!!!!!!!!!!!!!!");
-	}
-
-	private static VisibleTileWithProbability[][] convertToNewBoard(MinesweeperGame minesweeperGame) throws Exception {
-		final int rows = minesweeperGame.getRows();
-		final int cols = minesweeperGame.getCols();
-		VisibleTileWithProbability[][] board = new VisibleTileWithProbability[rows][cols];
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < cols; ++j) {
-				board[i][j] = new VisibleTileWithProbability();
-				board[i][j].updateVisibilityAndSurroundingMines(minesweeperGame.getCell(i, j));
-			}
-		}
-		return board;
-	}
-
-
-	private static boolean noLogicalFrees(VisibleTile[][] board) {
-		for (VisibleTile[] row : board) {
-			for (VisibleTile cell : row) {
-				if (cell.getIsLogicalFree()) {
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 }
