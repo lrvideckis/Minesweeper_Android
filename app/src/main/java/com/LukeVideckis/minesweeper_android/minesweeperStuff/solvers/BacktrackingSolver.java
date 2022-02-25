@@ -2,12 +2,13 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 
 public interface BacktrackingSolver extends MinesweeperSolver {
 
 	void solvePosition(VisibleTileWithProbability[][] board, int numberOfMines) throws Exception;
 
-	class VisibleTileWithProbability extends MinesweeperSolver.VisibleTile {
+	class VisibleTileWithProbability extends VisibleTile {
 
 		public BigFraction mineProbability;
 

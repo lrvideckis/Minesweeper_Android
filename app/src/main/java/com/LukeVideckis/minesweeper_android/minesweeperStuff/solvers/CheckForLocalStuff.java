@@ -1,11 +1,11 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ArrayBounds;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
 
 public class CheckForLocalStuff {
 	public static boolean checkAndUpdateBoardForTrivialStuff(VisibleTile[][] board) throws Exception {

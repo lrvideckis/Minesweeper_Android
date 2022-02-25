@@ -1,6 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.NoAwayCellsToMoveAMineToException;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver.VisibleTileWithProbability;
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
 
 public class MinesweeperGame {
 	private final int rows, cols, numberOfMines;

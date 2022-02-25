@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 
 public class GetConnectedComponents {
 	private static int rows, cols;

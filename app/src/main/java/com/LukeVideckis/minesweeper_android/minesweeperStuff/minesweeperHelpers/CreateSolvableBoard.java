@@ -11,7 +11,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MyBacktrack
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 
 public class CreateSolvableBoard {
 	private final MinesweeperSolver gaussSolver;

@@ -2,7 +2,7 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers
 
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 
 public class ArrayBounds {
 	public static Pair<Integer, Integer> getArrayBounds(VisibleTile[][] board) throws Exception {

@@ -1,10 +1,10 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
 
-import static com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver.VisibleTile;
 
 public class AwayCell {
 	public static int getNumberOfAwayCells(VisibleTile[][] board) throws Exception {
