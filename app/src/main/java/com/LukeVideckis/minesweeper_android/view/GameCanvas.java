@@ -71,7 +71,6 @@ public class GameCanvas extends View {
             throw new Exception("game is both won and lost");
         }
 
-
         if (gameCell.getIsVisible()) {
             drawCellHelpers.drawNumberedCell(canvas, gameCell.getNumberSurroundingMines(), i, j, startX, startY);
             if (isGetHelp) {

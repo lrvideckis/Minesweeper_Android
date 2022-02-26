@@ -60,7 +60,7 @@ public class MinesweeperGame {
         grid = new Tile[rows][cols];
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                grid[i][j] = new Tile(minesweeperGame.getCell(i, j));
+                grid[i][j] = new Tile(minesweeperGame.grid[i][j]);
             }
         }
 
@@ -77,7 +77,7 @@ public class MinesweeperGame {
                 int cntSurroundingMines = 0;
                 for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    if (getCell(adjI, adjJ).isMine) {
+                    if (grid[adjI][adjJ].isMine) {
                         ++cntSurroundingMines;
                     }
                 }
@@ -95,13 +95,13 @@ public class MinesweeperGame {
         this(game);
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                getCell(i, j).isVisible = false;
+                grid[i][j].isVisible = false;
             }
         }
-        if (getCell(firstClickI, firstClickJ).isMine) {
+        if (grid[firstClickI][firstClickJ].isMine) {
             throw new Exception("first clicked cell shouldn't be a mine");
         }
-        if (getCell(firstClickI, firstClickJ).numberSurroundingMines != 0) {
+        if (grid[firstClickI][firstClickJ].numberSurroundingMines != 0) {
             throw new Exception("first clicked cell isn't a zero start");
         }
         revealCell(firstClickI, firstClickJ);
@@ -135,6 +135,8 @@ public class MinesweeperGame {
         return firstClick;
     }
 
+    //TODO: find way to now expose Tile which contains isMine field
+    //goal: only expose mine locations once game is over
     public Tile getCell(int row, int col) {
         if (ArrayBounds.outOfBounds(row, col, rows, cols)) {
             throw new ArrayIndexOutOfBoundsException();
@@ -157,7 +159,7 @@ public class MinesweeperGame {
         if (isGameLost || getIsGameWon()) {
             return revealedAHiddenCell;
         }
-        final Tile curr = getCell(row, col);
+        final Tile curr = grid[row][col];
         if (curr.getIsVisible()) {
             checkToRevealAdjacentMines(row, col);
         }
@@ -191,13 +193,13 @@ public class MinesweeperGame {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 if (isInterestingCell(i, j) && AwayCell.isNextToAnAwayCell(this, i, j)) {
-                    if (getCell(i, j).isMine) {
+                    if (grid[i][j].isMine) {
                         ++interestingMines;
                     }
                     interestingSpots.add(new Pair<>(i, j));
                 }
                 if (AwayCell.isAwayCell(this, i, j) &&
-                        !getCell(i, j).isMine &&
+                        !grid[i][j].isMine &&
                         notPartOfThe8(i, j)
                 ) {
                     freeAwayCells.add(new Pair<>(i, j));
@@ -214,7 +216,7 @@ public class MinesweeperGame {
         for (Pair<Integer, Integer> interestingSpot : interestingSpots) {
             final int i = interestingSpot.first;
             final int j = interestingSpot.second;
-            if (getCell(i, j).isMine) {
+            if (grid[i][j].isMine) {
                 ++tempInterestingCount;
                 changeMineStatus(i, j, false);
             }
@@ -248,21 +250,21 @@ public class MinesweeperGame {
             }
             for (int j = 0; j < cols; ++j) {
                 if (visibleBoard[i][j].isLogicalFree || visibleBoard[i][j].isLogicalMine) {
-                    if (getCell(i, j).isVisible) {
+                    if (grid[i][j].isVisible) {
                         throw new Exception("visible cells can't be logical");
                     }
                 }
                 if (visibleBoard[i][j].isLogicalFree && visibleBoard[i][j].isLogicalMine) {
                     throw new Exception("cell can't be both logical free and logical mine");
                 }
-                if (visibleBoard[i][j].isLogicalMine && !getCell(i, j).isMine) {
+                if (visibleBoard[i][j].isLogicalMine && !grid[i][j].isMine) {
                     throw new Exception("logical mine which isn't a mine");
                 }
-                if (visibleBoard[i][j].isLogicalFree && getCell(i, j).isMine) {
+                if (visibleBoard[i][j].isLogicalFree && grid[i][j].isMine) {
                     throw new Exception("logical free which is a mine");
                 }
-                getCell(i, j).isLogicalFree = visibleBoard[i][j].isLogicalFree;
-                getCell(i, j).isLogicalMine = visibleBoard[i][j].isLogicalMine;
+                grid[i][j].isLogicalFree = visibleBoard[i][j].isLogicalFree;
+                grid[i][j].isLogicalMine = visibleBoard[i][j].isLogicalMine;
             }
         }
     }
@@ -277,7 +279,7 @@ public class MinesweeperGame {
                 if (visibleBoard[i][j].isLogicalFree && !visibleBoard[i][j].mineProbability.equals(0)) {
                     throw new Exception("logical free with non-zero mine probability " + i + " " + j);
                 }
-                getCell(i, j).mineProbability.setValue(visibleBoard[i][j].mineProbability);
+                grid[i][j].mineProbability.setValue(visibleBoard[i][j].mineProbability);
             }
         }
     }
@@ -293,7 +295,7 @@ public class MinesweeperGame {
         }
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                Tile currCell = getCell(i, j);
+                Tile currCell = grid[i][j];
                 if (!currCell.isMine() && !currCell.isVisible) {
                     return false;
                 }
@@ -308,7 +310,7 @@ public class MinesweeperGame {
         boolean hasAtLeastOneLogicalFree = false;
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                if (getCell(i, j).isLogicalFree) {
+                if (grid[i][j].isLogicalFree) {
                     hasAtLeastOneLogicalFree = true;
                     hasLogicalFree[disjointSet.find(RowColToIndex.rowColToIndex(i, j, rows, cols))] = true;
                 }
@@ -320,7 +322,7 @@ public class MinesweeperGame {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 if (isInterestingCell(i, j) &&
-                        !getCell(i, j).isLogicalMine &&
+                        !grid[i][j].isLogicalMine &&
                         !hasLogicalFree[disjointSet.find(RowColToIndex.rowColToIndex(i, j, rows, cols))]) {
                     return false;
                 }
@@ -336,7 +338,7 @@ public class MinesweeperGame {
             for (int j = 0; j < cols; ++j) {
                 if (AwayCell.isAwayCell(this, i, j) && notPartOfThe8(i, j)) {
                     awayCells.add(new Pair<>(i, j));
-                    if (getCell(i, j).isMine) {
+                    if (grid[i][j].isMine) {
                         ++mineCount;
                     }
                 }
@@ -346,7 +348,7 @@ public class MinesweeperGame {
             throw new Exception("can't shuffle away mines");
         }
         for (Pair<Integer, Integer> cell : awayCells) {
-            if (getCell(cell.first, cell.second).isMine) {
+            if (grid[cell.first][cell.second].isMine) {
                 changeMineStatus(cell.first, cell.second, false);
             }
         }
@@ -364,14 +366,15 @@ public class MinesweeperGame {
         }
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                if (getCell(i, j).isVisible) {
+                if (grid[i][j].isVisible) {
                     continue;
                 }
-                getCell(i, j).isFlagged = game.getCell(i, j).isFlagged;
+                grid[i][j].isFlagged = game.grid[i][j].isFlagged;
             }
         }
     }
 
+    //TODO: refactor this - It breaks single responsibility
     public void revealRandomCellIfAllLogicalStuffIsCorrect(boolean solverHitIterationLimit) throws Exception {
         if (isGameLost || getIsGameWon()) {
             return;
@@ -386,7 +389,7 @@ public class MinesweeperGame {
         if (!solverHitIterationLimit) {
             for (int i = 0; i < rows; ++i) {
                 for (int j = 0; j < cols; ++j) {
-                    if (getCell(i, j).isLogicalFree || getCell(i, j).isLogicalMine != getCell(i, j).isFlagged) {
+                    if (grid[i][j].isLogicalFree || grid[i][j].isLogicalMine != grid[i][j].isFlagged) {
                         isGameLost = true;
                         return;
                     }
@@ -399,7 +402,7 @@ public class MinesweeperGame {
         }
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                final Tile curr = getCell(i, j);
+                final Tile curr = grid[i][j];
                 if (!curr.isVisible && !curr.isMine) {
                     if (curr.numberSurroundingMines == 0) {
                         freeCells.get(0).add(new Pair<>(i, j));
@@ -407,7 +410,7 @@ public class MinesweeperGame {
                         boolean cellIsNextToANumber = false;
                         for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
                             final int adjI = adj[0], adjJ = adj[1];
-                            if (getCell(adjI, adjJ).isVisible) {
+                            if (grid[adjI][adjJ].isVisible) {
                                 cellIsNextToANumber = true;
                                 break;
                             }
@@ -444,11 +447,34 @@ public class MinesweeperGame {
         return getHelpCol;
     }
 
+    public void checkCorrectnessOfSolverOutput(VisibleTile[][] SolverBoard) throws Exception {
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                if (SolverBoard[i][j].getIsVisible()) {
+                    if (SolverBoard[i][j].getIsLogicalMine() || SolverBoard[i][j].getIsLogicalFree()) {
+                        throw new Exception("visible tiles can't be logical");
+                    }
+                }
+                if (SolverBoard[i][j].getIsLogicalFree() && SolverBoard[i][j].getIsLogicalMine()) {
+                    throw new Exception("can't be both logical free and logical mine");
+                }
+                if (SolverBoard[i][j].getIsLogicalMine() && !grid[i][j].isMine) {
+                    throw new Exception("found a logical mine which is free");
+                }
+                if (SolverBoard[i][j].getIsLogicalFree()) {
+                    if (grid[i][j].isMine) {
+                        throw new Exception("found a logical free which is mine");
+                    }
+                }
+            }
+        }
+    }
+
     //***private members***
     private void checkToRevealAdjacentMines(int row, int col) throws Exception {
         boolean revealSurroundingCells = true;
         for (int[] adjCells : GetAdjacentCells.getAdjacentCells(row, col, rows, cols)) {
-            Tile adj = getCell(adjCells[0], adjCells[1]);
+            Tile adj = grid[adjCells[0]][adjCells[1]];
             if (adj.getIsVisible()) {
                 continue;
             }
@@ -465,7 +491,7 @@ public class MinesweeperGame {
         }
         for (int[] adjCells : GetAdjacentCells.getAdjacentCells(row, col, rows, cols)) {
             final int adjI = adjCells[0], adjJ = adjCells[1];
-            Tile adj = getCell(adjI, adjJ);
+            Tile adj = grid[adjI][adjJ];
             if (adj.isMine) {
                 continue;
             }
@@ -495,7 +521,7 @@ public class MinesweeperGame {
             final int mineCol = spots.get(pos).second;
             changeMineStatus(mineRow, mineCol, true);
         }
-        if (getCell(row, col).isMine) {
+        if (grid[row][col].isMine) {
             throw new Exception("starting click shouldn't be a mine");
         }
         revealCell(row, col);
@@ -564,14 +590,14 @@ public class MinesweeperGame {
             final int j = spots.get(pos).second;
             changeMineStatus(i, j, true);
         }
-        if (getCell(row, col).isMine) {
+        if (grid[row][col].isMine) {
             throw new Exception("starting click shouldn't be a mine");
         }
         revealCell(row, col);
     }
 
     private void revealCell(int row, int col) throws Exception {
-        Tile curr = getCell(row, col);
+        Tile curr = grid[row][col];
         if (curr.isMine) {
             throw new Exception("can't reveal a mine");
         }
@@ -588,7 +614,7 @@ public class MinesweeperGame {
         for (int[] adj : GetAdjacentCells.getAdjacentCells(row, col, rows, cols)) {
             final int adjRow = adj[0];
             final int adjCol = adj[1];
-            Tile adjacent = getCell(adjRow, adjCol);
+            Tile adjacent = grid[adjRow][adjCol];
             if (!adjacent.getIsVisible()) {
                 revealCell(adjRow, adjCol);
             }
@@ -600,7 +626,7 @@ public class MinesweeperGame {
     }
 
     private boolean isInterestingCell(int i, int j) {
-        if (getCell(i, j).isVisible) {
+        if (grid[i][j].isVisible) {
             return false;
         }
         if (AwayCell.isAwayCell(this, i, j)) {
@@ -610,28 +636,28 @@ public class MinesweeperGame {
     }
 
     private void resetLogicalStuff(int i, int j) throws Exception {
-        getCell(i, j).isLogicalFree = false;
-        getCell(i, j).isLogicalMine = false;
-        getCell(i, j).mineProbability.setValues(0, 1);
+        grid[i][j].isLogicalFree = false;
+        grid[i][j].isLogicalMine = false;
+        grid[i][j].mineProbability.setValues(0, 1);
     }
 
     private void changeMineStatus(int i, int j, boolean isMine) throws Exception {
-        getCell(i, j).resetLogicalStuffAndVisibility();
+        grid[i][j].resetLogicalStuffAndVisibility();
         for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-            getCell(adj[0], adj[1]).resetLogicalStuffAndVisibility();
+            grid[adj[0]][adj[1]].resetLogicalStuffAndVisibility();
         }
 
-        if (getCell(i, j).isMine == isMine) {
+        if (grid[i][j].isMine == isMine) {
             return;
         }
 
-        getCell(i, j).isMine = isMine;
+        grid[i][j].isMine = isMine;
         for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
             final int adjI = adj[0], adjJ = adj[1];
             if (isMine) {
-                getCell(adjI, adjJ).numberSurroundingMines++;
+                grid[adjI][adjJ].numberSurroundingMines++;
             } else {
-                getCell(adjI, adjJ).numberSurroundingMines--;
+                grid[adjI][adjJ].numberSurroundingMines--;
             }
         }
     }
@@ -639,7 +665,7 @@ public class MinesweeperGame {
     private void resetAllLogicalAndVisibleStuff() throws Exception {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                getCell(i, j).resetLogicalStuffAndVisibility();
+                grid[i][j].resetLogicalStuffAndVisibility();
             }
         }
     }

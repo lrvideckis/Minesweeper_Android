@@ -417,30 +417,6 @@ public class stress_tests_minesweeper_solver {
         return board;
     }
 
-    @SuppressWarnings("unused")
-    private static void printBoardDebugMines(MinesweeperGame game) {
-        System.out.println("\nmines: " + game.getNumberOfMines());
-        System.out.println("board and mines are:");
-        for (int i = 0; i < game.getRows(); ++i) {
-            for (int j = 0; j < game.getCols(); ++j) {
-                if (game.getCell(i, j).getIsVisible()) {
-                    if (game.getCell(i, j).getNumberSurroundingMines() == 0) {
-                        System.out.print('.');
-                    } else {
-                        System.out.print(game.getCell(i, j).getNumberSurroundingMines());
-                    }
-                } else if (game.getCell(i, j).isMine()) {
-                    System.out.print("*");
-                } else {
-                    System.out.print("U");
-                }
-            }
-            System.out.println();
-        }
-
-        System.out.println();
-    }
-
     private static void printBoardDebug(VisibleTile[][] board, int mines) {
         System.out.println("mines: " + mines + " visible board is:");
         for (VisibleTile[] visibleTiles : board) {

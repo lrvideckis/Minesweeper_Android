@@ -163,24 +163,11 @@ public class CreateSolvableBoard {
     }
 
     private boolean clickedLogicalFrees(MinesweeperGame game) throws Exception {
+        game.checkCorrectnessOfSolverOutput(board);
         boolean clickedFree = false;
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                if (board[i][j].getIsVisible()) {
-                    if (board[i][j].getIsLogicalMine() || board[i][j].getIsLogicalFree()) {
-                        throw new Exception("visible tiles can't be logical");
-                    }
-                }
-                if (board[i][j].getIsLogicalFree() && board[i][j].getIsLogicalMine()) {
-                    throw new Exception("can't be both logical free and logical mine");
-                }
-                if (board[i][j].getIsLogicalMine() && !game.getCell(i, j).isMine()) {
-                    throw new Exception("found a logical mine which is free");
-                }
                 if (board[i][j].getIsLogicalFree()) {
-                    if (game.getCell(i, j).isMine()) {
-                        throw new Exception("found a logical free which is mine");
-                    }
                     game.clickCell(i, j, false);
                     clickedFree = true;
                 }
