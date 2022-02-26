@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         release_config {
-            storeFile file(findProperty('keystore_path') ?: 'default path')
+            storeFile file(findProperty('keystore_path'))
             storePassword findProperty('keystore_pw')
             keyAlias findProperty('key_alias')
             keyPassword findProperty('key_pw')
