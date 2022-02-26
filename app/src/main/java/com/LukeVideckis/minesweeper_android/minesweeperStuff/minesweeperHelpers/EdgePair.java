@@ -1,5 +1,6 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
+import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;

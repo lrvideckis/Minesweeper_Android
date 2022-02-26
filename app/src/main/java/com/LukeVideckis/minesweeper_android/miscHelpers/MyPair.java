@@ -1,4 +1,4 @@
-package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
+package com.LukeVideckis.minesweeper_android.miscHelpers;
 
 public class MyPair implements Comparable<MyPair> {
     public final Integer first, second;

@@ -1,7 +1,6 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles;
 
 
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
 
 public class VisibleTileWithProbability extends VisibleTile {
@@ -37,12 +36,12 @@ public class VisibleTileWithProbability extends VisibleTile {
         return mineProbability;
     }
 
-    public void updateVisibilityAndSurroundingMines(MinesweeperGame.Tile tile) throws Exception {
+    public void updateVisibilityAndSurroundingMines(Tile tile) throws Exception {
         super.updateVisibilityAndSurroundingMines(tile);
         mineProbability.setValues(0, 1);
     }
 
-    public void updateVisibilitySurroundingMinesAndLogicalStuff(MinesweeperGame.Tile tile) throws Exception {
+    public void updateVisibilitySurroundingMinesAndLogicalStuff(Tile tile) throws Exception {
         if (tile.isLogicalFree && !tile.mineProbability.equals(0)) {
             throw new Exception("logical free tile with non-zero probability");
         }

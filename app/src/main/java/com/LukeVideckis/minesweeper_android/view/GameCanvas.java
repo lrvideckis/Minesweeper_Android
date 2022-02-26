@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.activity.ScaleListener;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.Tile;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
 
 
@@ -41,7 +41,7 @@ public class GameCanvas extends View {
     private void drawCell(
             Canvas canvas,
             VisibleTileWithProbability solverCell,
-            MinesweeperGame.Tile gameCell,
+            Tile gameCell,
             int i,
             int j,
             int startX,
