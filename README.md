@@ -1,7 +1,3 @@
-Welcome to my version of minesweeper on Android.
-
-## Download
-
 <a href="https://play.google.com/store/apps/details?id=com.LukeVideckis.minesweeper">
 <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" 
 alt="Get it on Google Play"
