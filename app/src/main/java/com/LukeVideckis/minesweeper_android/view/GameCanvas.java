@@ -176,14 +176,19 @@ public class GameCanvas extends View {
         for (int i = 0; i <= numberOfRows; ++i) {
             canvas.drawLine(0, i * GameActivity.cellPixelLength, numberOfCols * GameActivity.cellPixelLength, i * GameActivity.cellPixelLength, black);
         }
-        if (gameActivity.getMinesweeperGame().getIsGameWon()) {
-            gameActivity.disableSwitchesAndButtons();
-            gameActivity.setNewGameButtonWinFace();
-            gameActivity.stopTimerThread();
-        } else if (gameActivity.getMinesweeperGame().getIsGameLost()) {
-            gameActivity.disableSwitchesAndButtons();
-            gameActivity.setNewGameButtonDeadFace();
-            gameActivity.stopTimerThread();
+        try {
+            if (gameActivity.getMinesweeperGame().getIsGameWon()) {
+                gameActivity.disableSwitchesAndButtons();
+                gameActivity.setNewGameButtonWinFace();
+                gameActivity.stopTimerThread();
+            } else if (gameActivity.getMinesweeperGame().getIsGameLost()) {
+                gameActivity.disableSwitchesAndButtons();
+                gameActivity.setNewGameButtonDeadFace();
+                gameActivity.stopTimerThread();
+            }
+        } catch (Exception e) {
+            //shouldn't reach here: it's from getIsGameWon -> getCell -> array out of bounds
+            e.printStackTrace();
         }
     }
 }

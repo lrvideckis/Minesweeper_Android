@@ -35,7 +35,7 @@ public class AwayCell {
         return true;
     }
 
-    public static boolean isAwayCell(MinesweeperGame game, int row, int col) {
+    public static boolean isAwayCell(MinesweeperGame game, int row, int col) throws Exception {
         if (game.getCell(row, col).getIsVisible()) {
             return false;
         }
@@ -48,7 +48,7 @@ public class AwayCell {
         return true;
     }
 
-    public static boolean isNextToAnAwayCell(MinesweeperGame game, int row, int col) {
+    public static boolean isNextToAnAwayCell(MinesweeperGame game, int row, int col) throws Exception {
         for (int[] adj : GetAdjacentCells.getAdjacentCells(row, col, game.getRows(), game.getCols())) {
             final int adjI = adj[0], adjJ = adj[1];
             if (isAwayCell(game, adjI, adjJ)) {

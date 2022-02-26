@@ -1,5 +1,6 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.Tile;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
 import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
@@ -140,19 +141,18 @@ public class GetConnectedComponents {
         }
     }
 
-    public static Dsu getDsuOfComponentsWithKnownMines(VisibleTile[][] board) throws Exception {
-        Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
-        rows = dimensions.first;
-        cols = dimensions.second;
+    public static Dsu getDsuOfComponentsWithKnownMines(Board<VisibleTile> board) throws Exception {
+        rows = board.getRows();
+        cols = board.getCols();
         Dsu disjointSet = new Dsu(rows * cols);
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                if (!board[i][j].getIsVisible()) {
+                if (!board.getCell(i,j).getIsVisible()) {
                     continue;
                 }
                 for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    VisibleTile adjTile = board[adjI][adjJ];
+                    VisibleTile adjTile = board.getCell(adjI,adjJ);
                     if (adjTile.getIsVisible() || adjTile.getIsLogicalMine()) {
                         continue;
                     }

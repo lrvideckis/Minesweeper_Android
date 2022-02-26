@@ -63,7 +63,7 @@ public class VisibleTile {
         return numberSurroundingMines;
     }
 
-    public void updateVisibilityAndSurroundingMines(VisibleTile tile) throws Exception {
+    public void updateVisibilityAndSurroundingMines(VisibleTile tile) {
         reset();
         isVisible = tile.isVisible;
         numberSurroundingMines = tile.numberSurroundingMines;
