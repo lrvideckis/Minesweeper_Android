@@ -1,8 +1,8 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.Tile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
@@ -12,14 +12,10 @@ import java.util.Collections;
 
 public class GameEngine {
     protected final Board<TileWithMine> grid;
+    protected final boolean hasAn8;
     protected int rowWith8 = -1;
     protected int colWith8 = -1;//TODO: refactor these into EngineForCreatingSolvableBoard
     protected boolean firstClick = true, isGameLost = false;
-    protected final boolean hasAn8;
-
-    public static boolean tooManyMinesForZeroStart(int rows, int cols, int numberOfMines) {
-        return (numberOfMines > rows * cols - 9);
-    }
 
     //***public members***
     public GameEngine(int rows, int cols, int numberOfMines, boolean _hasAn8) throws Exception {
@@ -40,7 +36,7 @@ public class GameEngine {
         grid = new Board<>(new TileWithMine[rhs.getRows()][rhs.getCols()], rhs.getNumberOfMines());
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
-                grid.getCell(i,j).set(rhs.getCell(i,j));
+                grid.getCell(i, j).set(rhs.getCell(i, j));
             }
         }
 
@@ -78,18 +74,22 @@ public class GameEngine {
         hasAn8 = false;
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
-                if(grid.getCell(i,j).state == TileState.VISIBLE) {
+                if (grid.getCell(i, j).state == TileState.VISIBLE) {
                     grid.getCell(i, j).state = TileState.NOT_FLAGGED;
                 }
             }
         }
-        if (grid.getCell(firstClickI,firstClickJ).isMine) {
+        if (grid.getCell(firstClickI, firstClickJ).isMine) {
             throw new Exception("first clicked cell shouldn't be a mine");
         }
-        if (grid.getCell(firstClickI,firstClickJ).numberSurroundingMines != 0) {
+        if (grid.getCell(firstClickI, firstClickJ).numberSurroundingMines != 0) {
             throw new Exception("first clicked cell isn't a zero start");
         }
         revealCell(firstClickI, firstClickJ);
+    }
+
+    public static boolean tooManyMinesForZeroStart(int rows, int cols, int numberOfMines) {
+        return (numberOfMines > rows * cols - 9);
     }
 
     public int getRows() {
@@ -108,7 +108,7 @@ public class GameEngine {
         int numFlags = 0;
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
-                if(grid.getCell(i,j).state == TileState.FLAGGED) {
+                if (grid.getCell(i, j).state == TileState.FLAGGED) {
                     numFlags++;
                 }
             }
@@ -122,7 +122,7 @@ public class GameEngine {
 
     //throws if game is still going (not lost nor won)
     public TileWithMine getCellWithMine(int row, int col) throws Exception {
-        if(getGameState() == GameState.STILL_GOING) {
+        if (getGameState() == GameState.STILL_GOING) {
             throw new Exception("You cannot know mine locations until game is over");
         }
         return grid.getCell(row, col);
@@ -143,11 +143,11 @@ public class GameEngine {
             return;
         }
 
-        if(getGameState() != GameState.STILL_GOING) {
+        if (getGameState() != GameState.STILL_GOING) {
             return;
         }
         TileWithMine curr = grid.getCell(row, col);
-        if(curr.state == TileState.VISIBLE) {
+        if (curr.state == TileState.VISIBLE) {
             checkForChords(row, col);
             return;
         }
@@ -188,7 +188,7 @@ public class GameEngine {
     private void checkForChords(int row, int col) throws Exception {
         boolean revealSurroundingCells = true;
         for (TileWithMine adj : grid.getAdjacentCells(row, col)) {
-            if(adj.state == TileState.VISIBLE) {
+            if (adj.state == TileState.VISIBLE) {
                 continue;
             }
             if (adj.state == TileState.FLAGGED && !adj.isMine) {
@@ -210,35 +210,6 @@ public class GameEngine {
             }
             revealCell(adjI, adjJ);
         }
-    }
-
-    //TODO: combine these 2 functions with logic around 8's existance
-    protected void initializeMineLocationsAfterFirstClickedCell(int row, int col) throws Exception {
-        ArrayList<Pair<Integer, Integer>> spots = new ArrayList<>();
-        for (int i = 0; i < grid.getRows(); ++i) {
-            for (int j = 0; j < grid.getCols(); ++j) {
-                if (Math.abs(row - i) <= 1 && Math.abs(col - j) <= 1) {
-                    continue;
-                }
-                spots.add(new Pair<>(i, j));
-            }
-        }
-
-        if (spots.size() < grid.getMines()) {
-            throw new Exception("too many mines to have a zero start");
-        }
-
-        Collections.shuffle(spots);
-
-        for (int pos = 0; pos < grid.getMines(); ++pos) {
-            final int mineRow = spots.get(pos).first;
-            final int mineCol = spots.get(pos).second;
-            changeMineStatus(mineRow, mineCol, true);
-        }
-        if (grid.getCell(row, col).isMine) {
-            throw new Exception("starting click shouldn't be a mine");
-        }
-        revealCell(row, col);
     }
 
     private void initializeMineLocationsAfterFirstClickedCellWith8(int row, int col) throws Exception {
@@ -302,6 +273,35 @@ public class GameEngine {
             final int i = spots.get(pos).first;
             final int j = spots.get(pos).second;
             changeMineStatus(i, j, true);
+        }
+        if (grid.getCell(row, col).isMine) {
+            throw new Exception("starting click shouldn't be a mine");
+        }
+        revealCell(row, col);
+    }
+
+    //TODO: combine these 2 functions with logic around 8's existance
+    protected void initializeMineLocationsAfterFirstClickedCell(int row, int col) throws Exception {
+        ArrayList<Pair<Integer, Integer>> spots = new ArrayList<>();
+        for (int i = 0; i < grid.getRows(); ++i) {
+            for (int j = 0; j < grid.getCols(); ++j) {
+                if (Math.abs(row - i) <= 1 && Math.abs(col - j) <= 1) {
+                    continue;
+                }
+                spots.add(new Pair<>(i, j));
+            }
+        }
+
+        if (spots.size() < grid.getMines()) {
+            throw new Exception("too many mines to have a zero start");
+        }
+
+        Collections.shuffle(spots);
+
+        for (int pos = 0; pos < grid.getMines(); ++pos) {
+            final int mineRow = spots.get(pos).first;
+            final int mineCol = spots.get(pos).second;
+            changeMineStatus(mineRow, mineCol, true);
         }
         if (grid.getCell(row, col).isMine) {
             throw new Exception("starting click shouldn't be a mine");

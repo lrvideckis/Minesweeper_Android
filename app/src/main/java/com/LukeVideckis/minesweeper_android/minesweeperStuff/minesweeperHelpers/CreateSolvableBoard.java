@@ -6,10 +6,9 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineF
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForLocalStuff;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -114,9 +113,9 @@ public abstract class CreateSolvableBoard {
                 try {
                     {
                         Board<TileWithProbability> tmpResult = myBacktrackingSolver.solvePositionWithLogistics(solverBoard);
-                        for(int i = 0; i < rows; i++) {
-                            for(int j = 0; j < cols; j++) {
-                                solverBoard.getCell(i,j).set(tmpResult.getCell(i,j));
+                        for (int i = 0; i < rows; i++) {
+                            for (int j = 0; j < cols; j++) {
+                                solverBoard.getCell(i, j).set(tmpResult.getCell(i, j));
                             }
                         }
                     }
@@ -155,11 +154,11 @@ public abstract class CreateSolvableBoard {
             }
 
             //found solvable board, let's return it, gameEngine is source of truth here
-            if(gameEngine.getGameState() == GameState.WON) {
+            if (gameEngine.getGameState() == GameState.WON) {
                 TileWithMine[][] grid = new TileWithMine[rows][cols];
-                for(int i = 0; i < rows; i++) {
-                    for(int j = 0; j < cols; j++) {
-                        grid[i][j].set(gameEngine.getCell(i,j));
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        grid[i][j].set(gameEngine.getCell(i, j));
                     }
                 }
                 return new Board(grid, mines);
@@ -185,6 +184,7 @@ public abstract class CreateSolvableBoard {
         }
         return clickedFree;
     }
+
     private static boolean everyComponentHasLogicalFrees(EngineForCreatingSolvableBoard gameEngine, Board<TileWithLogistics> solverBoard) throws Exception {
         Dsu disjointSet = GetConnectedComponents.getDsuOfComponentsWithKnownMines(new Board<>(solverBoard.getGrid(), solverBoard.getMines()));
         boolean[] hasLogicalFree = new boolean[solverBoard.getRows() * solverBoard.getCols()];

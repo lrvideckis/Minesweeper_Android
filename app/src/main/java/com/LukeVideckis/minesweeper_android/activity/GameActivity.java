@@ -18,13 +18,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineGetHelpMode;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineGetHelpMode;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CreateSolvableBoard;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
@@ -105,7 +105,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             updateTimeThread.start();
         }
 
-        if(engineGetHelpMode.getGameState() != GameState.LOST) {
+        if (engineGetHelpMode.getGameState() != GameState.LOST) {
             lastTapRow = row;
             lastTapCol = col;
         }
@@ -114,7 +114,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //TODO: bug here: when you click a visible cell which results in revealing extra cells in easy/hard mode - make sure you win/lose
             //TODO: don't change mine configuration when the current config matches what you want
             engineGetHelpMode.clickCell(row, col, toggleFlag);
-            if(engineGetHelpMode.getGameState() == GameState.LOST) {
+            if (engineGetHelpMode.getGameState() == GameState.LOST) {
                 //run solver if in get help mode to correctly display deducible stuff (after losing)
                 if (isGetHelpMode()) {
                     toggleBacktrackingHintsOn = true;
@@ -187,12 +187,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void updateSolvedBoardWithBacktrackingSolver(boolean updatingFromGetHintButtonPress) throws Exception {
-        for(int i = 0; i < boardSolverInput.getRows(); i++) {
-            for(int j = 0; j < boardSolverInput.getCols(); j++) {
-                boardSolverInput.getCell(i,j).set(engineGetHelpMode.getCell(i,j));
+        for (int i = 0; i < boardSolverInput.getRows(); i++) {
+            for (int j = 0; j < boardSolverInput.getCols(); j++) {
+                boardSolverInput.getCell(i, j).set(engineGetHelpMode.getCell(i, j));
             }
         }
-        if(boardSolverInput.getMines() != engineGetHelpMode.getNumberOfMines()) {
+        if (boardSolverInput.getMines() != engineGetHelpMode.getNumberOfMines()) {
             throw new Exception("number of mines doesn't match");
         }
         try {
@@ -500,10 +500,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     throw new Exception();
                 }
                 synchronized (this) {
-                    for(int i = 0; i < numberOfRows; i++) {
-                        for(int j = 0; j < numberOfCols; j++) {
-                            if(engineGetHelpMode.getCell(i,j).state == TileState.FLAGGED) {
-                                solvableBoard.getCell(i,j).state = TileState.FLAGGED;
+                    for (int i = 0; i < numberOfRows; i++) {
+                        for (int j = 0; j < numberOfCols; j++) {
+                            if (engineGetHelpMode.getCell(i, j).state == TileState.FLAGGED) {
+                                solvableBoard.getCell(i, j).state = TileState.FLAGGED;
                             }
                         }
                     }

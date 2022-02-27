@@ -59,7 +59,7 @@ public class GameCanvas extends View {
         //error checking
         GameActivity gameActivity = (GameActivity) getContext();
 
-        if(isMine != null) {//isMine is only valid if
+        if (isMine != null) {//isMine is only valid if
             if (mineProb.equals(1) && !isMine) {
                 throw new Exception("solver says: logical mine, but it's not a mine");
             }
@@ -156,7 +156,7 @@ public class GameCanvas extends View {
                 try {
                     drawCell(
                             canvas,
-                            boardSolverOutput.getCell(i,j).mineProbability,
+                            boardSolverOutput.getCell(i, j).mineProbability,
                             gameActivity.getEngineGetHelpMode().getCell(i, j),
                             currGameState != GameState.STILL_GOING ? gameActivity.getEngineGetHelpMode().getCellWithMine(i, j).isMine : null,
                             i,

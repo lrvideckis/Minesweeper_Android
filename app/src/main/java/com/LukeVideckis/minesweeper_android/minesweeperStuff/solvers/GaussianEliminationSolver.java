@@ -1,12 +1,10 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ public class GaussianEliminationSolver implements Solver {
         }
 
         //noinspection StatementWithEmptyBody
-        while (runGaussSolverOnce(board, board.getMines()));
+        while (runGaussSolverOnce(board, board.getMines())) ;
     }
 
     //returns true if extra stuff is found

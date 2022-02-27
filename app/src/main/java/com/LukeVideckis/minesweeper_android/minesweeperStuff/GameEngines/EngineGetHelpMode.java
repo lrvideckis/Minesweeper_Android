@@ -32,7 +32,7 @@ public class EngineGetHelpMode extends GameEngine {
 
     //assumes solver finished successfully
     public void revealRandomCellIfAllLogicalStuffIsCorrect(Board<TileWithProbability> solverBoard) throws Exception {
-        if(getGameState() != GameState.STILL_GOING) {
+        if (getGameState() != GameState.STILL_GOING) {
             return;
         }
         if (firstClick) {
@@ -43,20 +43,20 @@ public class EngineGetHelpMode extends GameEngine {
             initializeMineLocationsAfterFirstClickedCell(getHelpRow, getHelpCol);
             return;
         }
-        if(solverBoard.getRows() != getRows() || solverBoard.getCols() != getCols()) {
+        if (solverBoard.getRows() != getRows() || solverBoard.getCols() != getCols()) {
             throw new Exception("solver board dimensions don't match game engine dimensions");
         }
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
-                final boolean isLogicalFree = solverBoard.getCell(i,j).mineProbability.equals(0);
-                final boolean isLogicalMine = solverBoard.getCell(i,j).mineProbability.equals(1);
+                final boolean isLogicalFree = solverBoard.getCell(i, j).mineProbability.equals(0);
+                final boolean isLogicalMine = solverBoard.getCell(i, j).mineProbability.equals(1);
                 TileWithMine currTile = grid.getCell(i, j);
-                if(isLogicalFree || isLogicalMine) {
-                    if(currTile.state == TileState.VISIBLE) {
+                if (isLogicalFree || isLogicalMine) {
+                    if (currTile.state == TileState.VISIBLE) {
                         throw new Exception("sanity check: deducible tiles can only be un-visited");
                     }
                 }
-                if(isLogicalFree || (isLogicalMine != (currTile.state == TileState.FLAGGED))) {
+                if (isLogicalFree || (isLogicalMine != (currTile.state == TileState.FLAGGED))) {
                     isGameLost = true;
                     return;
                 }

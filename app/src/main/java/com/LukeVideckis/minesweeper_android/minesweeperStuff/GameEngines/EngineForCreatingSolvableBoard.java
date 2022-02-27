@@ -2,13 +2,9 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.NoAwayCellsToMoveAMineToException;
 import com.LukeVideckis.minesweeper_android.customExceptions.NoInterestingMinesException;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.Dsu;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetConnectedComponents;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
@@ -115,18 +111,6 @@ public class EngineForCreatingSolvableBoard extends GameEngine {
         }
     }
 
-    private void resetVisibilityOfMeAndNeighbors(int i, int j) throws Exception {
-        grid.getCell(i, j).state = TileState.NOT_FLAGGED;
-        for (TileWithMine adjTile : grid.getAdjacentCells(i, j)) {
-            adjTile.state = TileState.NOT_FLAGGED;
-        }
-    }
-
-    private void changeMineStatusAndVisibility(int i, int j, boolean isMine) throws Exception {
-        resetVisibilityOfMeAndNeighbors(i,j);
-        super.changeMineStatus(i, j, isMine);
-    }
-
     public void checkCorrectnessOfSolverOutput(Board<TileWithLogistics> SolverBoard) throws Exception {
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
@@ -159,6 +143,18 @@ public class EngineForCreatingSolvableBoard extends GameEngine {
             return false;
         }
         return notPartOfThe8(i, j);
+    }
+
+    private void resetVisibilityOfMeAndNeighbors(int i, int j) throws Exception {
+        grid.getCell(i, j).state = TileState.NOT_FLAGGED;
+        for (TileWithMine adjTile : grid.getAdjacentCells(i, j)) {
+            adjTile.state = TileState.NOT_FLAGGED;
+        }
+    }
+
+    private void changeMineStatusAndVisibility(int i, int j, boolean isMine) throws Exception {
+        resetVisibilityOfMeAndNeighbors(i, j);
+        super.changeMineStatus(i, j, isMine);
     }
 
     private boolean notPartOfThe8(int i, int j) {

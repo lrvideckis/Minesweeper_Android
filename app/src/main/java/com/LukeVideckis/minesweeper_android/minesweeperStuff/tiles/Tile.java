@@ -21,7 +21,7 @@ public class Tile {
     }
 
     public void toggleFlag() {
-        switch(state) {
+        switch (state) {
             case FLAGGED:
                 state = TileState.NOT_FLAGGED;
                 break;
