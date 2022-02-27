@@ -34,11 +34,15 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
     private final Runnable mLongPressed = () -> {
         synchronized (this) {
             longTapOccurred = true;
-            ((GameActivity) context).handleTap(
-                    convertScreenToGridX(startOfTapX),
-                    convertScreenToGridY(startOfTapY),
-                    true
-            );
+            try {
+                ((GameActivity) context).handleTap(
+                        convertScreenToGridX(startOfTapX),
+                        convertScreenToGridY(startOfTapY),
+                        true
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -135,11 +139,15 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
                         absoluteX = startAbsoluteX;
                         absoluteY = startAbsoluteY;
 
-                        ((GameActivity) context).handleTap(
-                                convertScreenToGridX(startOfTapX),
-                                convertScreenToGridY(startOfTapY),
-                                false
-                        );
+                        try {
+                            ((GameActivity) context).handleTap(
+                                    convertScreenToGridX(startOfTapX),
+                                    convertScreenToGridY(startOfTapY),
+                                    false
+                            );
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
             }

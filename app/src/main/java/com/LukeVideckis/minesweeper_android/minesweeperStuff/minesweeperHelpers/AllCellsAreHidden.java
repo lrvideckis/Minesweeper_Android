@@ -1,16 +1,13 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 
 public class AllCellsAreHidden {
-    public static boolean allCellsAreHidden(VisibleTile[][] board) throws Exception {
-        Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
-        final int rows = dimensions.first;
-        final int cols = dimensions.second;
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                if (board[i][j].getIsVisible()) {
+    public static boolean allCellsAreHidden(Board<TileNoFlagsForSolver> board) throws Exception {
+        for (int i = 0; i < board.getRows(); ++i) {
+            for (int j = 0; j < board.getCols(); ++j) {
+                if (board.getCell(i, j).isVisible) {
                     return false;
                 }
             }

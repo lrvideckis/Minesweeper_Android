@@ -1,17 +1,19 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ArrayBounds;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 //TODO: run this independently on each component
-public class GaussianEliminationSolver implements MinesweeperSolver {
+public class GaussianEliminationSolver implements Solver {
 
     private static final int maxAwayCellsToIncludeThem = 10;
     private final int rows, cols;
@@ -26,30 +28,28 @@ public class GaussianEliminationSolver implements MinesweeperSolver {
     }
 
     @Override
-    public void solvePosition(VisibleTile[][] board, int numberOfMines) throws Exception {
-        Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
-        if (rows != dimensions.first || cols != dimensions.second) {
+    public void solvePosition(Board<TileWithLogistics> board/*input-outpout param, assumes logical stuff is correct*/) throws Exception {
+        if (rows != board.getRows() || cols != board.getCols()) {
             throw new Exception("dimensions of board doesn't match what was passed in the constructor");
         }
 
         //noinspection StatementWithEmptyBody
-        while (runGaussSolverOnce(board, numberOfMines))
-            ;
+        while (runGaussSolverOnce(board, board.getMines()));
     }
 
     //returns true if extra stuff is found
-    public boolean runGaussSolverOnce(VisibleTile[][] board, int numberOfMines) throws Exception {
-        final boolean includeAwayCells = (AwayCell.getNumberOfAwayCells(board) <= maxAwayCellsToIncludeThem);
+    public boolean runGaussSolverOnce(Board<TileWithLogistics> board/*input-outpout param, assumes logical stuff is correct*/, int numberOfMines /*intentional pass by value*/) throws Exception {
+        final boolean includeAwayCells = (AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines())) <= maxAwayCellsToIncludeThem);
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                final VisibleTile cell = board[i][j];
+                TileWithLogistics cell = board.getCell(i, j);
                 if (cell.isLogicalMine && cell.isLogicalFree) {
                     throw new Exception("cell can't be both logical mine and free");
                 }
-                if (cell.getIsLogicalMine()) {
+                if (cell.isLogicalMine) {
                     --numberOfMines;
                 }
-                newSurroundingMineCounts[i][j] = cell.getNumberSurroundingMines();
+                newSurroundingMineCounts[i][j] = cell.numberSurroundingMines;
                 hiddenNodeToId[i][j] = -1;
             }
         }
@@ -58,16 +58,15 @@ public class GaussianEliminationSolver implements MinesweeperSolver {
         ArrayList<Pair<Integer, Integer>> clueSpots = new ArrayList<>();
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                final VisibleTile cell = board[i][j];
-                if (cell.getIsVisible()) {
+                final TileWithLogistics cell = board.getCell(i, j);
+                if (cell.isVisible) {
                     boolean foundAdjacentUnknown = false;
-                    for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-                        final int adjI = adj[0], adjJ = adj[1];
-                        if (board[adjI][adjJ].isLogicalMine) {
+                    for (TileWithLogistics adjTile : board.getAdjacentCells(i, j)) {
+                        if (adjTile.isLogicalMine) {
                             --newSurroundingMineCounts[i][j];
                         }
                         //noinspection IfStatementMissingBreakInLoop
-                        if (!board[adjI][adjJ].isLogicalMine && !board[adjI][adjJ].isLogicalFree) {
+                        if (!adjTile.isLogicalMine && !adjTile.isLogicalFree) {
                             foundAdjacentUnknown = true;
                         }
                     }
@@ -77,7 +76,7 @@ public class GaussianEliminationSolver implements MinesweeperSolver {
                     }
                     continue;
                 }
-                if (AwayCell.isAwayCell(board, i, j, rows, cols) && !includeAwayCells) {
+                if (AwayCell.isAwayCellSolver(new Board<>(board.getGrid(), board.getMines()), i, j) && !includeAwayCells) {
                     continue;
                 }
                 if (cell.isLogicalFree || cell.isLogicalMine) {
@@ -97,9 +96,9 @@ public class GaussianEliminationSolver implements MinesweeperSolver {
         for (int currentClue = 0; currentClue < clueSpots.size(); ++currentClue) {
             final int i = clueSpots.get(currentClue).first;
             final int j = clueSpots.get(currentClue).second;
-            for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+            for (int[] adj : board.getAdjacentIndexes(i, j)) {
                 final int adjI = adj[0], adjJ = adj[1];
-                if (board[adjI][adjJ].getIsVisible() || board[adjI][adjJ].isLogicalMine || board[adjI][adjJ].isLogicalFree) {
+                if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).isLogicalMine || board.getCell(adjI, adjJ).isLogicalFree) {
                     continue;
                 }
                 if (hiddenNodeToId[adjI][adjJ] == -1) {
@@ -135,13 +134,13 @@ public class GaussianEliminationSolver implements MinesweeperSolver {
                 }
                 final int gridI = idToHiddenNode[i][0];
                 final int gridJ = idToHiddenNode[i][1];
-                if (isMine[i] && !board[gridI][gridJ].isLogicalMine) {
+                if (isMine[i] && !board.getCell(gridI, gridJ).isLogicalMine) {
                     foundNewStuff = true;
-                    board[gridI][gridJ].isLogicalMine = true;
+                    board.getCell(gridI, gridJ).isLogicalMine = true;
                 }
-                if (isFree[i] && !board[gridI][gridJ].isLogicalFree) {
+                if (isFree[i] && !board.getCell(gridI, gridJ).isLogicalFree) {
                     foundNewStuff = true;
-                    board[gridI][gridJ].isLogicalFree = true;
+                    board.getCell(gridI, gridJ).isLogicalFree = true;
                 }
             }
         }

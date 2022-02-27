@@ -2,19 +2,22 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AllCellsAreHidden;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ArrayBounds;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CutNodes;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.EdgePair;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetConnectedComponents;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetSubComponentByRemovedNodes;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MutableInt;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
@@ -26,7 +29,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 //TODO: also break out early the moment we find a (conditioned) solution
-public class MyBacktrackingSolver implements BacktrackingSolver {
+//implementation of the intense recursive alg described in my pdf
+public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
 
     public final static int iterationLimit = 10000;
     //TODO: play around with this number
@@ -38,20 +42,18 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
     private final ArrayList<TreeMap<Integer, MutableInt>> mineConfig = new ArrayList<>();
     private final ArrayList<TreeMap<Integer, ArrayList<MutableInt>>> mineProbPerCompPerNumMines = new ArrayList<>();
     private final ArrayList<TreeMap<Integer, TreeMap<Integer, BigFraction>>> numberOfConfigsForCurrent = new ArrayList<>();
-    private final VisibleTileWithProbability[][] tempBoardWithProbability;
     private int numberOfMines;
-    private VisibleTile[][] board;
+    private Board<TileWithLogistics> board;
     private ArrayList<ArrayList<Pair<Integer, Integer>>> components;
     private ArrayList<ArrayList<SortedSet<Integer>>> adjList;
 
-    public MyBacktrackingSolver(int rows, int cols) {
+    public IntenseRecursiveSolver(int rows, int cols) throws Exception {
         this.rows = rows;
         this.cols = cols;
         isMine = new boolean[rows][cols];
         cntSurroundingMines = new int[rows][cols];
         updatedNumberSurroundingMines = new int[rows][cols];
         lastUnvisitedSpot = new ArrayList<>(rows);
-        tempBoardWithProbability = new VisibleTileWithProbability[rows][cols];
         for (int i = 0; i < rows; ++i) {
             ArrayList<ArrayList<Pair<Integer, Integer>>> currRow = new ArrayList<>(cols);
             for (int j = 0; j < cols; ++j) {
@@ -63,61 +65,50 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
     }
 
     @Override
-    public void solvePosition(VisibleTile[][] board, int numberOfMines) throws Exception {
-        //TODO: this can be optimized: have the option to not calculate probability, this option can be used for getMineConfiguration
+    public Board<TileWithProbability> solvePositionWithLogistics(Board<TileWithLogistics> board) throws Exception {
+        //always allocate new board to avoid any potential issues with shallow copies between solver runs
+        Board<TileWithProbability> boardWithProbability = new Board<>(new TileWithProbability[rows][cols], board.getMines());
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                tempBoardWithProbability[i][j] = new VisibleTileWithProbability(board[i][j]);
+                boardWithProbability.getCell(i, j).mineProbability = new BigFraction(0);
             }
         }
-        solvePosition(tempBoardWithProbability, numberOfMines);
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                board[i][j].set(tempBoardWithProbability[i][j]);
-            }
-        }
-    }
 
-    @Override
-    public void solvePosition(VisibleTileWithProbability[][] board, int numberOfMines) throws Exception {
-        if (AllCellsAreHidden.allCellsAreHidden(board)) {
+        numberOfMines = board.getMines();
+        if (AllCellsAreHidden.allCellsAreHidden(new Board<>(board.getGrid(), board.getMines()))) {
             for (int i = 0; i < rows; ++i) {
                 for (int j = 0; j < cols; ++j) {
-                    board[i][j].mineProbability.setValues(numberOfMines, rows * cols);
+                    boardWithProbability.getCell(i, j).mineProbability.setValues(numberOfMines, rows * cols);
                     if (numberOfMines >= rows * cols) {
                         throw new Exception("too many mines, but this shouldn't happen");
                     }
-                    if (numberOfMines == 0) {
-                        board[i][j].isLogicalFree = true;
-                    }
                 }
             }
-            return;
+            return boardWithProbability;
         }
 
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                if (board[i][j].getIsVisible() && (board[i][j].getIsLogicalMine() || board[i][j].getIsLogicalFree())) {
+                if (board.getCell(i, j).isVisible && (board.getCell(i, j).isLogicalMine || board.getCell(i, j).isLogicalFree)) {
                     throw new Exception("visible cells can't be logical frees/mines");
                 }
-                if (board[i][j].getIsLogicalMine() && board[i][j].getIsLogicalFree()) {
+                if (board.getCell(i, j).isLogicalMine && board.getCell(i, j).isLogicalFree) {
                     throw new Exception("cell can't be both logical free and logical mine");
                 }
-                if (board[i][j].getIsLogicalMine()) {
-                    if (!AwayCell.isAwayCell(board, i, j, rows, cols)) {
+                if (board.getCell(i, j).isLogicalMine) {
+                    if (!AwayCell.isAwayCellSolver(new Board<>(board.getGrid(), board.getMines()), i, j)) {
                         --numberOfMines;
                     }
-                    board[i][j].mineProbability.setValues(1, 1);
-                } else if (board[i][j].getIsLogicalFree()) {
-                    board[i][j].mineProbability.setValues(0, 1);
+                    boardWithProbability.getCell(i, j).mineProbability.setValues(1, 1);
+                } else if (board.getCell(i, j).isLogicalFree) {
+                    boardWithProbability.getCell(i, j).mineProbability.setValues(0, 1);
                 } else {
-                    board[i][j].mineProbability.setValues(0, 1);
+                    boardWithProbability.getCell(i, j).mineProbability.setValues(0, 1);
                 }
-                if (board[i][j].getIsVisible()) {
-                    updatedNumberSurroundingMines[i][j] = board[i][j].getNumberSurroundingMines();
-                    for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-                        VisibleTile adjCell = board[adj[0]][adj[1]];
-                        if (adjCell.getIsLogicalMine()) {
+                if (board.getCell(i, j).isVisible) {
+                    updatedNumberSurroundingMines[i][j] = board.getCell(i, j).numberSurroundingMines;
+                    for (TileWithLogistics adjCell : board.getAdjacentCells(i, j)) {
+                        if (adjCell.isLogicalMine) {
                             --updatedNumberSurroundingMines[i][j];
                         }
                     }
@@ -125,8 +116,9 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             }
         }
 
-        initialize(board, numberOfMines);
-        Pair<ArrayList<ArrayList<Pair<Integer, Integer>>>, ArrayList<ArrayList<SortedSet<Integer>>>> result = GetConnectedComponents.getComponentsWithKnownCells(board);
+        initialize(board, numberOfMines/*intentionally not passed in #-of-mines*/);
+
+        Pair<ArrayList<ArrayList<Pair<Integer, Integer>>>, ArrayList<ArrayList<SortedSet<Integer>>>> result = GetConnectedComponents.getComponentsWithKnownCells(new Board<>(board.getGrid(), board.getMines()));
         components = result.first;
         adjList = result.second;
         if (components.size() != adjList.size()) {
@@ -141,7 +133,7 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
 
         findMineProbAndNumConfigsForEachComponent();
 
-        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(board);
+        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines()));
 
         removeMineNumbersFromComponent();
         BigFraction awayMineProbability = null;
@@ -182,48 +174,48 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
 
                     BigFraction delta = new BigFraction(numerator);
                     delta.multiplyWith(currWeight);
-                    board[row][col].mineProbability.addWith(delta);
+                    boardWithProbability.getCell(row, col).mineProbability.addWith(delta);
                 }
             }
         }
 
+        // set probabilities for away cells
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                VisibleTileWithProbability curr = board[i][j];
-                if (curr.getIsVisible() && (curr.isLogicalMine || curr.isLogicalFree)) {
-                    throw new Exception("visible cells shouldn't be logical");
-                }
-                if (curr.getIsVisible() && !curr.mineProbability.equals(0)) {
-                    throw new Exception("found a visible cell with non-zero mine probability: " + i + " " + j);
-                }
-                if (curr.getIsLogicalMine()) {
-                    if (!curr.mineProbability.equals(1)) {
-                        throw new Exception("found logical mine with mine probability != 1: " + i + " " + j);
-                    }
-                }
-                if (curr.getIsLogicalFree()) {
-                    if (!curr.mineProbability.equals(0)) {
-                        throw new Exception("found logical free cell with mine probability != 0: " + i + " " + j);
-                    }
-                }
-
-                if (AwayCell.isAwayCell(board, i, j, rows, cols)) {
+                if (AwayCell.isAwayCellSolver(new Board<>(board.getGrid(), board.getMines()), i, j)) {
                     if (awayMineProbability == null) {
                         throw new Exception("away probability is null, but this was checked above");
                     }
-                    curr.mineProbability.setValue(awayMineProbability);
-                }
-
-                if (curr.getIsVisible() || curr.getIsLogicalMine() || curr.getIsLogicalFree()) {
-                    continue;
-                }
-                if (curr.mineProbability.equals(0)) {
-                    curr.isLogicalFree = true;
-                } else if (curr.mineProbability.equals(1)) {
-                    curr.isLogicalMine = true;
+                    boardWithProbability.getCell(i, j).mineProbability.setValue(awayMineProbability);
                 }
             }
         }
+
+        //just error checking below
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                TileWithLogistics boardCell = board.getCell(i, j);
+                TileWithProbability probCell = boardWithProbability.getCell(i, j);
+                if (boardCell.isVisible && (boardCell.isLogicalMine || boardCell.isLogicalFree)) {
+                    throw new Exception("visible cells shouldn't be logical");
+                }
+                if (boardCell.isVisible && !probCell.mineProbability.equals(0)) {
+                    throw new Exception("found a visible cell with non-zero mine probability: " + i + " " + j);
+                }
+                if (boardCell.isLogicalMine) {
+                    if (!probCell.mineProbability.equals(1)) {
+                        throw new Exception("found logical mine with mine probability != 1: " + i + " " + j);
+                    }
+                }
+                if (boardCell.isLogicalFree) {
+                    if (!probCell.mineProbability.equals(0)) {
+                        throw new Exception("found logical free cell with mine probability != 0: " + i + " " + j);
+                    }
+                }
+            }
+        }
+
+        return boardWithProbability;
     }
 
     //for each component, and for each # mines for that component: this calculates the number of mine configurations, and saves it in numberOfConfigsForCurrent
@@ -271,7 +263,7 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             }
         }
 
-        final int numberAwayCells = AwayCell.getNumberOfAwayCells(board);
+        final int numberAwayCells = AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines()));
         for (int i = 0; i < components.size(); ++i) {
             if (!numberOfConfigsForCurrent.get(i).isEmpty()) {
                 throw new Exception("numberOfConfigsForCurrent should be cleared from previous run, but isn't");
@@ -314,7 +306,7 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             }
         }
         TreeSet<Integer> validSpots = new TreeSet<>();
-        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(board);
+        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines()));
         for (int mineCnt : dpTable.get(components.size())) {
             if (mineCnt <= numberOfMines && numberOfMines <= mineCnt + numberOfAwayCells) {
                 validSpots.add(mineCnt);
@@ -362,7 +354,7 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
     }
 
     private BigFraction calculateAwayMineProbability() throws Exception {
-        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(board);
+        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines()));
         TreeMap<Integer, BigFraction> configsPerMineCount = calculateNumberOfMineConfigs();
         BigFraction awayMineProbability = new BigFraction(0);
         for (TreeMap.Entry<Integer, BigFraction> entry : configsPerMineCount.entrySet()) {
@@ -389,7 +381,7 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
     }
 
     private TreeMap<Integer, BigFraction> calculateNumberOfMineConfigs() throws Exception {
-        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(board);
+        final int numberOfAwayCells = AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines()));
         TreeMap<Integer, BigFraction> prevWays = new TreeMap<>(), newWays = new TreeMap<>();
         prevWays.put(0, new BigFraction(1));
         for (int i = 0; i < components.size(); ++i) {
@@ -416,11 +408,10 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
         return prevWays;
     }
 
-    private void initialize(VisibleTile[][] board, int numberOfMines) throws Exception {
+    private void initialize(Board<TileWithLogistics> board, int numberOfMines) throws Exception {
         this.board = board;
         this.numberOfMines = numberOfMines;
-        Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
-        if (rows != dimensions.first || cols != dimensions.second) {
+        if (rows != board.getRows() || cols != board.getCols()) {
             throw new Exception("dimensions of board doesn't match what was passed in the constructor");
         }
         for (int i = 0; i < rows; ++i) {
@@ -431,7 +422,7 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
         }
     }
 
-    private void initializeLastUnvisitedSpot(ArrayList<ArrayList<Pair<Integer, Integer>>> components) {
+    private void initializeLastUnvisitedSpot(ArrayList<ArrayList<Pair<Integer, Integer>>> components) throws Exception {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 lastUnvisitedSpot.get(i).get(j).clear();
@@ -445,9 +436,9 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             numberOfConfigsForCurrent.add(new TreeMap<>());
             mineProbPerCompPerNumMines.add(new TreeMap<>());
             for (Pair<Integer, Integer> spot : component) {
-                for (int[] adj : GetAdjacentCells.getAdjacentCells(spot.first, spot.second, rows, cols)) {
+                for (int[] adj : board.getAdjacentIndexes(spot.first, spot.second)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    if (board[adjI][adjJ].isVisible) {
+                    if (board.getCell(adjI, adjJ).isVisible) {
                         lastUnvisitedSpot.get(adjI).get(adjJ).add(spot);
                     }
                 }
@@ -606,15 +597,15 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             }
             final int i = components.get(componentPos).get(node).first;
             final int j = components.get(componentPos).get(node).second;
-            for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-                if (!board[adj[0]][adj[1]].isVisible) {
+            for (int[] adj : board.getAdjacentIndexes(i, j)) {
+                if (!board.getCell(adj[0], adj[1]).isVisible) {
                     continue;
                 }
                 boolean allNeighborsAreRemoved = true;
-                for (int[] adj2 : GetAdjacentCells.getAdjacentCells(adj[0], adj[1], rows, cols)) {
+                for (int[] adj2 : board.getAdjacentIndexes(adj[0], adj[1])) {
                     final int adjI = adj2[0], adjJ = adj2[1];
                     final int currKey = RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols);
-                    if (board[adjI][adjJ].isVisible || board[adjI][adjJ].isLogicalMine || board[adjI][adjJ].isLogicalFree) {
+                    if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).isLogicalMine || board.getCell(adjI, adjJ).isLogicalFree) {
                         continue;
                     }
                     if (!gridToNode.containsKey(currKey) || !isRemoved[Objects.requireNonNull(gridToNode.get(currKey))]) {
@@ -657,16 +648,16 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             for (int cluesWithAllRemoved : cluesWithAllRemovedNeighbors) {
                 final int i = RowColToIndex.indexToRowCol(cluesWithAllRemoved, rows, cols).first;
                 final int j = RowColToIndex.indexToRowCol(cluesWithAllRemoved, rows, cols).second;
-                if (!board[i][j].isVisible) {
+                if (!board.getCell(i, j).isVisible) {
                     throw new Exception("clue which is not visible");
                 }
                 int surroundingMineCount = 0;
-                for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+                for (int[] adj : board.getAdjacentIndexes(i, j)) {
                     final int adjI = adj[0], adjJ = adj[1];
                     if (!gridToNode.containsKey(RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols))) {
                         continue;
                     }
-                    if (board[adjI][adjJ].isVisible || board[adjI][adjJ].isLogicalMine || board[adjI][adjJ].isLogicalFree) {
+                    if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).isLogicalMine || board.getCell(adjI, adjJ).isLogicalFree) {
                         throw new Exception("node in component which is either visible, or logical");
                     }
                     final int currNode = Objects.requireNonNull(gridToNode.get(RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols)));
@@ -901,8 +892,8 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
 
     private void updateSurroundingMineCnt(int i, int j, int delta) throws Exception {
         boolean foundAdjVis = false;
-        for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-            if (board[adj[0]][adj[1]].isVisible) {
+        for (int[] adj : board.getAdjacentIndexes(i, j)) {
+            if (board.getCell(adj[0], adj[1]).isVisible) {
                 foundAdjVis = true;
                 cntSurroundingMines[adj[0]][adj[1]] += delta;
             }
@@ -920,15 +911,15 @@ public class MyBacktrackingSolver implements BacktrackingSolver {
             ArrayList<Integer> allNodes,
             final int componentPos
     ) throws Exception {
-        for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+        for (int[] adj : board.getAdjacentIndexes(i, j)) {
             final int adjI = adj[0], adjJ = adj[1];
-            VisibleTile adjTile = board[adjI][adjJ];
+            TileNoFlagsForSolver adjTile = board.getCell(adjI, adjJ);
             if (!adjTile.isVisible) {
                 continue;
             }
             boolean foundAll = true;
-            for (int[] adj2 : GetAdjacentCells.getAdjacentCells(adjI, adjJ, rows, cols)) {
-                VisibleTile currTile = board[adj2[0]][adj2[1]];
+            for (int[] adj2 : board.getAdjacentIndexes(adjI, adjJ)) {
+                TileWithLogistics currTile = board.getCell(adj2[0], adj2[1]);
                 if (currTile.isVisible || currTile.isLogicalMine || currTile.isLogicalFree) {
                     continue;
                 }

@@ -10,8 +10,8 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -31,10 +31,10 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
     private final ArrayList<TreeMap<Integer, MutableInt>> mineConfig = new ArrayList<>();
     private final ArrayList<TreeMap<Integer, ArrayList<MutableInt>>> mineProbPerCompPerNumMines = new ArrayList<>();
     private final ArrayList<TreeMap<Integer, TreeMap<Integer, BigFraction>>> numberOfConfigsForCurrent = new ArrayList<>();
-    private final VisibleTileWithProbability[][] tempBoardWithProbability;
+    private final TileWithProbability[][] tempBoardWithProbability;
     private final GaussianEliminationSolver gaussianEliminationSolver;
     private int numberOfMines;
-    private VisibleTile[][] board;
+    private TileNoFlagsForSolver[][] board;
     private ArrayList<ArrayList<Pair<Integer, Integer>>> components;
 
     public OldBacktrackingSolver(int rows, int cols) {
@@ -44,7 +44,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
         cntSurroundingMines = new int[rows][cols];
         updatedNumberSurroundingMines = new int[rows][cols];
         lastUnvisitedSpot = new ArrayList<>(rows);
-        tempBoardWithProbability = new VisibleTileWithProbability[rows][cols];
+        tempBoardWithProbability = new TileWithProbability[rows][cols];
         for (int i = 0; i < rows; ++i) {
             ArrayList<ArrayList<Pair<Integer, Integer>>> currRow = new ArrayList<>(cols);
             for (int j = 0; j < cols; ++j) {
@@ -57,11 +57,11 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
     }
 
     @Override
-    public void solvePosition(VisibleTile[][] board, int numberOfMines) throws Exception {
+    public void solvePosition(TileNoFlagsForSolver[][] board, int numberOfMines) throws Exception {
         //TODO: this can be optimized: have the option to not calculate probability, this option can be used for getMineConfiguration
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                tempBoardWithProbability[i][j] = new VisibleTileWithProbability(board[i][j]);
+                tempBoardWithProbability[i][j] = new TileWithProbability(board[i][j]);
             }
         }
         solvePosition(tempBoardWithProbability, numberOfMines);
@@ -73,7 +73,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
     }
 
     @Override
-    public void solvePosition(VisibleTileWithProbability[][] board, int numberOfMines) throws Exception {
+    public void solvePosition(TileWithProbability[][] board, int numberOfMines) throws Exception {
 
         if (AllCellsAreHidden.allCellsAreHidden(board)) {
             for (int i = 0; i < rows; ++i) {
@@ -113,7 +113,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
                 if (board[i][j].getIsVisible()) {
                     updatedNumberSurroundingMines[i][j] = board[i][j].getNumberSurroundingMines();
                     for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-                        VisibleTile adjCell = board[adj[0]][adj[1]];
+                        TileNoFlagsForSolver adjCell = board[adj[0]][adj[1]];
                         if (adjCell.getIsLogicalMine()) {
                             --updatedNumberSurroundingMines[i][j];
                         }
@@ -176,7 +176,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
 
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                VisibleTileWithProbability curr = board[i][j];
+                TileWithProbability curr = board[i][j];
                 if (curr.getIsVisible() && (curr.isLogicalMine || curr.isLogicalFree)) {
                     throw new Exception("visible cells shouldn't be logical");
                 }
@@ -403,7 +403,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
         return prevWays;
     }
 
-    private void initialize(VisibleTile[][] board, int numberOfMines) throws Exception {
+    private void initialize(TileNoFlagsForSolver[][] board, int numberOfMines) throws Exception {
         this.board = board;
         this.numberOfMines = numberOfMines;
         Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
@@ -497,7 +497,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
     private boolean checkSurroundingConditions(int i, int j, Pair<Integer, Integer> currSpot, int arePlacingAMine) throws Exception {
         for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
             final int adjI = adj[0], adjJ = adj[1];
-            VisibleTile adjTile = board[adjI][adjJ];
+            TileNoFlagsForSolver adjTile = board[adjI][adjJ];
             if (!adjTile.isVisible) {
                 continue;
             }
@@ -559,7 +559,7 @@ public class OldBacktrackingSolver implements BacktrackingSolver {
             final int j = component.get(pos).second;
             for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
                 final int adjI = adj[0], adjJ = adj[1];
-                VisibleTile adjTile = board[adjI][adjJ];
+                TileNoFlagsForSolver adjTile = board[adjI][adjJ];
                 if (!adjTile.isVisible) {
                     continue;
                 }

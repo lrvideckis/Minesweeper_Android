@@ -1,7 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeper_tests;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameEngine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ArrayBounds;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ConvertGameBoardFormat;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CreateSolvableBoard;
@@ -9,10 +9,10 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MyBacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 import com.LukeVideckis.minesweeper_android.test_helpers.NoSolutionFoundException;
 import com.LukeVideckis.minesweeper_android.test_helpers.OldBacktrackingSolver;
@@ -404,23 +404,23 @@ public class stress_tests_minesweeper_solver {
             },
     };
 
-    private static VisibleTileWithProbability[][] convertFormat(String[] stringBoard) throws Exception {
-        VisibleTileWithProbability[][] board = new VisibleTileWithProbability[stringBoard.length - 1][stringBoard[0].length()];
+    private static TileWithProbability[][] convertFormat(String[] stringBoard) throws Exception {
+        TileWithProbability[][] board = new TileWithProbability[stringBoard.length - 1][stringBoard[0].length()];
         for (int i = 0; i + 1 < stringBoard.length; ++i) {
             for (int j = 0; j < stringBoard[i].length(); ++j) {
                 if (stringBoard[i].length() != stringBoard[0].length()) {
                     throw new Exception("jagged array - not all rows are the same length");
                 }
-                board[i][j] = new VisibleTileWithProbability(stringBoard[i].charAt(j));
+                board[i][j] = new TileWithProbability(stringBoard[i].charAt(j));
             }
         }
         return board;
     }
 
-    private static void printBoardDebug(VisibleTile[][] board, int mines) {
+    private static void printBoardDebug(TileNoFlagsForSolver[][] board, int mines) {
         System.out.println("mines: " + mines + " visible board is:");
-        for (VisibleTile[] visibleTiles : board) {
-            for (VisibleTile visibleTile : visibleTiles) {
+        for (TileNoFlagsForSolver[] visibleTiles : board) {
+            for (TileNoFlagsForSolver visibleTile : visibleTiles) {
                 if (visibleTile.getIsVisible()) {
                     if (visibleTile.getNumberSurroundingMines() == 0) {
                         System.out.print('.');
@@ -442,8 +442,8 @@ public class stress_tests_minesweeper_solver {
 
     //throw if boards are different
     private static void throwIfBoardsAreDifferent(
-            VisibleTileWithProbability[][] boardFast,
-            VisibleTileWithProbability[][] boardSlow,
+            TileWithProbability[][] boardFast,
+            TileWithProbability[][] boardSlow,
             int mines
     ) throws Exception {
         int rows = boardFast.length, cols = boardFast[0].length;
@@ -457,8 +457,8 @@ public class stress_tests_minesweeper_solver {
                     continue;
                 }
 
-                VisibleTileWithProbability fastTile = boardFast[i][j];
-                VisibleTileWithProbability slowTile = boardSlow[i][j];
+                TileWithProbability fastTile = boardFast[i][j];
+                TileWithProbability slowTile = boardSlow[i][j];
 
                 if (!fastTile.getMineProbability().equals(slowTile.getMineProbability()) ||
                         fastTile.getIsLogicalFree() != slowTile.getIsLogicalFree() ||
@@ -481,7 +481,7 @@ public class stress_tests_minesweeper_solver {
     }
 
     //throws exception if test failed
-    private static void throwIfFailed_compareGaussBoardToBacktrackingBoard(int rows, int cols, int mines, VisibleTile[][] boardBacktracking, VisibleTile[][] boardGauss) throws Exception {
+    private static void throwIfFailed_compareGaussBoardToBacktrackingBoard(int rows, int cols, int mines, TileNoFlagsForSolver[][] boardBacktracking, TileNoFlagsForSolver[][] boardGauss) throws Exception {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 if (!boardBacktracking[i][j].getIsLogicalMine() && boardGauss[i][j].getIsLogicalMine()) {
@@ -496,22 +496,22 @@ public class stress_tests_minesweeper_solver {
         }
     }
 
-    private static VisibleTileWithProbability[][] convertToNewBoard(MinesweeperGame minesweeperGame) throws Exception {
+    private static TileWithProbability[][] convertToNewBoard(GameEngine minesweeperGame) throws Exception {
         final int rows = minesweeperGame.getRows();
         final int cols = minesweeperGame.getCols();
-        VisibleTileWithProbability[][] board = new VisibleTileWithProbability[rows][cols];
+        TileWithProbability[][] board = new TileWithProbability[rows][cols];
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                board[i][j] = new VisibleTileWithProbability();
+                board[i][j] = new TileWithProbability();
                 board[i][j].updateVisibilityAndSurroundingMines(minesweeperGame.getCell(i, j));
             }
         }
         return board;
     }
 
-    private static boolean noLogicalFrees(VisibleTile[][] board) {
-        for (VisibleTile[] row : board) {
-            for (VisibleTile cell : row) {
+    private static boolean noLogicalFrees(TileNoFlagsForSolver[][] board) {
+        for (TileNoFlagsForSolver[] row : board) {
+            for (TileNoFlagsForSolver cell : row) {
                 if (cell.getIsLogicalFree()) {
                     return false;
                 }
@@ -528,9 +528,9 @@ public class stress_tests_minesweeper_solver {
             final int rows = stringBoard.length - 1;
             final int cols = stringBoard[0].length();
             final int mines = Integer.parseInt(stringBoard[stringBoard.length - 1]);
-            VisibleTileWithProbability[][] boardFast = convertFormat(stringBoard);
-            VisibleTileWithProbability[][] boardOld = convertFormat(stringBoard);
-            VisibleTileWithProbability[][] boardSlow = convertFormat(stringBoard);
+            TileWithProbability[][] boardFast = convertFormat(stringBoard);
+            TileWithProbability[][] boardOld = convertFormat(stringBoard);
+            TileWithProbability[][] boardSlow = convertFormat(stringBoard);
             Pair<Integer, Integer> dimensions;
             dimensions = ArrayBounds.getArrayBounds(boardFast);
             if (rows != dimensions.first || cols != dimensions.second) {
@@ -586,16 +586,16 @@ public class stress_tests_minesweeper_solver {
             BacktrackingSolver holyGrailSolver = new HolyGrailSolver(rows, cols);
             BacktrackingSolver slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
 
-            MinesweeperGame minesweeperGame;
-            minesweeperGame = new MinesweeperGame(rows, cols, mines);
+            GameEngine minesweeperGame;
+            minesweeperGame = new GameEngine(rows, cols, mines);
             minesweeperGame.clickCell(MyMath.getRand(0, rows - 1), MyMath.getRand(0, cols - 1), false);
 
             while (!minesweeperGame.getIsGameWon()) {
                 if (minesweeperGame.getIsGameLost()) {
                     throw new Exception("here 1: game is lost, but this shouldn't happen, failed test");
                 }
-                VisibleTileWithProbability[][] boardFast = convertToNewBoard(minesweeperGame);
-                VisibleTileWithProbability[][] boardSlow = convertToNewBoard(minesweeperGame);
+                TileWithProbability[][] boardFast = convertToNewBoard(minesweeperGame);
+                TileWithProbability[][] boardSlow = convertToNewBoard(minesweeperGame);
 
                 //printBoardDebug(boardFast, mines);
 
@@ -644,16 +644,16 @@ public class stress_tests_minesweeper_solver {
             BacktrackingSolver holyGrailSolver = new HolyGrailSolver(rows, cols);
             OldBacktrackingSolver oldBacktrackingSolver = new OldBacktrackingSolver(rows, cols);
 
-            MinesweeperGame minesweeperGame;
-            minesweeperGame = new MinesweeperGame(rows, cols, mines);
+            GameEngine minesweeperGame;
+            minesweeperGame = new GameEngine(rows, cols, mines);
             minesweeperGame.clickCell(MyMath.getRand(0, rows - 1), MyMath.getRand(0, cols - 1), false);
 
             while (!minesweeperGame.getIsGameWon()) {
                 if (minesweeperGame.getIsGameLost()) {
                     throw new Exception("here 1: game is lost, but this shouldn't happen, failed test");
                 }
-                VisibleTileWithProbability[][] boardFast = convertToNewBoard(minesweeperGame);
-                VisibleTileWithProbability[][] boardOld = convertToNewBoard(minesweeperGame);
+                TileWithProbability[][] boardFast = convertToNewBoard(minesweeperGame);
+                TileWithProbability[][] boardOld = convertToNewBoard(minesweeperGame);
 
                 //printBoardDebug(boardFast, mines);
 
@@ -700,11 +700,11 @@ public class stress_tests_minesweeper_solver {
             int mines = MyMath.getRand(2, 50);
             mines = Math.min(mines, rows * cols - 9);
 
-            BacktrackingSolver myBacktrackingSolver = new MyBacktrackingSolver(rows, cols);
-            MinesweeperSolver gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
+            BacktrackingSolver myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
+            Solver gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
 
-            MinesweeperGame minesweeperGame;
-            minesweeperGame = new MinesweeperGame(rows, cols, mines);
+            GameEngine minesweeperGame;
+            minesweeperGame = new GameEngine(rows, cols, mines);
             int numberOfClicks = MyMath.getRand(0, 4);
             while (numberOfClicks-- > 0 && !minesweeperGame.getIsGameLost()) {
                 int x = MyMath.getRand(0, rows - 1);
@@ -715,8 +715,8 @@ public class stress_tests_minesweeper_solver {
                 System.out.println("game over, void test");
                 continue;
             }
-            VisibleTile[][] boardBacktracking = convertToNewBoard(minesweeperGame);
-            VisibleTile[][] boardGauss = convertToNewBoard(minesweeperGame);
+            TileNoFlagsForSolver[][] boardBacktracking = convertToNewBoard(minesweeperGame);
+            TileNoFlagsForSolver[][] boardGauss = convertToNewBoard(minesweeperGame);
 
             try {
                 myBacktrackingSolver.solvePosition(boardBacktracking, minesweeperGame.getNumberOfMines());
@@ -742,10 +742,10 @@ public class stress_tests_minesweeper_solver {
 
             BacktrackingSolver holyGrailSolver = new HolyGrailSolver(rows, cols);
             BacktrackingSolver slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
-            MinesweeperSolver gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
+            Solver gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
 
-            MinesweeperGame minesweeperGame;
-            minesweeperGame = new MinesweeperGame(rows, cols, mines);
+            GameEngine minesweeperGame;
+            minesweeperGame = new GameEngine(rows, cols, mines);
             int numberOfClicks = MyMath.getRand(0, 4);
             while (numberOfClicks-- > 0 && !minesweeperGame.getIsGameLost()) {
                 minesweeperGame.clickCell(MyMath.getRand(0, rows - 1), MyMath.getRand(0, cols - 1), false);
@@ -754,7 +754,7 @@ public class stress_tests_minesweeper_solver {
                 System.out.println("game over, void test");
                 continue;
             }
-            VisibleTileWithProbability[][] boardSlow = convertToNewBoard(minesweeperGame);
+            TileWithProbability[][] boardSlow = convertToNewBoard(minesweeperGame);
 
             try {
                 slowBacktrackingSolver.solvePosition(boardSlow, minesweeperGame.getNumberOfMines());
@@ -763,11 +763,11 @@ public class stress_tests_minesweeper_solver {
                 continue;
             }
             for (int i = 0; i < 3; ++i) {
-                VisibleTileWithProbability[][] boardFast = convertToNewBoard(minesweeperGame);
+                TileWithProbability[][] boardFast = convertToNewBoard(minesweeperGame);
                 holyGrailSolver.solvePosition(boardFast, minesweeperGame.getNumberOfMines());
                 throwIfBoardsAreDifferent(boardFast, boardSlow, mines);
 
-                VisibleTile[][] boardGauss = convertToNewBoard(minesweeperGame);
+                TileNoFlagsForSolver[][] boardGauss = convertToNewBoard(minesweeperGame);
                 gaussianEliminationSolver.solvePosition(boardGauss, minesweeperGame.getNumberOfMines());
                 throwIfFailed_compareGaussBoardToBacktrackingBoard(rows, cols, mines, boardFast, boardGauss);
             }
@@ -797,15 +797,15 @@ public class stress_tests_minesweeper_solver {
             CreateSolvableBoard createSolvableBoard = new CreateSolvableBoard(rows, cols, mines);
             final int firstClickI = MyMath.getRand(0, rows - 1);
             final int firstClickJ = MyMath.getRand(0, cols - 1);
-            MinesweeperGame game;
+            GameEngine game;
             long startTime = System.currentTimeMillis();
             game = createSolvableBoard.getSolvableBoard(firstClickI, firstClickJ, false, new AtomicBoolean(false));
             System.out.println(" time to create solvable board: " + (System.currentTimeMillis() - startTime) + " ms");
             sumTimes += System.currentTimeMillis() - startTime;
-            VisibleTileWithProbability[][] visibleBoard = new VisibleTileWithProbability[rows][cols];
+            TileWithProbability[][] visibleBoard = new TileWithProbability[rows][cols];
             for (int i = 0; i < rows; ++i) {
                 for (int j = 0; j < cols; ++j) {
-                    visibleBoard[i][j] = new VisibleTileWithProbability();
+                    visibleBoard[i][j] = new TileWithProbability();
                 }
             }
             boolean hitIterationLimit = false;
@@ -864,14 +864,14 @@ public class stress_tests_minesweeper_solver {
             CreateSolvableBoard createSolvableBoard = new CreateSolvableBoard(rows, cols, mines);
             final int firstClickI = MyMath.getRand(0, rows - 1);
             final int firstClickJ = MyMath.getRand(0, cols - 1);
-            MinesweeperGame game;
+            GameEngine game;
             long startTime = System.currentTimeMillis();
             game = createSolvableBoard.getSolvableBoard(firstClickI, firstClickJ, true, new AtomicBoolean(false));
             System.out.println(" time to create solvable board: " + (System.currentTimeMillis() - startTime) + " ms");
-            VisibleTileWithProbability[][] visibleBoard = new VisibleTileWithProbability[rows][cols];
+            TileWithProbability[][] visibleBoard = new TileWithProbability[rows][cols];
             for (int i = 0; i < rows; ++i) {
                 for (int j = 0; j < cols; ++j) {
-                    visibleBoard[i][j] = new VisibleTileWithProbability();
+                    visibleBoard[i][j] = new TileWithProbability();
                 }
             }
             boolean hitIterationLimit = false;

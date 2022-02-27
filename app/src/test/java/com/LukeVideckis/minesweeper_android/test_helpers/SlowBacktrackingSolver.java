@@ -7,8 +7,8 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MutableInt;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -20,9 +20,9 @@ public class SlowBacktrackingSolver implements BacktrackingSolver {
     private final boolean[][] isMine;
     private final int[][] cntSurroundingMines;
     private final BigFraction[][] numberOfTotalConfigs;
-    private final VisibleTileWithProbability[][] tempBoardWithProbability;
+    private final TileWithProbability[][] tempBoardWithProbability;
     private int rows, cols;
-    private VisibleTileWithProbability[][] board;
+    private TileWithProbability[][] board;
     private int numberOfMines;
 
     public SlowBacktrackingSolver(int rows, int cols) {
@@ -35,26 +35,26 @@ public class SlowBacktrackingSolver implements BacktrackingSolver {
                 numberOfTotalConfigs[i][j] = new BigFraction(0);
             }
         }
-        tempBoardWithProbability = new VisibleTileWithProbability[rows][cols];
+        tempBoardWithProbability = new TileWithProbability[rows][cols];
     }
 
     @Override
-    public void solvePosition(VisibleTile[][] board, int numberOfMines) throws Exception {
+    public void solvePosition(TileNoFlagsForSolver[][] board, int numberOfMines) throws Exception {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                tempBoardWithProbability[i][j] = new VisibleTileWithProbability(board[i][j]);
+                tempBoardWithProbability[i][j] = new TileWithProbability(board[i][j]);
             }
         }
         solvePosition(tempBoardWithProbability, numberOfMines);
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                board[i][j] = new VisibleTile(tempBoardWithProbability[i][j]);
+                board[i][j] = new TileNoFlagsForSolver(tempBoardWithProbability[i][j]);
             }
         }
     }
 
     @Override
-    public void solvePosition(VisibleTileWithProbability[][] board, int numberOfMines) throws Exception {
+    public void solvePosition(TileWithProbability[][] board, int numberOfMines) throws Exception {
         initialize(board, numberOfMines);
 
         if (AllCellsAreHidden.allCellsAreHidden(board)) {
@@ -88,7 +88,7 @@ public class SlowBacktrackingSolver implements BacktrackingSolver {
 
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                VisibleTileWithProbability curr = board[i][j];
+                TileWithProbability curr = board[i][j];
                 if (curr.getIsVisible()) {
                     continue;
                 }
@@ -117,7 +117,7 @@ public class SlowBacktrackingSolver implements BacktrackingSolver {
         }
     }
 
-    private void initialize(VisibleTileWithProbability[][] board, int numberOfMines) throws Exception {
+    private void initialize(TileWithProbability[][] board, int numberOfMines) throws Exception {
         this.board = board;
         this.numberOfMines = numberOfMines;
         Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
@@ -176,7 +176,7 @@ public class SlowBacktrackingSolver implements BacktrackingSolver {
     private boolean checkSurroundingConditions(int i, int j, Pair<Integer, Integer> currSpot, int arePlacingAMine) {
         for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
             final int adjI = adj[0], adjJ = adj[1];
-            VisibleTile adjTile = board[adjI][adjJ];
+            TileNoFlagsForSolver adjTile = board[adjI][adjJ];
             if (!adjTile.isVisible) {
                 continue;
             }
@@ -221,7 +221,7 @@ public class SlowBacktrackingSolver implements BacktrackingSolver {
             for (int j = 0; j < cols; ++j) {
                 for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    VisibleTile adjTile = board[adjI][adjJ];
+                    TileNoFlagsForSolver adjTile = board[adjI][adjJ];
                     if (!adjTile.isVisible) {
                         continue;
                     }

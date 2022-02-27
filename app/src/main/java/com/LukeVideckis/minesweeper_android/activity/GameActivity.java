@@ -18,13 +18,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.ConvertGameBoardFormat;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineGetHelpMode;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CreateSolvableBoard;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MyBacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 
@@ -47,19 +51,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             toggleFlagModeOn = false,
             toggleBacktrackingHintsOn = false,
             toggleMineProbabilityOn = false,
-            hasBeenAChangeSinceLastSolverRun = true,
             gameEndedFromHelpButton = false,
             lastActionWasGetHelpButton = false;
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
     private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup;
     private volatile PopupWindow couldNotFindNoGuessBoardPopup;
-    private volatile MinesweeperGame minesweeperGame;
-    private BacktrackingSolver holyGrailSolver;
-    private VisibleTileWithProbability[][] board;
+    private volatile EngineGetHelpMode engineGetHelpMode;
+    private SolverWithProbability holyGrailSolver;
+    private Board<TileWithProbability> boardSolverOutput;
+    private Board<TileNoFlagsForSolver> boardSolverInput;
     private int lastTapRow, lastTapCol;
     private volatile Thread updateTimeThread;
     private volatile AlertDialog loadingScreenForSolvableBoardGeneration;
-    private CreateSolvableBoard createSolvableBoard;
     private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread();
     private volatile SolvableBoardRunnable solvableBoardRunnable;
 
@@ -67,7 +70,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         updateTimeThread.interrupt();
     }
 
-    public void handleTap(float tapX, float tapY, boolean isLongTap) {
+    public void handleTap(float tapX, float tapY, boolean isLongTap) throws Exception {
         if (tapX < 0f ||
                 tapY < 0f ||
                 tapX > numberOfCols * cellPixelLength ||
@@ -79,7 +82,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         final boolean toggleFlag = (toggleFlagModeOn ^ isLongTap);
 
-        if (minesweeperGame.isBeforeFirstClick() && !toggleFlag) {
+        if (engineGetHelpMode.isBeforeFirstClick() && !toggleFlag) {
             if (gameMode == R.id.no_guessing_mode || gameMode == R.id.no_guessing_mode_with_an_8) {
                 finishedBoardGen.set(false);
 
@@ -102,7 +105,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             updateTimeThread.start();
         }
 
-        if (!minesweeperGame.getIsGameLost()) {
+        if(engineGetHelpMode.getGameState() != GameState.LOST) {
             lastTapRow = row;
             lastTapCol = col;
         }
@@ -110,23 +113,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         try {
             //TODO: bug here: when you click a visible cell which results in revealing extra cells in easy/hard mode - make sure you win/lose
             //TODO: don't change mine configuration when the current config matches what you want
-            if (minesweeperGame.clickCell(row, col, toggleFlag)) {
-                hasBeenAChangeSinceLastSolverRun = true;
-            }
-            if (minesweeperGame.getIsGameLost()) {
+            engineGetHelpMode.clickCell(row, col, toggleFlag);
+            if(engineGetHelpMode.getGameState() == GameState.LOST) {
                 //run solver if in get help mode to correctly display deducible stuff (after losing)
                 if (isGetHelpMode()) {
-                    toggleBacktrackingHintsOn = hasBeenAChangeSinceLastSolverRun = true;
+                    toggleBacktrackingHintsOn = true;
                     updateSolvedBoardWithBacktrackingSolver(false);
                 }
-            } else if (!(toggleFlag && !minesweeperGame.getCell(row, col).getIsVisible()) && (toggleBacktrackingHintsOn || toggleMineProbabilityOn)) {
+            } else if (!(toggleFlag && engineGetHelpMode.getCell(row, col).state != TileState.VISIBLE) && (toggleBacktrackingHintsOn || toggleMineProbabilityOn)) {
                 updateSolvedBoardWithBacktrackingSolver(false);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        updateNumberOfMines(minesweeperGame.getNumberOfMines() - minesweeperGame.getNumberOfFlags());
+        updateNumberOfMines(engineGetHelpMode.getNumberOfMines() - engineGetHelpMode.getNumberOfFlags());
         lastActionWasGetHelpButton = false;
         findViewById(R.id.gridCanvas).invalidate();
     }
@@ -186,33 +187,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void updateSolvedBoardWithBacktrackingSolver(boolean updatingFromGetHintButtonPress) throws Exception {
-        if (!hasBeenAChangeSinceLastSolverRun) {
-            return;
+        for(int i = 0; i < boardSolverInput.getRows(); i++) {
+            for(int j = 0; j < boardSolverInput.getCols(); j++) {
+                boardSolverInput.getCell(i,j).set(engineGetHelpMode.getCell(i,j));
+            }
         }
-        ConvertGameBoardFormat.convertToExistingBoard(minesweeperGame, board, false);
+        if(boardSolverInput.getMines() != engineGetHelpMode.getNumberOfMines()) {
+            throw new Exception("number of mines doesn't match");
+        }
         try {
-            holyGrailSolver.solvePosition(board, minesweeperGame.getNumberOfMines());
+            boardSolverOutput = holyGrailSolver.solvePositionWithProbability(boardSolverInput);
         } catch (HitIterationLimitException e) {
             if (updatingFromGetHintButtonPress) {
                 displayGetHelpDisabledPopup();
             } else {
                 solverHitIterationLimit();
             }
-            return;
         }
-
-        for (int i = 0; i < minesweeperGame.getRows(); ++i) {
-            for (int j = 0; j < minesweeperGame.getCols(); ++j) {
-                if (board[i][j].getIsLogicalMine() && !board[i][j].getMineProbability().equals(1)) {
-                    throw new Exception("logical mine with non-1 mine probability " + i + " " + j);
-                }
-                if (board[i][j].getIsLogicalFree() && !board[i][j].getMineProbability().equals(0)) {
-                    throw new Exception("logical free with non-zero mine probability " + i + " " + j);
-                }
-            }
-        }
-        minesweeperGame.updateLogicalStuff(board);
-        hasBeenAChangeSinceLastSolverRun = false;
     }
 
     public void solverHitIterationLimit() {
@@ -293,8 +284,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
     }
 
-    public MinesweeperGame getMinesweeperGame() {
-        return minesweeperGame;
+    public EngineGetHelpMode getEngineGetHelpMode() {
+        return engineGetHelpMode;
     }
 
     public int getNumberOfRows() {
@@ -313,17 +304,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return toggleMineProbabilityOn;
     }
 
-    public VisibleTileWithProbability[][] getBoard() throws Exception {
-        ConvertGameBoardFormat.convertToExistingBoard(minesweeperGame, board, (toggleBacktrackingHintsOn || toggleMineProbabilityOn));
-        return board;
-    }
-
     public int getLastTapRow() {
         return lastTapRow;
     }
 
     public int getLastTapCol() {
         return lastTapCol;
+    }
+
+    public Board<TileWithProbability> getSolverOutput() {
+        return boardSolverOutput;
     }
 
     private void executeHelpButton() throws Exception {
@@ -334,12 +324,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             solverHitIterationLimit = true;
         }
         try {
-            minesweeperGame.revealRandomCellIfAllLogicalStuffIsCorrect(solverHitIterationLimit);
+            //TODO: iteration limit logic SHOULD NOT exists inside game engine!!!
+            engineGetHelpMode.revealRandomCellIfAllLogicalStuffIsCorrect(boardSolverOutput);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        hasBeenAChangeSinceLastSolverRun = true;
-        if (minesweeperGame.getIsGameLost()) {
+        if (engineGetHelpMode.getGameState() == GameState.LOST) {
             gameEndedFromHelpButton = true;
             updateSolvedBoardWithBacktrackingSolver(false);
             toggleBacktrackingHintsOn = true;
@@ -352,14 +342,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startNewGame() {
         try {
-            minesweeperGame = new MinesweeperGame(numberOfRows, numberOfCols, numberOfMines);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
         enableButtonsAndSwitchesAndSetToFalse();
         handleHintToggle(false);
         gameEndedFromHelpButton = false;
-        hasBeenAChangeSinceLastSolverRun = true;
 
         if (timerToBreakBoardGen.isAlive()) {
             timerToBreakBoardGen.interrupt();
@@ -410,7 +399,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         okButton.setOnClickListener(view -> solverHitLimitPopup.dismiss());
         TextView textView = solverHitLimitPopup.getContentView().findViewById(R.id.iterationLimitText);
         String text = "Solver took more than ";
-        text += NumberFormat.getNumberInstance(Locale.US).format(MyBacktrackingSolver.iterationLimit);
+        text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
         text += " iterations. Hints and mine probability are currently not available.";
         textView.setText(text);
     }
@@ -421,7 +410,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         okButton.setOnClickListener(view -> getHelpModeIsDisabledPopup.dismiss());
         TextView textView = getHelpModeIsDisabledPopup.getContentView().findViewById(R.id.getHelpDisabledText);
         String text = "Solver took more than ";
-        text += NumberFormat.getNumberInstance(Locale.US).format(MyBacktrackingSolver.iterationLimit);
+        text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
         text += " iterations. A random square will be revealed without checking if there are missed deducible squares.";
         textView.setText(text);
     }
@@ -502,7 +491,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         public void run() {
             try {
-                MinesweeperGame solvableBoard = createSolvableBoard.getSolvableBoard(row, col, gameMode == R.id.no_guessing_mode_with_an_8, isInterrupted);
+                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, gameMode == R.id.no_guessing_mode_with_an_8, isInterrupted);
                 if (isInterrupted.get()) {
                     if (backButtonWasPressed.get()) {
                         return;
@@ -511,8 +500,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     throw new Exception();
                 }
                 synchronized (this) {
-                    solvableBoard.setFlagsForHiddenCells(minesweeperGame);
-                    minesweeperGame = solvableBoard;
+                    for(int i = 0; i < numberOfRows; i++) {
+                        for(int j = 0; j < numberOfCols; j++) {
+                            if(engineGetHelpMode.getCell(i,j).state == TileState.FLAGGED) {
+                                solvableBoard.getCell(i,j).state = TileState.FLAGGED;
+                            }
+                        }
+                    }
+                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col);
                 }
                 finishedBoardGen.set(true);
                 updateTimeThread.start();
@@ -525,9 +520,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 finishedBoardGen.set(true);
                 updateTimeThread.start();
                 try {
-                    if (minesweeperGame.clickCell(row, col, false)) {
-                        hasBeenAChangeSinceLastSolverRun = true;
-                    }
+                    engineGetHelpMode.clickCell(row, col, false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -576,23 +569,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.game);
 
         try {
-            createSolvableBoard = new CreateSolvableBoard(numberOfRows, numberOfCols, numberOfMines);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
+            holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
+            boardSolverInput = new Board<>(new TileNoFlagsForSolver[numberOfRows][numberOfCols], numberOfMines);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try {
-            minesweeperGame = new MinesweeperGame(numberOfRows, numberOfCols, numberOfMines);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
-        board = new VisibleTileWithProbability[numberOfRows][numberOfCols];
-        for (int i = 0; i < numberOfRows; ++i) {
-            for (int j = 0; j < numberOfCols; ++j) {
-                board[i][j] = new VisibleTileWithProbability();
-            }
-        }
         ImageButton newGameButton = findViewById(R.id.newGameButton);
         newGameButton.setOnClickListener(this);
         Button toggleFlagMode = findViewById(R.id.toggleFlagMode);

@@ -1,52 +1,39 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.MinesweeperGame;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BacktrackingSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineForCreatingSolvableBoard;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForLocalStuff;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MinesweeperSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.MyBacktrackingSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CreateSolvableBoard {
-    private final MinesweeperSolver gaussSolver;
-    private final VisibleTile[][] board;
-    private final int rows;
-    private final int cols;
-    private final int mines;
-    private final BacktrackingSolver myBacktrackingSolver;
+public abstract class CreateSolvableBoard {
 
-    public CreateSolvableBoard(int rows, int cols, int mines) {
-        myBacktrackingSolver = new MyBacktrackingSolver(rows, cols);
-        gaussSolver = new GaussianEliminationSolver(rows, cols);
-        board = new VisibleTile[rows][cols];
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                board[i][j] = new VisibleTile();
-            }
-        }
-        this.rows = rows;
-        this.cols = cols;
-        this.mines = mines;
-    }
+    public static Board<TileWithMine> getSolvableBoard(final int rows, final int cols, final int mines, final int firstClickI, final int firstClickJ, final boolean hasAn8, AtomicBoolean isInterrupted) throws Exception {
+        Board<TileWithLogistics> solverBoard = new Board<>(new TileWithLogistics[rows][cols], mines);
+        //intentionally not holy grail solver to be more precise when we do backtracking
+        SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
+        Solver gaussSolver = new GaussianEliminationSolver(rows, cols);
 
-    public MinesweeperGame getSolvableBoard(int firstClickI, int firstClickJ, boolean hasAn8, AtomicBoolean isInterrupted) throws Exception {
-        if (ArrayBounds.outOfBounds(firstClickI, firstClickJ, rows, cols)) {
+        if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
             throw new Exception("first click is out of bounds");
         }
 
-        Stack<MinesweeperGame> gameStack = new Stack<>();
+        Stack<EngineForCreatingSolvableBoard> gameStack = new Stack<>();
 
         while (!isInterrupted.get()) {
-            MinesweeperGame game = new MinesweeperGame(rows, cols, mines);
-            if (hasAn8) {
-                game.setHavingAn8();
-            }
-            game.clickCell(firstClickI, firstClickJ, false);
+            EngineForCreatingSolvableBoard gameEngine = new EngineForCreatingSolvableBoard(rows, cols, mines, hasAn8);
+            gameEngine.clickCell(firstClickI, firstClickJ, false);
 
             /* Main board generation loop.
              * I'm calling an "interesting" mine a mine which is next to at least 1 clue
@@ -86,22 +73,29 @@ public class CreateSolvableBoard {
              * loop. So we can restart completely on a fresh random board.
              */
             int cnt = 0;
-            while (!game.getIsGameWon() && !isInterrupted.get()) {
-                if (game.getIsGameLost()) {
+            GameState currState;
+            while ((currState = gameEngine.getGameState()) != GameState.WON && !isInterrupted.get()) {
+                if (currState == GameState.LOST) {
                     throw new Exception("game is lost, but board generator should never lose");
                 }
 
-                ConvertGameBoardFormat.convertToExistingBoard(game, board, true);
+                for (int i = 0; i < solverBoard.getRows(); i++) {
+                    for (int j = 0; j < solverBoard.getCols(); j++) {
+                        TileWithLogistics curr = solverBoard.getCell(i, j);
+                        curr.set(gameEngine.getCell(i, j));
+                        curr.isLogicalFree = false;
+                        curr.isLogicalMine = false;
+                    }
+                }
 
                 /*try to deduce free squares with local rules. There is the
                  * possibility of not finding deducible free squares, even if they exist.
                  */
-                if (CheckForLocalStuff.checkAndUpdateBoardForTrivialStuff(board)) {
-                    game.updateLogicalStuff(board);
-                    if (game.everyComponentHasLogicalFrees()) {
-                        gameStack.push(new MinesweeperGame(game));
+                if (CheckForLocalStuff.checkAndUpdateBoardForTrivialStuff(solverBoard)) {
+                    if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
+                        gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
                     }
-                    if (clickedLogicalFrees(game)) {
+                    if (clickedLogicalFrees(gameEngine, solverBoard)) {
                         continue;
                     }
                 }
@@ -109,22 +103,27 @@ public class CreateSolvableBoard {
                 /*try to deduce free squares with gauss solver. Gaussian Elimination has the
                  * possibility of not finding deducible free squares, even if they exist.
                  */
-                gaussSolver.solvePosition(board, mines);
-                game.updateLogicalStuff(board);
-                if (game.everyComponentHasLogicalFrees()) {
-                    gameStack.push(new MinesweeperGame(game));
+                gaussSolver.solvePosition(solverBoard);
+                if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
+                    gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
                 }
-                if (clickedLogicalFrees(game)) {
+                if (clickedLogicalFrees(gameEngine, solverBoard)) {
                     continue;
                 }
 
                 try {
-                    myBacktrackingSolver.solvePosition(board, mines);
-                    game.updateLogicalStuff(board);
-                    if (game.everyComponentHasLogicalFrees()) {
-                        gameStack.push(new MinesweeperGame(game));
+                    {
+                        Board<TileWithProbability> tmpResult = myBacktrackingSolver.solvePositionWithLogistics(solverBoard);
+                        for(int i = 0; i < rows; i++) {
+                            for(int j = 0; j < cols; j++) {
+                                solverBoard.getCell(i,j).set(tmpResult.getCell(i,j));
+                            }
+                        }
                     }
-                    if (clickedLogicalFrees(game)) {
+                    if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
+                        gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
+                    }
+                    if (clickedLogicalFrees(gameEngine, solverBoard)) {
                         continue;
                     }
                 } catch (HitIterationLimitException ignored) {
@@ -132,7 +131,7 @@ public class CreateSolvableBoard {
 
                 if ((cnt++) % 12 == 0) {
                     try {
-                        game.shuffleInterestingMinesAndMakeOneAway(firstClickI, firstClickJ);
+                        gameEngine.shuffleInterestingMinesAndMakeOneAway(firstClickI, firstClickJ);
                         gameStack.clear();
                     } catch (Exception ignored) {
                         break;
@@ -141,38 +140,75 @@ public class CreateSolvableBoard {
                     if (!gameStack.empty()) {
                         gameStack.pop();
                     }
-                    while (!gameStack.empty() && !game.everyComponentHasLogicalFrees()) {
-                        game = new MinesweeperGame(gameStack.pop());
+                    while (!gameStack.empty() && !everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
+                        gameEngine = new EngineForCreatingSolvableBoard(gameStack.pop());
                     }
-                    if (!game.everyComponentHasLogicalFrees()) {
+                    if (!everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
                         break;
                     }
                     try {
-                        game.shuffleAwayMines();
+                        gameEngine.shuffleAwayMines();
                     } catch (Exception ignored) {
                         break;
                     }
                 }
             }
 
-            if (game.getIsGameWon()) {
-                return new MinesweeperGame(game, firstClickI, firstClickJ);
+            //found solvable board, let's return it, gameEngine is source of truth here
+            if(gameEngine.getGameState() == GameState.WON) {
+                TileWithMine[][] grid = new TileWithMine[rows][cols];
+                for(int i = 0; i < rows; i++) {
+                    for(int j = 0; j < cols; j++) {
+                        grid[i][j].set(gameEngine.getCell(i,j));
+                    }
+                }
+                return new Board(grid, mines);
             }
+            //inner-while-loop can break out without finding a solvable board if various things fail.
+            //In this case, we try again completely from scratch
         }
-        return new MinesweeperGame(rows, cols, mines);
+        //Here, we've timed out
+        throw new Exception("timed out");
     }
 
-    private boolean clickedLogicalFrees(MinesweeperGame game) throws Exception {
-        game.checkCorrectnessOfSolverOutput(board);
+    //returns true if we clicked a logical-free, thus expanding/progressing
+    private static boolean clickedLogicalFrees(EngineForCreatingSolvableBoard gameEngine, Board<TileWithLogistics> solverBoard) throws Exception {
+        gameEngine.checkCorrectnessOfSolverOutput(solverBoard);
         boolean clickedFree = false;
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                if (board[i][j].getIsLogicalFree()) {
-                    game.clickCell(i, j, false);
+        for (int i = 0; i < solverBoard.getRows(); ++i) {
+            for (int j = 0; j < solverBoard.getCols(); ++j) {
+                if (solverBoard.getCell(i, j).isLogicalFree) {
+                    gameEngine.clickCell(i, j, false);
                     clickedFree = true;
                 }
             }
         }
         return clickedFree;
+    }
+    private static boolean everyComponentHasLogicalFrees(EngineForCreatingSolvableBoard gameEngine, Board<TileWithLogistics> solverBoard) throws Exception {
+        Dsu disjointSet = GetConnectedComponents.getDsuOfComponentsWithKnownMines(new Board<>(solverBoard.getGrid(), solverBoard.getMines()));
+        boolean[] hasLogicalFree = new boolean[solverBoard.getRows() * solverBoard.getCols()];
+        boolean hasAtLeastOneLogicalFree = false;
+        for (int i = 0; i < solverBoard.getRows(); ++i) {
+            for (int j = 0; j < solverBoard.getCols(); ++j) {
+                if (solverBoard.getCell(i, j).isLogicalFree) {
+                    hasAtLeastOneLogicalFree = true;
+                    hasLogicalFree[disjointSet.find(RowColToIndex.rowColToIndex(i, j, solverBoard.getRows(), solverBoard.getCols()))] = true;
+                }
+            }
+        }
+        if (!hasAtLeastOneLogicalFree) {
+            return false;
+        }
+        for (int i = 0; i < solverBoard.getRows(); ++i) {
+            for (int j = 0; j < solverBoard.getCols(); ++j) {
+                if (gameEngine.isInterestingCell(i, j) &&
+                        !solverBoard.getCell(i, j).isLogicalMine &&
+                        !hasLogicalFree[disjointSet.find(RowColToIndex.rowColToIndex(i, j, solverBoard.getRows(), solverBoard.getCols()))]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

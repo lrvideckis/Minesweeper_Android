@@ -1,7 +1,10 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.Tile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
@@ -11,41 +14,37 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class GetConnectedComponents {
-    private static int rows, cols;
 
-    public static Pair<ArrayList<ArrayList<Pair<Integer, Integer>>>, ArrayList<ArrayList<SortedSet<Integer>>>> getComponentsWithKnownCells(VisibleTile[][] board) throws Exception {
-        Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
-        rows = dimensions.first;
-        cols = dimensions.second;
-        Dsu disjointSet = new Dsu(rows * cols);
-        boolean[][] unknownStatusSpot = new boolean[rows][cols];
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                if (!board[i][j].getIsVisible()) {
+    public static Pair<ArrayList<ArrayList<Pair<Integer, Integer>>>, ArrayList<ArrayList<SortedSet<Integer>>>> getComponentsWithKnownCells(Board<TileWithLogistics> board) throws Exception {
+        Dsu disjointSet = new Dsu(board.getRows() * board.getCols());
+        boolean[][] unknownStatusSpot = new boolean[board.getRows()][board.getCols()];
+        for (int i = 0; i < board.getRows(); ++i) {
+            for (int j = 0; j < board.getCols(); ++j) {
+                if (!board.getCell(i, j).isVisible) {
                     continue;
                 }
-                for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+                for (int[] adj : board.getAdjacentIndexes(i, j)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    VisibleTile adjTile = board[adjI][adjJ];
-                    if (adjTile.getIsVisible() || adjTile.getIsLogicalMine() || adjTile.getIsLogicalFree()) {
+                    TileWithLogistics adjTile = board.getCell(adjI, adjJ);
+                    if (adjTile.isVisible || adjTile.isLogicalMine || adjTile.isLogicalFree) {
                         continue;
                     }
-                    disjointSet.merge(RowColToIndex.rowColToIndex(i, j, rows, cols), RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols));
+                    disjointSet.merge(RowColToIndex.rowColToIndex(i, j, board.getRows(), board.getCols()), RowColToIndex.rowColToIndex(adjI, adjJ, board.getRows(), board.getCols()));
                     unknownStatusSpot[adjI][adjJ] = true;
                 }
             }
         }
-        boolean[][] visited = new boolean[rows][cols];
+        boolean[][] visited = new boolean[board.getRows()][board.getCols()];
         ArrayList<ArrayList<Pair<Integer, Integer>>> components = new ArrayList<>();
         ArrayList<ArrayList<TreeSet<Integer>>> mutableAdjList = new ArrayList<>();
-        MyPair[][] rowColToComponent = new MyPair[rows][cols];
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
+        MyPair[][] rowColToComponent = new MyPair[board.getRows()][board.getCols()];
+        for (int i = 0; i < board.getRows(); ++i) {
+            for (int j = 0; j < board.getCols(); ++j) {
                 if (visited[i][j] || !unknownStatusSpot[i][j]) {
                     continue;
                 }
                 ArrayList<Pair<Integer, Integer>> component = new ArrayList<>();
-                dfs(i, j, component, visited, unknownStatusSpot, disjointSet.find(RowColToIndex.rowColToIndex(i, j, rows, cols)), disjointSet, rowColToComponent, components.size());
+                dfs(board, i, j, component, visited, unknownStatusSpot, disjointSet.find(RowColToIndex.rowColToIndex(i, j, board.getRows(), board.getCols())), disjointSet, rowColToComponent, components.size());
                 components.add(component);
                 ArrayList<TreeSet<Integer>> currAdjList = new ArrayList<>(component.size());
                 for (int k = 0; k < component.size(); ++k) {
@@ -55,22 +54,22 @@ public class GetConnectedComponents {
             }
         }
 
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                if (!board[i][j].getIsVisible()) {
+        for (int i = 0; i < board.getRows(); ++i) {
+            for (int j = 0; j < board.getCols(); ++j) {
+                if (!board.getCell(i, j).isVisible) {
                     continue;
                 }
-                for (int[] adj1 : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
-                    final VisibleTile adjTile1 = board[adj1[0]][adj1[1]];
-                    if (adjTile1.getIsVisible() || adjTile1.getIsLogicalMine() || adjTile1.getIsLogicalFree()) {
+                for (int[] adj1 : board.getAdjacentIndexes(i, j)) {
+                    TileWithLogistics adjTile1 = board.getCell(adj1[0], adj1[1]);
+                    if (adjTile1.isVisible || adjTile1.isLogicalMine || adjTile1.isLogicalFree) {
                         continue;
                     }
-                    for (int[] adj2 : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+                    for (int[] adj2 : board.getAdjacentIndexes(i, j)) {
                         if (adj1[0] == adj2[0] && adj1[1] == adj2[1]) {
                             continue;
                         }
-                        final VisibleTile adjTile2 = board[adj2[0]][adj2[1]];
-                        if (adjTile2.getIsVisible() || adjTile2.getIsLogicalMine() || adjTile2.getIsLogicalFree()) {
+                        TileWithLogistics adjTile2 = board.getCell(adj2[0], adj2[1]);
+                        if (adjTile2.isVisible || adjTile2.isLogicalMine || adjTile2.isLogicalFree) {
                             continue;
                         }
                         //add edge
@@ -103,6 +102,7 @@ public class GetConnectedComponents {
     }
 
     private static void dfs(
+            final Board<TileWithLogistics> board,
             final int i,
             final int j,
             ArrayList<Pair<Integer, Integer>> component,
@@ -116,12 +116,12 @@ public class GetConnectedComponents {
         rowColToComponent[i][j] = new MyPair(componentId, component.size());
         component.add(new Pair<>(i, j));
         visited[i][j] = true;
-        for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+        for (int[] adj : board.getAdjacentIndexes(i, j)) {
             final int adjI = adj[0], adjJ = adj[1];
-            if (visited[adjI][adjJ] || !unknownStatusSpot[adjI][adjJ] || ccDsuParent != disjointSet.find(RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols))) {
+            if (visited[adjI][adjJ] || !unknownStatusSpot[adjI][adjJ] || ccDsuParent != disjointSet.find(RowColToIndex.rowColToIndex(adjI, adjJ, board.getRows(), board.getCols()))) {
                 continue;
             }
-            dfs(adjI, adjJ, component, visited, unknownStatusSpot, ccDsuParent, disjointSet, rowColToComponent, componentId);
+            dfs(board, adjI, adjJ, component, visited, unknownStatusSpot, ccDsuParent, disjointSet, rowColToComponent, componentId);
         }
         for (int di = -2; di <= 2; ++di) {
             for (int dj = -2; dj <= 2; ++dj) {
@@ -130,33 +130,31 @@ public class GetConnectedComponents {
                 }
                 final int adjI = i + di;
                 final int adjJ = j + dj;
-                if (ArrayBounds.outOfBounds(adjI, adjJ, rows, cols)) {
+                if (board.outOfBounds(adjI, adjJ)) {
                     continue;
                 }
-                if (visited[adjI][adjJ] || !unknownStatusSpot[adjI][adjJ] || ccDsuParent != disjointSet.find(RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols))) {
+                if (visited[adjI][adjJ] || !unknownStatusSpot[adjI][adjJ] || ccDsuParent != disjointSet.find(RowColToIndex.rowColToIndex(adjI, adjJ, board.getRows(), board.getCols()))) {
                     continue;
                 }
-                dfs(adjI, adjJ, component, visited, unknownStatusSpot, ccDsuParent, disjointSet, rowColToComponent, componentId);
+                dfs(board, adjI, adjJ, component, visited, unknownStatusSpot, ccDsuParent, disjointSet, rowColToComponent, componentId);
             }
         }
     }
 
-    public static Dsu getDsuOfComponentsWithKnownMines(Board<VisibleTile> board) throws Exception {
-        rows = board.getRows();
-        cols = board.getCols();
-        Dsu disjointSet = new Dsu(rows * cols);
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                if (!board.getCell(i,j).getIsVisible()) {
+    public static Dsu getDsuOfComponentsWithKnownMines(Board<TileWithLogistics> board) throws Exception {
+        Dsu disjointSet = new Dsu(board.getRows() * board.getCols());
+        for (int i = 0; i < board.getRows(); ++i) {
+            for (int j = 0; j < board.getCols(); ++j) {
+                if (!board.getCell(i, j).isVisible) {
                     continue;
                 }
-                for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
+                for (int[] adj : board.getAdjacentIndexes(i, j)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    VisibleTile adjTile = board.getCell(adjI,adjJ);
-                    if (adjTile.getIsVisible() || adjTile.getIsLogicalMine()) {
+                    TileWithLogistics adjTile = board.getCell(adjI, adjJ);
+                    if (adjTile.isVisible || adjTile.isLogicalMine) {
                         continue;
                     }
-                    disjointSet.merge(RowColToIndex.rowColToIndex(i, j, rows, cols), RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols));
+                    disjointSet.merge(RowColToIndex.rowColToIndex(i, j, board.getRows(), board.getCols()), RowColToIndex.rowColToIndex(adjI, adjJ, board.getRows(), board.getCols()));
                 }
             }
         }

@@ -1,65 +1,40 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles;
 
-public class Tile extends VisibleTileWithProbability {
-    private boolean isFlagged, isMine;
+public class Tile {
+
+    public TileState state;
+    public int numberSurroundingMines;
 
     public Tile() {
-        super();
-        isFlagged = isMine = false;
+        state = TileState.NOT_FLAGGED;
+        numberSurroundingMines = 0;
     }
 
-    //copy constructor
-    public Tile(Tile other) {
-        super(other);
-        isMine = other.isMine;
-        isFlagged = other.isFlagged;
+    public Tile(Tile rhs) {
+        state = rhs.state;
+        numberSurroundingMines = rhs.numberSurroundingMines;
     }
 
-    public boolean isMine() {
-        return isMine;
-    }
-
-    public void setIsMine(boolean _isMine) {
-        isMine = _isMine;
-    }
-
-    //TODO: breaks single responsibility
-    public boolean isFlagged() {
-        if (isVisible) {
-            isFlagged = false;
-        }
-        return isFlagged;
-    }
-
-    public void setIsFlagged(boolean _isFlagged) {
-        isFlagged = _isFlagged;
-    }
-
-    public void resetLogicalStuffAndVisibility() throws Exception {
-        isVisible = isLogicalMine = isLogicalFree = false;
-        mineProbability.setValues(0, 1);
-    }
-
-    //returns whether this tile is revealed - it's revealed if previously not visible
-    public boolean revealTile() throws Exception {
-        boolean revealed = !isVisible;
-        isVisible = true;
-        isFlagged = isLogicalFree = false;
-        mineProbability.setValues(0, 1);
-        if (isMine) {
-            throw new Exception("can't reveal a mine");
-        }
-        if (isLogicalMine) {
-            throw new Exception("can't reveal a logical mine");
-        }
-        return revealed;
+    public Tile(TileState _state, int _numberSurroundingMines) {
+        state = _state;
+        numberSurroundingMines = _numberSurroundingMines;
     }
 
     public void toggleFlag() {
-        if (isVisible) {
-            isFlagged = false;
-            return;
+        switch(state) {
+            case FLAGGED:
+                state = TileState.NOT_FLAGGED;
+                break;
+            case NOT_FLAGGED:
+                state = TileState.FLAGGED;
+                break;
+            case VISIBLE:
+                break;
         }
-        isFlagged = !isFlagged;
+    }
+
+    public void set(Tile rhs) {
+        state = rhs.state;
+        numberSurroundingMines = rhs.numberSurroundingMines;
     }
 }

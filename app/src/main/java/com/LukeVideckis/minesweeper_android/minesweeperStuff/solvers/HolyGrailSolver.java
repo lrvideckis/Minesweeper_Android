@@ -1,41 +1,47 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTileWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 
-public class HolyGrailSolver implements BacktrackingSolver {
+public class HolyGrailSolver implements SolverWithProbability {
 
-    private final BacktrackingSolver myBacktrackingSolver;
-    private final MinesweeperSolver gaussSolver;
-    private final VisibleTileWithProbability[][] tempBoardWithProbability;
+    private final SolverStartingWithLogistics recursiveSolver;
+    private final Solver gaussSolver;
     private final int rows, cols;
+    private final TileWithLogistics[][] logisticsGrid;
 
-    public HolyGrailSolver(int rows, int cols) {
+    public HolyGrailSolver(int rows, int cols) throws Exception {
         this.rows = rows;
         this.cols = cols;
-        myBacktrackingSolver = new MyBacktrackingSolver(rows, cols);
+        recursiveSolver = new IntenseRecursiveSolver(rows, cols);
         gaussSolver = new GaussianEliminationSolver(rows, cols);
-        tempBoardWithProbability = new VisibleTileWithProbability[rows][cols];
+        logisticsGrid = new TileWithLogistics[rows][cols];
     }
 
     @Override
-    public void solvePosition(VisibleTile[][] board, int numberOfMines) throws Exception {
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                tempBoardWithProbability[i][j] = new VisibleTileWithProbability(board[i][j]);
+    public Board<TileWithProbability> solvePositionWithProbability(Board<TileNoFlagsForSolver> board) throws Exception {
+        if (rows != board.getRows() || cols != board.getCols()) {
+            throw new Exception("board dimensions don't match");
+        }
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                logisticsGrid[i][j].set(board.getCell(i, j));
+                logisticsGrid[i][j].isLogicalFree = false;
+                logisticsGrid[i][j].isLogicalMine = false;
             }
         }
-        solvePosition(tempBoardWithProbability, numberOfMines);
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                board[i][j].set(tempBoardWithProbability[i][j]);
-            }
-        }
-    }
+        Board<TileWithLogistics> logisticsBoard = new Board<>(logisticsGrid, board.getMines());
 
-    @Override
-    public void solvePosition(VisibleTileWithProbability[][] board, int numberOfMines) throws Exception {
-        gaussSolver.solvePosition(board, numberOfMines);
-        myBacktrackingSolver.solvePosition(board, numberOfMines);
+        //gauss solver runs until it doesn't find anything (including CheckForLocalStuff).
+        //It leaves logical frees/mines stored in logisticsBoard.
+        gaussSolver.solvePosition(logisticsBoard);
+
+        //Now use gauss solver findings in MyBackrackingSolver to help split by components
+        return recursiveSolver.solvePositionWithLogistics(logisticsBoard);
     }
 }

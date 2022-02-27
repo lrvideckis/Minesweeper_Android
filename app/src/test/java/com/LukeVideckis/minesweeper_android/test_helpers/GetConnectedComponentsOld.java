@@ -4,7 +4,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.Dsu;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetAdjacentCells;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.VisibleTile;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class GetConnectedComponentsOld {
     private static int rows, cols;
 
-    public static ArrayList<ArrayList<Pair<Integer, Integer>>> getComponentsWithKnownCellsOld(VisibleTile[][] board) throws Exception {
+    public static ArrayList<ArrayList<Pair<Integer, Integer>>> getComponentsWithKnownCellsOld(TileNoFlagsForSolver[][] board) throws Exception {
         Pair<Integer, Integer> dimensions = ArrayBounds.getArrayBounds(board);
         rows = dimensions.first;
         cols = dimensions.second;
@@ -25,7 +25,7 @@ public class GetConnectedComponentsOld {
                 }
                 for (int[] adj : GetAdjacentCells.getAdjacentCells(i, j, rows, cols)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    VisibleTile adjTile = board[adjI][adjJ];
+                    TileNoFlagsForSolver adjTile = board[adjI][adjJ];
                     if (adjTile.getIsVisible() || adjTile.getIsLogicalMine() || adjTile.getIsLogicalFree()) {
                         continue;
                     }
