@@ -37,10 +37,10 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
     public Board<TileWithProbability> solvePositionWithProbability(Board<TileNoFlagsForSolver> board) throws Exception {
         initialize(board);//creates deep copy of solution board to return
 
-        if (AllCellsAreHidden.allCellsAreHidden(new Board<>(board.getGrid(),board.getMines()))) {
+        if (AllCellsAreHidden.allCellsAreHidden(new Board<>(board.getGrid(), board.getMines()))) {
             for (int i = 0; i < board.getRows(); ++i) {
                 for (int j = 0; j < board.getCols(); ++j) {
-                    solutionBoard.getCell(i,j).mineProbability.setValues(board.getMines(), board.getRows() * board.getCols());
+                    solutionBoard.getCell(i, j).mineProbability.setValues(board.getMines(), board.getRows() * board.getCols());
                 }
             }
             return solutionBoard;
@@ -49,7 +49,7 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
         ArrayList<Pair<Integer, Integer>> component = new ArrayList<>();
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {
-                if (!board.getCell(i,j).isVisible) {
+                if (!board.getCell(i, j).isVisible) {
                     component.add(new Pair<>(i, j));
                 }
             }
@@ -62,14 +62,14 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
 
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {
-                TileNoFlagsForSolver curr = board.getCell(i,j);
+                TileNoFlagsForSolver curr = board.getCell(i, j);
                 if (curr.isVisible) {
                     continue;
                 }
                 if (numberOfTotalConfigs[i][j].equals(0)) {
                     throw new NoSolutionFoundException("There should be at least one mine configuration for non-visible cells");
                 }
-                solutionBoard.getCell(i,j).mineProbability.divideWith(numberOfTotalConfigs[i][j]);
+                solutionBoard.getCell(i, j).mineProbability.divideWith(numberOfTotalConfigs[i][j]);
             }
         }
         return solutionBoard;
@@ -79,7 +79,7 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
         for (Pair<Integer, Integer> spot : component) {
             for (int[] adj : board.getAdjacentIndexes(spot.first, spot.second)) {
                 final int adjI = adj[0], adjJ = adj[1];
-                if (board.getCell(adjI,adjJ).isVisible) {
+                if (board.getCell(adjI, adjJ).isVisible) {
                     lastUnvisitedSpot[adjI][adjJ][0] = spot.first;
                     lastUnvisitedSpot[adjI][adjJ][1] = spot.second;
                 }
@@ -96,9 +96,9 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
                 lastUnvisitedSpot[i][j][0] = 0;
                 lastUnvisitedSpot[i][j][1] = 0;
                 numberOfTotalConfigs[i][j].setValues(0, 1);
-                TileWithProbability solutionCell = solutionBoard.getCell(i,j);
-                solutionCell.set(board.getCell(i,j));
-                solutionCell.mineProbability.setValues(0,1);
+                TileWithProbability solutionCell = solutionBoard.getCell(i, j);
+                solutionCell.set(board.getCell(i, j));
+                solutionCell.mineProbability.setValues(0, 1);
             }
         }
     }
@@ -135,7 +135,7 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
     private void updateSurroundingMineCnt(int i, int j, int delta, Board<TileNoFlagsForSolver> board) throws Exception {
         for (int[] adj : board.getAdjacentIndexes(i, j)) {
             final int adjI = adj[0], adjJ = adj[1];
-            if (board.getCell(adjI,adjJ).isVisible) {
+            if (board.getCell(adjI, adjJ).isVisible) {
                 final int cnt = cntSurroundingMines[adjI][adjJ];
                 cntSurroundingMines[adjI][adjJ] = cnt + delta;
             }
@@ -145,7 +145,7 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
     private boolean checkSurroundingConditions(int i, int j, Pair<Integer, Integer> currSpot, int arePlacingAMine, Board<TileNoFlagsForSolver> board) throws Exception {
         for (int[] adj : board.getAdjacentIndexes(i, j)) {
             final int adjI = adj[0], adjJ = adj[1];
-            TileNoFlagsForSolver adjTile = board.getCell(adjI,adjJ);
+            TileNoFlagsForSolver adjTile = board.getCell(adjI, adjJ);
             if (!adjTile.isVisible) {
                 continue;
             }
@@ -172,11 +172,11 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
         }
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {
-                if (board.getCell(i,j).isVisible) {
+                if (board.getCell(i, j).isVisible) {
                     continue;
                 }
                 if (isMine[i][j]) {
-                    solutionBoard.getCell(i,j).mineProbability.addWith(1);
+                    solutionBoard.getCell(i, j).mineProbability.addWith(1);
                 }
                 numberOfTotalConfigs[i][j].addWith(1);
             }
@@ -189,7 +189,7 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
             for (int j = 0; j < board.getCols(); ++j) {
                 for (int[] adj : board.getAdjacentIndexes(i, j)) {
                     final int adjI = adj[0], adjJ = adj[1];
-                    TileNoFlagsForSolver adjTile = board.getCell(adjI,adjJ);
+                    TileNoFlagsForSolver adjTile = board.getCell(adjI, adjJ);
                     if (!adjTile.isVisible) {
                         continue;
                     }

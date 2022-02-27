@@ -25,7 +25,7 @@ public class TestEngine extends GameEngine {
                 }
             }
         }
-        if(freeCells.isEmpty()) {
+        if (freeCells.isEmpty()) {
             throw new Exception("there should have been at least 1 free cell since the game isn't won");
         }
         Collections.shuffle(freeCells);
