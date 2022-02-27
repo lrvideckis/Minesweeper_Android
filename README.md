@@ -6,6 +6,8 @@ height="80" />
 
 ## Overview
 
+Relevant code found [here](https://github.com/lrvideckis/Minesweeper_Android/tree/master/app/src/main/java/com/LukeVideckis/minesweeper_android).
+
 Aren't there like a million minesweeper games out there? - Yup
 
 Well, then how is this any different? - I'll tell you :)
