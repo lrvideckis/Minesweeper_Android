@@ -30,6 +30,7 @@ public class MyMath {
         return result;
     }
 
+    //random number in range [min, max] inclusive
     public static int getRand(int min, int max) throws Exception {
         if (min > max) {
             throw new Exception("invalid parameters: min > max");

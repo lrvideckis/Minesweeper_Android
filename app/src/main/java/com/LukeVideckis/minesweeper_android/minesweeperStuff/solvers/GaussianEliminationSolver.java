@@ -3,7 +3,7 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 //TODO: run this independently on each component
-public class GaussianEliminationSolver implements Solver {
+public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
 
     private static final int maxAwayCellsToIncludeThem = 10;
     private final int rows, cols;

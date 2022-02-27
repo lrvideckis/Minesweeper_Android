@@ -1,7 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
@@ -11,7 +11,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProba
 public class HolyGrailSolver implements SolverWithProbability {
 
     private final SolverStartingWithLogistics recursiveSolver;
-    private final Solver gaussSolver;
+    private final SolverAddLogisticsInPlace gaussSolver;
     private final int rows, cols;
     private final TileWithLogistics[][] logisticsGrid;
 

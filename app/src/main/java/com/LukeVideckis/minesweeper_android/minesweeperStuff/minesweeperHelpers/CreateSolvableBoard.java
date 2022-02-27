@@ -7,7 +7,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameSta
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForLocalStuff;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.Solver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
@@ -18,11 +18,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class CreateSolvableBoard {
 
+    //returns positions of mines as we need to initialize the game engine with this board. and it's
+    //exponentially hard to figure out where the mines are from the visible board. We know where the
+    //mines are from this function. Let's not re-solve for mine locations.
     public static Board<TileWithMine> getSolvableBoard(final int rows, final int cols, final int mines, final int firstClickI, final int firstClickJ, final boolean hasAn8, AtomicBoolean isInterrupted) throws Exception {
         Board<TileWithLogistics> solverBoard = new Board<>(new TileWithLogistics[rows][cols], mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
-        Solver gaussSolver = new GaussianEliminationSolver(rows, cols);
+        SolverAddLogisticsInPlace gaussSolver = new GaussianEliminationSolver(rows, cols);
 
         if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
             throw new Exception("first click is out of bounds");

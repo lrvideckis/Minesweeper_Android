@@ -22,18 +22,6 @@ public class TileNoFlagsForSolver {
         numberSurroundingMines = rhs.numberSurroundingMines;
     }
 
-    public TileNoFlagsForSolver(char c) {
-        if (c == '.') {
-            set(true, 0);
-        } else if (c == 'U') {
-            set(false, 0);
-        } else if (c == 'B') {
-            set(false, 0);
-        } else {
-            set(true, c - '0');
-        }
-    }
-
     public void set(boolean _isVisible, int _numberSurroundingMines) {
         isVisible = _isVisible;
         numberSurroundingMines = _numberSurroundingMines;
@@ -45,7 +33,7 @@ public class TileNoFlagsForSolver {
     }
 
     public void set(Tile rhs) {
-        isVisible = (rhs.state == TileState.VISIBLE);
+        isVisible = (rhs.state == TileState.VISIBLE);//lose information on purpose: solvers should not know about flags
         numberSurroundingMines = rhs.numberSurroundingMines;
     }
 }

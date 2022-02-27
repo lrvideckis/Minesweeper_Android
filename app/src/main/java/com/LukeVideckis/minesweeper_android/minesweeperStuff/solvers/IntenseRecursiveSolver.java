@@ -45,7 +45,7 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
     private ArrayList<ArrayList<Pair<Integer, Integer>>> components;
     private ArrayList<ArrayList<SortedSet<Integer>>> adjList;
 
-    public IntenseRecursiveSolver(int rows, int cols) throws Exception {
+    public IntenseRecursiveSolver(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         isMine = new boolean[rows][cols];
