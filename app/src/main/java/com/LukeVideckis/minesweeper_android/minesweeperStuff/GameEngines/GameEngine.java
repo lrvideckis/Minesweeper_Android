@@ -22,7 +22,7 @@ public class GameEngine {
         if (numberOfMines > rows * cols - 9) {
             throw new Exception("too many mines for zero start, UI shouldn't allow for this to happen");
         }
-        if(_hasAn8 && numberOfMines < 8) {
+        if (_hasAn8 && numberOfMines < 8) {
             throw new Exception("too few mines for an 8, UI shouldn't allow for this to happen");
         }
         hasAn8 = _hasAn8;

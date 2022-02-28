@@ -535,7 +535,7 @@ public class stress_tests_minesweeper_solver {
     private static boolean noLogicalFrees(Board<TileWithProbability> solverBoard) throws Exception {
         for (int i = 0; i < solverBoard.getRows(); i++) {
             for (int j = 0; j < solverBoard.getCols(); j++) {
-                if (!solverBoard.getCell(i,j).isVisible && solverBoard.getCell(i, j).mineProbability.equals(0)) {
+                if (!solverBoard.getCell(i, j).isVisible && solverBoard.getCell(i, j).mineProbability.equals(0)) {
                     return false;
                 }
             }
@@ -648,7 +648,7 @@ public class stress_tests_minesweeper_solver {
             SolverStartingWithLogistics fastSolver = new IntenseRecursiveSolver(rows, cols);
             SolverAddLogisticsInPlace gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
 
-            GameEngine gameEngine = new GameEngine(rows, cols, mines, testID <= numberOfTests/2 /*exactly half the tests*/);
+            GameEngine gameEngine = new GameEngine(rows, cols, mines, testID <= numberOfTests / 2 /*exactly half the tests*/);
             {
                 int numberOfClicks = MyMath.getRand(0, 4);
                 while (numberOfClicks-- > 0 && gameEngine.getGameState() != GameState.LOST) {
@@ -753,27 +753,27 @@ public class stress_tests_minesweeper_solver {
                         }
                     }
                 }
-                if(minesFromSolvableBoard != mines) {
+                if (minesFromSolvableBoard != mines) {
                     throw new Exception("supposedly solvable board has incorrect number of mines");
                 }
             }
 
-            if(hasAn8) {
+            if (hasAn8) {
                 boolean foundAn8 = false;
                 for (int i = 0; i < rows && !foundAn8; i++) {
                     for (int j = 0; j < cols && !foundAn8; j++) {
                         int cntMine = 0;
-                        for(TileWithMine adj : solvableBoard.getAdjacentCells(i,j)) {
-                            if(adj.isMine) {
+                        for (TileWithMine adj : solvableBoard.getAdjacentCells(i, j)) {
+                            if (adj.isMine) {
                                 cntMine++;
                             }
                         }
-                        if(cntMine == 8) {
+                        if (cntMine == 8) {
                             foundAn8 = true;
                         }
                     }
                 }
-                if(!foundAn8) {
+                if (!foundAn8) {
                     throw new Exception("gen solvable board didn't create a board containing an 8");
                 }
             }
@@ -812,7 +812,7 @@ public class stress_tests_minesweeper_solver {
 
                 for (int i = 0; i < rows; ++i) {
                     for (int j = 0; j < cols; ++j) {
-                        if (!solverRes.getCell(i,j).isVisible && solverRes.getCell(i, j).mineProbability.equals(0)) {
+                        if (!solverRes.getCell(i, j).isVisible && solverRes.getCell(i, j).mineProbability.equals(0)) {
                             gameEngine.clickCell(i, j, false);
                         }
                     }
@@ -832,7 +832,7 @@ public class stress_tests_minesweeper_solver {
     //returns [# rows, # cols, # mines, 0/1 for hasAn8]
     private int[] genSmallBoundsForSlowSolver() throws Exception {
         final boolean hasAn8 = (MyMath.getRand(0, 2) == 0);
-        if(hasAn8) {
+        if (hasAn8) {
             //a 3-by-8 grid is guaranteed to have some place for the 8
             final int rows = MyMath.getRand(3, 5);
             final int cols = MyMath.getRand(8, 10);

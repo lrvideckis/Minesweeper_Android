@@ -134,14 +134,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.newGameButton) {
+        if (v.getId() == R.id.newGameButton) {
             ImageButton newGameButton = findViewById(R.id.newGameButton);
             newGameButton.setImageResource(R.drawable.smiley_face);
             startNewGame();
             GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
             lastActionWasGetHelpButton = false;
             gameCanvas.invalidate();
-        } else if(v.getId() == R.id.toggleFlagMode) {
+        } else if (v.getId() == R.id.toggleFlagMode) {
             toggleFlagModeOn = !toggleFlagModeOn;
             Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
             if (toggleFlagModeOn) {
@@ -149,7 +149,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 toggleFlagMode.setText(mineEmoji);
             }
-        } else if(v.getId() == R.id.getHelpButton) {
+        } else if (v.getId() == R.id.getHelpButton) {
             try {
                 executeHelpButton();
             } catch (Exception e) {
@@ -172,9 +172,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(buttonView.getId() == R.id.toggleBacktrackingHints) {
+        if (buttonView.getId() == R.id.toggleBacktrackingHints) {
             handleHintToggle(isChecked);
-        } else if(buttonView.getId() == R.id.toggleMineProbability) {
+        } else if (buttonView.getId() == R.id.toggleMineProbability) {
             handleToggleMineProbability(isChecked);
         }
     }

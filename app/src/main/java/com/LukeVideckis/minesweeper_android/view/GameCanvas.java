@@ -99,7 +99,7 @@ public class GameCanvas extends View {
         if (gameCell.state == TileState.FLAGGED) {
             drawCellHelpers.drawFlag(canvas, startX, startY);
             if (currGameState == GameState.LOST) {
-                if(isMine == null) {
+                if (isMine == null) {
                     throw new Exception("we should have mine info since game is over");
                 }
                 if (!isMine) {

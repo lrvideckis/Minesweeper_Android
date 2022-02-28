@@ -25,8 +25,8 @@ public abstract class CreateSolvableBoard {
     //really, this should only return the positions of mines
     public static Board<TileWithMine> getSolvableBoard(final int rows, final int cols, final int mines, final int firstClickI, final int firstClickJ, final boolean hasAn8, AtomicBoolean isInterrupted) throws Exception {
         TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 tmpBoard[i][j] = new TileWithLogistics();
             }
         }
@@ -129,7 +129,7 @@ public abstract class CreateSolvableBoard {
                                 TileWithLogistics solverCell = solverBoard.getCell(i, j);
                                 TileWithProbability tmpCell = tmpResult.getCell(i, j);
                                 solverCell.set(tmpCell);
-                                if(solverCell.isVisible) {
+                                if (solverCell.isVisible) {
                                     solverCell.isLogicalFree = false;
                                     solverCell.isLogicalMine = false;
                                 } else {

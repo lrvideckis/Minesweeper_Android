@@ -75,7 +75,7 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 TileWithProbability curr = boardWithProbability.getCell(i, j);
-                curr.set(board.getCell(i,j));
+                curr.set(board.getCell(i, j));
                 curr.mineProbability = new BigFraction(0);
             }
         }

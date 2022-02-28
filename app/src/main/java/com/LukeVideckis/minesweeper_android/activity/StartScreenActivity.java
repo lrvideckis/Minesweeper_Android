@@ -76,7 +76,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         final int cols = colsInput.getProgress() + rowsColsMin;
         final int mines = mineInput.getProgress() + minesMin;
         RadioButton noGuessingMode, normalMode, noGuessingModeWith8, getHelpMode;
-        if(v.getId() == R.id.normal_mode) {
+        if (v.getId() == R.id.normal_mode) {
             noGuessingMode = findViewById(R.id.no_guessing_mode);
             noGuessingMode.setChecked(false);
             noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
@@ -89,7 +89,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.no_guessing_mode) {
+        } else if (v.getId() == R.id.no_guessing_mode) {
             normalMode = findViewById(R.id.normal_mode);
             normalMode.setChecked(false);
             noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
@@ -102,7 +102,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.no_guessing_mode_with_an_8) {
+        } else if (v.getId() == R.id.no_guessing_mode_with_an_8) {
             normalMode = findViewById(R.id.normal_mode);
             normalMode.setChecked(false);
             noGuessingMode = findViewById(R.id.no_guessing_mode);
@@ -115,7 +115,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.get_help_mode) {
+        } else if (v.getId() == R.id.get_help_mode) {
             normalMode = findViewById(R.id.normal_mode);
             normalMode.setChecked(false);
             noGuessingMode = findViewById(R.id.no_guessing_mode);
@@ -128,45 +128,45 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.normal_mode_info) {
+        } else if (v.getId() == R.id.normal_mode_info) {
             displayNormalModeInfoPopup();
-        } else if(v.getId() == R.id.no_guessing_mode_info) {
+        } else if (v.getId() == R.id.no_guessing_mode_info) {
             displayNoGuessingModeInfoPopup();
-        } else if(v.getId() == R.id.no_guessing_mode_with_8_info) {
+        } else if (v.getId() == R.id.no_guessing_mode_with_8_info) {
             displayNoGuessingWith8ModeInfoPopup();
-        } else if(v.getId() == R.id.get_help_mode_info) {
+        } else if (v.getId() == R.id.get_help_mode_info) {
             displayGetHelpModeInfoPopup();
-        } else if(v.getId() == R.id.rowsDecrement) {
+        } else if (v.getId() == R.id.rowsDecrement) {
             try {
                 setMinMaxText(rows - 1, cols, mines, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.rowsIncrement) {
+        } else if (v.getId() == R.id.rowsIncrement) {
             try {
                 setMinMaxText(rows + 1, cols, mines, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.colsDecrement) {
+        } else if (v.getId() == R.id.colsDecrement) {
             try {
                 setMinMaxText(rows, cols - 1, mines, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.colsIncrement) {
+        } else if (v.getId() == R.id.colsIncrement) {
             try {
                 setMinMaxText(rows, cols + 1, mines, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.minesDecrement) {
+        } else if (v.getId() == R.id.minesDecrement) {
             try {
                 setMinMaxText(rows, cols, mines - 1, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.minesIncrement) {
+        } else if (v.getId() == R.id.minesIncrement) {
             try {
                 setMinMaxText(rows, cols, mines + 1, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
