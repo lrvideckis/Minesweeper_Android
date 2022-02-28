@@ -54,24 +54,12 @@ public class GameCanvas extends View {
             boolean isGetHelp,
             GameState currGameState
     ) throws Exception {
-
         GameActivity gameActivity = (GameActivity) getContext();
-
-        //error checking
-        if (isMine != null) {//isMine is only valid if
-            if (mineProb.equals(1) && !isMine) {
-                throw new Exception("solver says: logical mine, but it's not a mine");
-            }
-            if (mineProb.equals(0) && isMine) {
-                throw new Exception("gauss solver says: logical free, but it's not free");
-            }
-        }
 
         //start of actually drawing cell
         if (gameCell.state == TileState.VISIBLE) {
             drawCellHelpers.drawNumberedCell(canvas, gameCell.numberSurroundingMines, i, j, startX, startY);
             if (isGetHelp && currGameState == GameState.STILL_GOING) {
-                System.out.println("here");
                 drawCellHelpers.drawRedBoundary(canvas, startX, startY);
             }
             return;

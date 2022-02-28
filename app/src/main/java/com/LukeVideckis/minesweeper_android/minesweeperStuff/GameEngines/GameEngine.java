@@ -145,9 +145,9 @@ public class GameEngine {
         if (firstClick && !toggleFlags) {
             firstClick = false;
             if (hasAn8) {
-                initializeMineLocationsAfterFirstClickedCellWith8(row, col);
+                initializeMineLocationsWith8AndClickStartCell(row, col);
             } else {
-                initializeMineLocationsAfterFirstClickedCell(row, col);
+                initializeMineLocationsAndClickStartCell(row, col);
             }
             return;
         }
@@ -221,7 +221,7 @@ public class GameEngine {
         }
     }
 
-    private void initializeMineLocationsAfterFirstClickedCellWith8(int row, int col) throws Exception {
+    private void initializeMineLocationsWith8AndClickStartCell(int row, int col) throws Exception {
         ArrayList<Pair<Integer, Integer>> spots = new ArrayList<>();
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
@@ -290,7 +290,7 @@ public class GameEngine {
     }
 
     //TODO: combine these 2 functions with logic around 8's existence
-    protected void initializeMineLocationsAfterFirstClickedCell(int row, int col) throws Exception {
+    protected void initializeMineLocationsAndClickStartCell(int row, int col) throws Exception {
         ArrayList<Pair<Integer, Integer>> spots = new ArrayList<>();
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {

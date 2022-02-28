@@ -31,7 +31,41 @@ public class EngineGetHelpMode extends GameEngine {
     }
 
     //assumes solver finished successfully
-    public void revealRandomCellIfAllLogicalStuffIsCorrect(Board<TileWithProbability> solverBoard) throws Exception {
+    public boolean userIdentifiedAllLogicalStuffCorrectly(Board<TileWithProbability> solverBoard) throws Exception {
+        if (getGameState() != GameState.STILL_GOING) {
+            throw new Exception("shouldn't be running solver on finished board");
+        }
+        if (solverBoard.getRows() != getRows() || solverBoard.getCols() != getCols()) {
+            throw new Exception("solver board dimensions don't match game engine dimensions");
+        }
+        if(firstClick && getNumberOfMines() == 0) {
+            return false;
+        }
+        for (int i = 0; i < grid.getRows(); ++i) {
+            for (int j = 0; j < grid.getCols(); ++j) {
+                TileWithMine currTile = grid.getCell(i, j);
+                if (currTile.state == TileState.VISIBLE) {
+                    continue;
+                }
+                final boolean isLogicalFree = solverBoard.getCell(i, j).mineProbability.equals(0);
+                final boolean isLogicalMine = solverBoard.getCell(i, j).mineProbability.equals(1);
+                if (isLogicalFree || (isLogicalMine != (currTile.state == TileState.FLAGGED))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    //when user presses getHint, without correctly identifying the logical stuff, the game is over
+    public void endGameFromFailedHint() throws Exception {
+        if(getGameState() == GameState.WON) {
+            throw new Exception("can't end game when it's won");
+        }
+        isGameLost = true;
+    }
+
+    public void revealRandomCell() throws Exception {
         if (getGameState() != GameState.STILL_GOING) {
             return;
         }
@@ -40,27 +74,8 @@ public class EngineGetHelpMode extends GameEngine {
             getHelpRow = MyMath.getRand(0, grid.getRows() - 1);
             getHelpCol = MyMath.getRand(0, grid.getCols() - 1);
             //TODO: when 8-mode is changed to be a setting, this will have to be refactored
-            initializeMineLocationsAfterFirstClickedCell(getHelpRow, getHelpCol);
+            initializeMineLocationsAndClickStartCell(getHelpRow, getHelpCol);
             return;
-        }
-        if (solverBoard.getRows() != getRows() || solverBoard.getCols() != getCols()) {
-            throw new Exception("solver board dimensions don't match game engine dimensions");
-        }
-        for (int i = 0; i < grid.getRows(); ++i) {
-            for (int j = 0; j < grid.getCols(); ++j) {
-                final boolean isLogicalFree = solverBoard.getCell(i, j).mineProbability.equals(0);
-                final boolean isLogicalMine = solverBoard.getCell(i, j).mineProbability.equals(1);
-                TileWithMine currTile = grid.getCell(i, j);
-                if (isLogicalFree || isLogicalMine) {
-                    if (currTile.state == TileState.VISIBLE) {
-                        throw new Exception("sanity check: deducible tiles can only be un-visited");
-                    }
-                }
-                if (isLogicalFree || (isLogicalMine != (currTile.state == TileState.FLAGGED))) {
-                    isGameLost = true;
-                    return;
-                }
-            }
         }
         ArrayList<ArrayList<Pair<Integer, Integer>>> freeCells = new ArrayList<>(3);
         for (int i = 0; i < 3; ++i) {

@@ -310,24 +310,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void executeHelpButton() throws Exception {
-        boolean solverHitIterationLimit = false;
         try {
             updateSolvedBoardWithBacktrackingSolver(true);
+            //solver succeeds - check logical stuff is correct, and either reveal cell or end game
+            if(engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
+                engineGetHelpMode.revealRandomCell();
+                if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {
+                    updateSolvedBoardWithBacktrackingSolver(false);
+                }
+            } else {
+                engineGetHelpMode.endGameFromFailedHint();
+                gameEndedFromHelpButton = true;
+                updateSolvedBoardWithBacktrackingSolver(false);
+                toggleBacktrackingHintsOn = true;
+            }
         } catch (HitIterationLimitException ignored) {
-            solverHitIterationLimit = true;
-        }
-        try {
-            //TODO: iteration limit logic SHOULD NOT exists inside game engine!!!
-            engineGetHelpMode.revealRandomCellIfAllLogicalStuffIsCorrect(boardSolverOutput);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (engineGetHelpMode.getGameState() == GameState.LOST) {
-            gameEndedFromHelpButton = true;
-            updateSolvedBoardWithBacktrackingSolver(false);
-            toggleBacktrackingHintsOn = true;
-        } else if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {
-            updateSolvedBoardWithBacktrackingSolver(false);
+            //solver doesn't succeed - reveal random cell
+            engineGetHelpMode.revealRandomCell();
         }
         lastActionWasGetHelpButton = true;
         findViewById(R.id.gridCanvas).invalidate();
