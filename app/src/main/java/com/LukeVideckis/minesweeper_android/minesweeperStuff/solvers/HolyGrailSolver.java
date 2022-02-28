@@ -15,7 +15,7 @@ public class HolyGrailSolver implements SolverWithProbability {
     private final int rows, cols;
     private final TileWithLogistics[][] logisticsGrid;
 
-    public HolyGrailSolver(int rows, int cols) throws Exception {
+    public HolyGrailSolver(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         recursiveSolver = new IntenseRecursiveSolver(rows, cols);
@@ -24,6 +24,8 @@ public class HolyGrailSolver implements SolverWithProbability {
     }
 
     @Override
+    // Leaves mine probability for visible cells equal to 0
+    // So don't check for logical frees by just checking mine prob = 0. You also have to check that cell is not visible.
     public Board<TileWithProbability> solvePositionWithProbability(Board<TileNoFlagsForSolver> board) throws Exception {
         if (rows != board.getRows() || cols != board.getCols()) {
             throw new Exception("board dimensions don't match");
@@ -42,7 +44,7 @@ public class HolyGrailSolver implements SolverWithProbability {
         //It leaves logical frees/mines stored in logisticsBoard.
         gaussSolver.solvePosition(logisticsBoard);
 
-        //Now use gauss solver findings in MyBackrackingSolver to help split by components
+        //Now use gauss solver findings in IntenseRecursiveSolver to help split by components
         return recursiveSolver.solvePositionWithLogistics(logisticsBoard);
     }
 }

@@ -13,6 +13,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -522,13 +523,14 @@ public class stress_tests_minesweeper_solver {
     }
 
     private static Board<TileWithLogistics> convertToAddLogistics(Board<TileNoFlagsForSolver> board) throws Exception {
-        Board<TileWithLogistics> res = new Board<>(new TileWithLogistics[board.getRows()][board.getCols()], board.getMines());
+        TileWithLogistics[][] tmpBoard = new TileWithLogistics[board.getRows()][board.getCols()];
         for (int i = 0; i < board.getRows(); i++) {
             for (int j = 0; j < board.getCols(); j++) {
-                res.getCell(i, j).set(board.getCell(i, j));
+                tmpBoard[i][j] = new TileWithLogistics();
+                tmpBoard[i][j].set(board.getCell(i, j));
             }
         }
-        return res;
+        return new Board<>(tmpBoard, board.getMines());
     }
 
     private static boolean noLogicalFrees(Board<TileWithProbability> solverBoard) throws Exception {
@@ -616,7 +618,8 @@ public class stress_tests_minesweeper_solver {
                 boolean clickedFree = false;
                 for (int i = 0; i < rows; ++i) {
                     for (int j = 0; j < cols; ++j) {
-                        if (fastOut.getCell(i, j).mineProbability.equals(0)) {
+                        TileWithProbability cell = fastOut.getCell(i, j);
+                        if (!cell.isVisible && cell.mineProbability.equals(0)) {
                             clickedFree = true;
                             gameEngine.clickCell(i, j, false);
                         }
@@ -638,15 +641,15 @@ public class stress_tests_minesweeper_solver {
         int numberOfTests = 20;
         for (int testID = 1; testID <= numberOfTests; ++testID) {
             System.out.println("test number: " + testID);
+            //a 3-by-8 grid is guaranteed to have some place for the 8
             final int rows = MyMath.getRand(3, 15);
-            final int cols = MyMath.getRand(3, 15);
-            int mines = MyMath.getRand(2, 50);
-            mines = Math.min(mines, rows * cols - 9);
+            final int cols = MyMath.getRand(8, 15);
+            final int mines = MyMath.getRand(8, rows * cols - 9);//if you click in the middle of a 3-by-8 grid, you can fit an 8 above/below and then 6 extra mines below/above
 
             SolverStartingWithLogistics fastSolver = new IntenseRecursiveSolver(rows, cols);
             SolverAddLogisticsInPlace gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
 
-            GameEngine gameEngine = new GameEngine(rows, cols, mines, MyMath.getRand(0, 1) == 0);
+            GameEngine gameEngine = new GameEngine(rows, cols, mines, testID <= numberOfTests/2 /*exactly half the tests*/);
             {
                 int numberOfClicks = MyMath.getRand(0, 4);
                 while (numberOfClicks-- > 0 && gameEngine.getGameState() != GameState.LOST) {
@@ -743,6 +746,26 @@ public class stress_tests_minesweeper_solver {
             long startTime = System.currentTimeMillis();
             Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(rows, cols, mines, firstClickI, firstClickJ, hasAn8, new AtomicBoolean(false));
             System.out.println(" time to create solvable board: " + (System.currentTimeMillis() - startTime) + " ms");
+
+            if(hasAn8) {
+                boolean foundAn8 = false;
+                for (int i = 0; i < rows && !foundAn8; i++) {
+                    for (int j = 0; j < cols && !foundAn8; j++) {
+                        int cntMine = 0;
+                        for(TileWithMine adj : solvableBoard.getAdjacentCells(i,j)) {
+                            if(adj.isMine) {
+                                cntMine++;
+                            }
+                        }
+                        if(cntMine == 8) {
+                            foundAn8 = true;
+                        }
+                    }
+                }
+                if(!foundAn8) {
+                    throw new Exception("gen solvable board didn't create a board containing an 8");
+                }
+            }
 
             GameEngine gameEngine = new GameEngine(solvableBoard, firstClickI, firstClickJ);
 
