@@ -10,7 +10,6 @@ import android.view.ViewConfiguration;
 
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
-import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 
 public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener implements View.OnTouchListener {
 
@@ -25,7 +24,6 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
     private int prevPointerCount = 0;
     //variables to handle a tap
     private boolean seenMoreThanOnePointer = false, hasBeenTooFar = false;
-    @SuppressWarnings("CanBeFinal")
     private Context context;
     private volatile float startOfTapX, startOfTapY;
     private float minScaleVal;
@@ -139,7 +137,6 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
                     if (checkIfTap(event)) {
                         absoluteX = startAbsoluteX;
                         absoluteY = startAbsoluteY;
-
                         try {
                             ((GameActivity) context).handleTap(
                                     convertScreenToGridX(startOfTapX),

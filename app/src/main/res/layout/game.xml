@@ -1,115 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/gameLayout"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="@color/white"
-	android:tag="@string/is_relative_layout">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gameLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:tag="@string/is_relative_layout">
 
-	<RelativeLayout
-		android:id="@+id/topPanel"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:background="@drawable/bottom_black_border">
+    <RelativeLayout
+        android:id="@+id/topPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/bottom_black_border">
 
-		<TextView
-			android:id="@+id/showNumberOfMines"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerVertical="true"
-			android:layout_marginStart="10dp"
-			android:background="@drawable/border"
-			android:text="000"
-			android:textColor="@color/red"
-			android:textSize="20sp"
-			tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/showNumberOfMines"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/border"
+            android:text="000"
+            android:textColor="@color/red"
+            android:textSize="20sp"
+            tools:ignore="HardcodedText" />
 
-		<ImageButton
-			android:id="@+id/getHelpButton"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:layout_centerVertical="true"
-			android:layout_marginEnd="10dp"
-			android:layout_toStartOf="@id/newGameButton"
-			android:src="@drawable/light_bulb_for_hint"
-			android:visibility="invisible"
-			tools:ignore="ContentDescription" />
+        <ImageButton
+            android:id="@+id/getHelpButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@id/newGameButton"
+            android:src="@drawable/light_bulb_for_hint"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
 
-		<ImageButton
-			android:id="@+id/newGameButton"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:layout_centerHorizontal="true"
-			android:layout_centerVertical="true"
-			android:background="@null"
-			android:backgroundTint="@color/white"
-			android:scaleType="fitCenter"
-			android:src="@drawable/smiley_face"
-			tools:ignore="ContentDescription" />
+        <ImageButton
+            android:id="@+id/newGameButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:backgroundTint="@color/white"
+            android:scaleType="fitCenter"
+            android:src="@drawable/smiley_face"
+            tools:ignore="ContentDescription" />
 
-		<Button
-			android:id="@+id/toggleFlagMode"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:layout_centerVertical="true"
-			android:layout_marginStart="10dp"
-			android:layout_toEndOf="@id/newGameButton"
-			android:textSize="20sp" />
+        <Button
+            android:id="@+id/toggleFlagMode"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/newGameButton"
+            android:textSize="20sp" />
 
-		<TextView
-			android:id="@+id/timeTextView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_centerVertical="true"
-			android:layout_marginEnd="10dp"
-			android:background="@drawable/border"
-			android:text="000"
-			android:textColor="@color/red"
-			android:textSize="20sp"
-			tools:ignore="HardcodedText" />
-	</RelativeLayout>
+        <TextView
+            android:id="@+id/timeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/border"
+            android:text="000"
+            android:textColor="@color/red"
+            android:textSize="20sp"
+            tools:ignore="HardcodedText" />
+    </RelativeLayout>
 
-	<com.LukeVideckis.minesweeper_android.view.GameCanvas
-		android:id="@+id/gridCanvas"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_above="@id/bottomPanel"
-		android:layout_below="@id/topPanel"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentEnd="true"
-		android:tag="@string/is_game_canvas_layout" />
+    <com.LukeVideckis.minesweeper_android.view.GameCanvas
+        android:id="@+id/gridCanvas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottomPanel"
+        android:layout_below="@id/topPanel"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:tag="@string/is_game_canvas_layout" />
 
-	<RelativeLayout
-		android:id="@+id/bottomPanel"
-		android:layout_width="match_parent"
-		android:layout_height="48dp"
-		android:layout_alignParentBottom="true"
-		android:background="@drawable/top_black_border"
-		android:orientation="horizontal">
+    <RelativeLayout
+        android:id="@+id/bottomPanel"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/top_black_border"
+        android:orientation="horizontal">
 
-		<LinearLayout
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:layout_centerInParent="true"
-			android:orientation="horizontal"
-			tools:ignore="UselessParent">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
 
-			<Switch
-				android:id="@+id/toggleBacktrackingHints"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:text="@string/deducible_squares" />
+            <Switch
+                android:id="@+id/toggleBacktrackingHints"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/deducible_squares" />
 
-			<Switch
-				android:id="@+id/toggleMineProbability"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_marginStart="20dp"
-				android:text="@string/show_mine_probability" />
-		</LinearLayout>
+            <Switch
+                android:id="@+id/toggleMineProbability"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="20dp"
+                android:text="@string/show_mine_probability" />
+        </LinearLayout>
 
-	</RelativeLayout>
+    </RelativeLayout>
 </RelativeLayout>

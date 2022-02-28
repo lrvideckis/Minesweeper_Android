@@ -1,6 +1,5 @@
 package com.LukeVideckis.minesweeper_android.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;

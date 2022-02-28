@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="colorPrimary">#6200EE</color>
-	<color name="colorPrimaryDark">#3700B3</color>
-	<color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
 
-	<color name="lightGrey">#CCCCCC</color>
-	<color name="reallyLightGrey">#E6E6E6</color>
-	<color name="white">#FFFFFF</color>
-	<color name="black">#000000</color>
-	<color name="backgroundGreyBlankVisibleCell">#CCCCCC</color>
-	<color name="backgroundRedBlankVisibleCell">#FF0000</color>
-	<color name="red">#FF0000</color>
+    <color name="lightGrey">#CCCCCC</color>
+    <color name="reallyLightGrey">#E6E6E6</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="backgroundGreyBlankVisibleCell">#CCCCCC</color>
+    <color name="backgroundRedBlankVisibleCell">#FF0000</color>
+    <color name="red">#FF0000</color>
 
-	<!-- colors for the numbers -->
-	<color name="one">#0000FF</color>
-	<color name="two">#009933</color>
-	<color name="three">#FF0000</color>
-	<color name="four">#000099</color>
-	<color name="five">#800000</color>
-	<color name="six">#009999</color>
-	<color name="seven">#000000</color>
-	<color name="eight">#808080</color>
+    <!-- colors for the numbers -->
+    <color name="one">#0000FF</color>
+    <color name="two">#009933</color>
+    <color name="three">#FF0000</color>
+    <color name="four">#000099</color>
+    <color name="five">#800000</color>
+    <color name="six">#009999</color>
+    <color name="seven">#000000</color>
+    <color name="eight">#808080</color>
 
-	<color name="middleSquareColor">#B3B3B3</color>
-	<color name="lowerTriangleColor">#666666</color>
+    <color name="middleSquareColor">#B3B3B3</color>
+    <color name="lowerTriangleColor">#666666</color>
 
-	<color name="upperRedTriangle">#FFCCCC</color>
-	<color name="middleRedSquare">#FF6666</color>
-	<color name="lowerRedTriangle">#CC0000</color>
+    <color name="upperRedTriangle">#FFCCCC</color>
+    <color name="middleRedSquare">#FF6666</color>
+    <color name="lowerRedTriangle">#CC0000</color>
 
-	<color name="upperGreenTriangle">#CCFFCC</color>
-	<color name="middleGreenSquare">#4DFF4D</color>
-	<color name="lowerGreenTriangle">#00CC00</color>
+    <color name="upperGreenTriangle">#CCFFCC</color>
+    <color name="middleGreenSquare">#4DFF4D</color>
+    <color name="lowerGreenTriangle">#00CC00</color>
 </resources>
