@@ -536,7 +536,7 @@ public class stress_tests_minesweeper_solver {
     private static boolean noLogicalFrees(Board<TileWithProbability> solverBoard) throws Exception {
         for (int i = 0; i < solverBoard.getRows(); i++) {
             for (int j = 0; j < solverBoard.getCols(); j++) {
-                if (solverBoard.getCell(i, j).mineProbability.equals(0)) {
+                if (!solverBoard.getCell(i,j).isVisible && solverBoard.getCell(i, j).mineProbability.equals(0)) {
                     return false;
                 }
             }
@@ -580,7 +580,7 @@ public class stress_tests_minesweeper_solver {
 
     @Test
     public void performTestsForMineProbability() throws Exception {
-        int numberOfTests = 30;
+        int numberOfTests = 128;
         for (int testID = 1; testID <= numberOfTests; ++testID) {
             //TODO: revisit these bounds
             System.out.println("test number: " + testID);
@@ -730,10 +730,8 @@ public class stress_tests_minesweeper_solver {
             //TODO: revisit these bounds - too big for slow solver
             final int rows = MyMath.getRand(8, 30);
             final int cols = MyMath.getRand(8, 30);
-            int mines = MyMath.getRand(2, 100);
-            mines = Math.min(mines, rows * cols - 9);
-            mines = Math.min(mines, (int) (rows * cols * 0.23f));
-            final boolean hasAn8 = (MyMath.getRand(0, 1) == 0);
+            final int mines = MyMath.getRand(8, Math.min(100, Math.min(rows * cols - 9, (int) (rows * cols * 0.23f))));
+            final boolean hasAn8 = (testID <= 10);
 
             System.out.print(" rows, cols, mines, hasAn8: " + rows + " " + cols + " " + mines + " " + hasAn8);
             System.out.print(" percentage: " + mines / (float) (rows * cols));
@@ -746,6 +744,20 @@ public class stress_tests_minesweeper_solver {
             long startTime = System.currentTimeMillis();
             Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(rows, cols, mines, firstClickI, firstClickJ, hasAn8, new AtomicBoolean(false));
             System.out.println(" time to create solvable board: " + (System.currentTimeMillis() - startTime) + " ms");
+
+            {
+                int minesFromSolvableBoard = 0;
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        if (solvableBoard.getCell(i, j).isMine) {
+                            minesFromSolvableBoard++;
+                        }
+                    }
+                }
+                if(minesFromSolvableBoard != mines) {
+                    throw new Exception("supposedly solvable board has incorrect number of mines");
+                }
+            }
 
             if(hasAn8) {
                 boolean foundAn8 = false;
@@ -767,10 +779,17 @@ public class stress_tests_minesweeper_solver {
                 }
             }
 
-            GameEngine gameEngine = new GameEngine(solvableBoard, firstClickI, firstClickJ);
+            GameEngine gameEngine = new GameEngine(solvableBoard, firstClickI, firstClickJ, hasAn8);
 
             sumTimes += System.currentTimeMillis() - startTime;
-            Board<TileNoFlagsForSolver> visibleBoard = new Board<>(new TileNoFlagsForSolver[rows][cols], mines);
+            TileNoFlagsForSolver[][] tmpBoard = new TileNoFlagsForSolver[rows][cols];
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    tmpBoard[i][j] = new TileNoFlagsForSolver();
+                }
+            }
+            Board<TileNoFlagsForSolver> visibleBoard = new Board<>(tmpBoard, mines);
+
             boolean hitIterationLimit = false;
             while (gameEngine.getGameState() == GameState.STILL_GOING) {
                 for (int i = 0; i < rows; i++) {
@@ -794,7 +813,7 @@ public class stress_tests_minesweeper_solver {
 
                 for (int i = 0; i < rows; ++i) {
                     for (int j = 0; j < cols; ++j) {
-                        if (solverRes.getCell(i, j).mineProbability.equals(0)) {
+                        if (!solverRes.getCell(i,j).isVisible && solverRes.getCell(i, j).mineProbability.equals(0)) {
                             gameEngine.clickCell(i, j, false);
                         }
                     }

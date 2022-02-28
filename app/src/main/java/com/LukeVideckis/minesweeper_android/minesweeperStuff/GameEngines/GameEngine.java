@@ -80,10 +80,10 @@ public class GameEngine {
 
     //initialize new game engine with a given board (including mines), and starting click (reveal starting cell)
     //TODO: I hate that this exists, let's find a better way to initialize the engine after finding a solvable board
-    public GameEngine(Board<TileWithMine> startBoard, int firstClickI, int firstClickJ) throws Exception {
+    public GameEngine(Board<TileWithMine> startBoard, int firstClickI, int firstClickJ, boolean _hasAn8) throws Exception {
         grid = startBoard;
         //TODO: when hint mode can have an 8, re-thing about how to initialize row/col with 8
-        hasAn8 = false;
+        hasAn8 = _hasAn8;
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
                 if (grid.getCell(i, j).state == TileState.VISIBLE) {
@@ -97,11 +97,8 @@ public class GameEngine {
         if (grid.getCell(firstClickI, firstClickJ).numberSurroundingMines != 0) {
             throw new Exception("first clicked cell isn't a zero start");
         }
+        firstClick = false;
         revealCell(firstClickI, firstClickJ);
-    }
-
-    public static boolean tooManyMinesForZeroStart(int rows, int cols, int numberOfMines) {
-        return (numberOfMines > rows * cols - 9);
     }
 
     public int getRows() {
@@ -196,7 +193,7 @@ public class GameEngine {
 
     //***private members***
 
-    //Definition of chord: if the surrounding tiles have correct # of flags, then reveal all unflagged neighbors
+    //Definition of chord: if the surrounding tiles have correct # of flags, then reveal all un-flagged neighbors
     private void checkForChords(int row, int col) throws Exception {
         boolean revealSurroundingCells = true;
         for (TileWithMine adj : grid.getAdjacentCells(row, col)) {

@@ -9,6 +9,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEli
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -21,8 +22,16 @@ public abstract class CreateSolvableBoard {
     //returns positions of mines as we need to initialize the game engine with this board. and it's
     //exponentially hard to figure out where the mines are from the visible board. We know where the
     //mines are from this function. Let's not re-solve for mine locations.
+    //
+    //really, this should only return the positions of mines
     public static Board<TileWithMine> getSolvableBoard(final int rows, final int cols, final int mines, final int firstClickI, final int firstClickJ, final boolean hasAn8, AtomicBoolean isInterrupted) throws Exception {
-        Board<TileWithLogistics> solverBoard = new Board<>(new TileWithLogistics[rows][cols], mines);
+        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                tmpBoard[i][j] = new TileWithLogistics();
+            }
+        }
+        Board<TileWithLogistics> solverBoard = new Board<>(tmpBoard, mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
         SolverAddLogisticsInPlace gaussSolver = new GaussianEliminationSolver(rows, cols);
@@ -118,7 +127,16 @@ public abstract class CreateSolvableBoard {
                         Board<TileWithProbability> tmpResult = myBacktrackingSolver.solvePositionWithLogistics(solverBoard);
                         for (int i = 0; i < rows; i++) {
                             for (int j = 0; j < cols; j++) {
-                                solverBoard.getCell(i, j).set(tmpResult.getCell(i, j));
+                                TileWithLogistics solverCell = solverBoard.getCell(i, j);
+                                TileWithProbability tmpCell = tmpResult.getCell(i, j);
+                                solverCell.set((TileNoFlagsForSolver) tmpCell);
+                                if(solverCell.isVisible) {
+                                    solverCell.isLogicalFree = false;
+                                    solverCell.isLogicalFree = false;
+                                } else {
+                                    solverCell.isLogicalFree = tmpCell.mineProbability.equals(0);
+                                    solverCell.isLogicalMine = tmpCell.mineProbability.equals(1);
+                                }
                             }
                         }
                     }
@@ -161,10 +179,11 @@ public abstract class CreateSolvableBoard {
                 TileWithMine[][] grid = new TileWithMine[rows][cols];
                 for (int i = 0; i < rows; i++) {
                     for (int j = 0; j < cols; j++) {
-                        grid[i][j].set(gameEngine.getCell(i, j));
+                        grid[i][j] = new TileWithMine();
+                        grid[i][j].set(gameEngine.getCellWithMine(i, j));
                     }
                 }
-                return new Board(grid, mines);
+                return new Board<>(grid, mines);
             }
             //inner-while-loop can break out without finding a solvable board if various things fail.
             //In this case, we try again completely from scratch

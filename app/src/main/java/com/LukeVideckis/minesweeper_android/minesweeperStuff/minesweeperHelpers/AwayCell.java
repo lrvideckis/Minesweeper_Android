@@ -44,15 +44,6 @@ public class AwayCell {
         return true;
     }
 
-    public static boolean isNextToAnAwayCellSolver(Board<TileNoFlagsForSolver> board, int row, int col) throws Exception {
-        for (int[] adj : board.getAdjacentIndexes(row, col)) {
-            if (isAwayCellSolver(board, adj[0], adj[1])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static boolean isNextToAnAwayCellEngine(Board<Tile> board, int row, int col) throws Exception {
         for (int[] adj : board.getAdjacentIndexes(row, col)) {
             if (isAwayCellEngine(board, adj[0], adj[1])) {

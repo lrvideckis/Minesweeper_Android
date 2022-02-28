@@ -18,8 +18,8 @@ public class EngineGetHelpMode extends GameEngine {
         super(rows, cols, numberOfMines, _hasAn8);
     }
 
-    public EngineGetHelpMode(Board<TileWithMine> startBoard, int firstClickI, int firstClickJ) throws Exception {
-        super(startBoard, firstClickI, firstClickJ);
+    public EngineGetHelpMode(Board<TileWithMine> startBoard, int firstClickI, int firstClickJ, boolean hasAn8) throws Exception {
+        super(startBoard, firstClickI, firstClickJ, hasAn8);
     }
 
     public int getHelpRow() {

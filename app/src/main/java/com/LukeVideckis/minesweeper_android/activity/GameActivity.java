@@ -507,7 +507,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     }
-                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col);
+                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, gameMode == R.id.no_guessing_mode_with_an_8);
                 }
                 finishedBoardGen.set(true);
                 updateTimeThread.start();
