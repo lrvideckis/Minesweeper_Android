@@ -65,10 +65,18 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
     @Override
     public Board<TileWithProbability> solvePositionWithLogistics(Board<TileWithLogistics> board) throws Exception {
         //always allocate new board to avoid any potential issues with shallow copies between solver runs
-        Board<TileWithProbability> boardWithProbability = new Board<>(new TileWithProbability[rows][cols], board.getMines());
+        TileWithProbability[][] tmpBoard = new TileWithProbability[rows][cols];
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                boardWithProbability.getCell(i, j).mineProbability = new BigFraction(0);
+                tmpBoard[i][j] = new TileWithProbability();
+            }
+        }
+        Board<TileWithProbability> boardWithProbability = new Board<>(tmpBoard, board.getMines());
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                TileWithProbability curr = boardWithProbability.getCell(i, j);
+                curr.set(board.getCell(i,j));
+                curr.mineProbability = new BigFraction(0);
             }
         }
 

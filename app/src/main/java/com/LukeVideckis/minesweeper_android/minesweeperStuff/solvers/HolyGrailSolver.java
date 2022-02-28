@@ -30,6 +30,7 @@ public class HolyGrailSolver implements SolverWithProbability {
         }
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
+                logisticsGrid[i][j] = new TileWithLogistics();
                 logisticsGrid[i][j].set(board.getCell(i, j));
                 logisticsGrid[i][j].isLogicalFree = false;
                 logisticsGrid[i][j].isLogicalMine = false;

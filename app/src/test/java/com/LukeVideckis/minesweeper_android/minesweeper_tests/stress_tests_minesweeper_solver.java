@@ -411,7 +411,13 @@ public class stress_tests_minesweeper_solver {
         final int rows = stringBoard.length - 1;
         final int cols = stringBoard[0].length();
         final int mines = Integer.parseInt(stringBoard[stringBoard.length - 1]);
-        Board<TileNoFlagsForSolver> board = new Board<>(new TileNoFlagsForSolver[rows][cols], mines);
+        TileNoFlagsForSolver[][] tmpBoard = new TileNoFlagsForSolver[rows][cols];
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                tmpBoard[i][j] = new TileNoFlagsForSolver();
+            }
+        }
+        Board<TileNoFlagsForSolver> board = new Board<>(tmpBoard, mines);
         for (int i = 0; i + 1 < board.getRows(); ++i) {
             for (int j = 0; j < stringBoard[i].length(); ++j) {
                 if (stringBoard[i].length() != stringBoard[0].length()) {
@@ -505,9 +511,10 @@ public class stress_tests_minesweeper_solver {
     private static Board<TileNoFlagsForSolver> convertToNewBoard(GameEngine minesweeperGame) throws Exception {
         final int rows = minesweeperGame.getRows();
         final int cols = minesweeperGame.getCols();
-        Board<TileNoFlagsForSolver> board = new Board<>(new TileWithProbability[rows][cols], minesweeperGame.getNumberOfMines());
+        Board<TileNoFlagsForSolver> board = new Board<>(new TileNoFlagsForSolver[rows][cols], minesweeperGame.getNumberOfMines());
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
+                board.getGrid()[i][j] = new TileNoFlagsForSolver();
                 board.getCell(i, j).set(minesweeperGame.getCell(i, j));
             }
         }
@@ -784,11 +791,18 @@ public class stress_tests_minesweeper_solver {
     //returns [# rows, # cols, # mines, 0/1 for hasAn8]
     private int[] genSmallBoundsForSlowSolver() throws Exception {
         final boolean hasAn8 = (MyMath.getRand(0, 2) == 0);
+        if(hasAn8) {
+            //a 3-by-8 grid is guaranteed to have some place for the 8
+            final int rows = MyMath.getRand(3, 5);
+            final int cols = MyMath.getRand(8, 10);
+            final int mines = MyMath.getRand(8, 14);//if you click in the middle of a 3-by-8 grid, you can fit an 8 above/below and then 6 extra mines below/above
+            return new int[]{rows, cols, mines, 1};
+        }
         final int rows = MyMath.getRand(3, 8);
         final int cols = MyMath.getRand(3, 40 / rows);
-        int mines = MyMath.getRand(2, 9);
+        int mines = MyMath.getRand(0, 16);
         mines = Math.min(mines, rows * cols - 9);
 
-        return new int[]{rows, cols, mines, hasAn8 ? 1 : 0};
+        return new int[]{rows, cols, mines, 0};
     }
 }

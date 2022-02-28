@@ -88,7 +88,8 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
     }
 
     private void initialize(Board<TileNoFlagsForSolver> board) throws Exception {
-        solutionBoard = new Board<>(new TileWithProbability[board.getRows()][board.getCols()], board.getMines());//hack to update # of mines
+
+        TileWithProbability[][] tmpBoard = new TileWithProbability[board.getRows()][board.getCols()];
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {
                 isMine[i][j] = false;
@@ -96,11 +97,11 @@ public class SlowBacktrackingSolver implements SolverWithProbability {
                 lastUnvisitedSpot[i][j][0] = 0;
                 lastUnvisitedSpot[i][j][1] = 0;
                 numberOfTotalConfigs[i][j].setValues(0, 1);
-                TileWithProbability solutionCell = solutionBoard.getCell(i, j);
-                solutionCell.set(board.getCell(i, j));
-                solutionCell.mineProbability.setValues(0, 1);
+                tmpBoard[i][j] = new TileWithProbability();
+                tmpBoard[i][j].set(board.getCell(i, j));
             }
         }
+        solutionBoard = new Board<>(tmpBoard, board.getMines());//hack to update # of mines
     }
 
     private void solveComponent(int pos, ArrayList<Pair<Integer, Integer>> component, MutableInt currIterations, MutableInt currNumberOfMines, Board<TileNoFlagsForSolver> board) throws Exception {

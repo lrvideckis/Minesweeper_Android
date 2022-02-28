@@ -19,25 +19,37 @@ public class GameEngine {
 
     //***public members***
     public GameEngine(int rows, int cols, int numberOfMines, boolean _hasAn8) throws Exception {
-        if (tooManyMinesForZeroStart(rows, cols, numberOfMines)) {
-            throw new Exception("too many mines for zero start, UI doesn't allow for this to happen");
+        if (numberOfMines > rows * cols - 9) {
+            throw new Exception("too many mines for zero start, UI shouldn't allow for this to happen");
+        }
+        if(_hasAn8 && numberOfMines < 8) {
+            throw new Exception("too few mines for an 8, UI shouldn't allow for this to happen");
         }
         hasAn8 = _hasAn8;
-        grid = new Board<>(new TileWithMine[rows][cols], numberOfMines);
+        TileWithMine[][] tmpGrid = new TileWithMine[rows][cols];
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                tmpGrid[i][j] = new TileWithMine();
+            }
+        }
+        grid = new Board<>(tmpGrid, numberOfMines);
     }
 
-    //copy constructor - deep copy
+    //copy constructor - deep copy of board
     public GameEngine(GameEngine rhs) throws Exception {
         hasAn8 = rhs.hasAn8;
         rowWith8 = rhs.rowWith8;
         colWith8 = rhs.colWith8;
         firstClick = rhs.firstClick;
         isGameLost = rhs.isGameLost;
-        grid = new Board<>(new TileWithMine[rhs.getRows()][rhs.getCols()], rhs.getNumberOfMines());
-        for (int i = 0; i < grid.getRows(); ++i) {
-            for (int j = 0; j < grid.getCols(); ++j) {
-                grid.getCell(i, j).set(rhs.getCell(i, j));
+        {
+            TileWithMine[][] tmpGrid = new TileWithMine[rhs.getRows()][rhs.getCols()];
+            for (int i = 0; i < rhs.getRows(); ++i) {
+                for (int j = 0; j < rhs.getCols(); ++j) {
+                    tmpGrid[i][j] = new TileWithMine(rhs.grid.getGrid()[i][j]);
+                }
             }
+            grid = new Board<>(tmpGrid, rhs.getNumberOfMines());
         }
 
         //only error checking below!
