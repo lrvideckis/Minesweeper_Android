@@ -1,4 +1,4 @@
-package com.LukeVideckis.minesweeper_android.activity;
+package com.LukeVideckis.minesweeper_android.view;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -8,6 +8,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 

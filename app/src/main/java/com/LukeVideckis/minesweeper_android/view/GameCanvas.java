@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
-import com.LukeVideckis.minesweeper_android.activity.ScaleListener;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
@@ -56,9 +55,9 @@ public class GameCanvas extends View {
             GameState currGameState
     ) throws Exception {
 
-        //error checking
         GameActivity gameActivity = (GameActivity) getContext();
 
+        //error checking
         if (isMine != null) {//isMine is only valid if
             if (mineProb.equals(1) && !isMine) {
                 throw new Exception("solver says: logical mine, but it's not a mine");
@@ -71,7 +70,8 @@ public class GameCanvas extends View {
         //start of actually drawing cell
         if (gameCell.state == TileState.VISIBLE) {
             drawCellHelpers.drawNumberedCell(canvas, gameCell.numberSurroundingMines, i, j, startX, startY);
-            if (isGetHelp) {//TODO: I think I need && game is not over here (for bug)
+            if (isGetHelp && currGameState == GameState.STILL_GOING) {
+                System.out.println("here");
                 drawCellHelpers.drawRedBoundary(canvas, startX, startY);
             }
             return;
