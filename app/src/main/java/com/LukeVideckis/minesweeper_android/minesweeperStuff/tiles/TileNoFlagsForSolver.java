@@ -11,17 +11,6 @@ public class TileNoFlagsForSolver {
         numberSurroundingMines = 0;
     }
 
-    public TileNoFlagsForSolver(boolean _isVisible, int _numberSurroundingMines) {
-        isVisible = _isVisible;
-        numberSurroundingMines = _numberSurroundingMines;
-    }
-
-    //copy constructor
-    public TileNoFlagsForSolver(TileNoFlagsForSolver rhs) {
-        isVisible = rhs.isVisible;
-        numberSurroundingMines = rhs.numberSurroundingMines;
-    }
-
     public void set(boolean _isVisible, int _numberSurroundingMines) {
         isVisible = _isVisible;
         numberSurroundingMines = _numberSurroundingMines;

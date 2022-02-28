@@ -1,7 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles;
 
 public class TileWithMine extends Tile {
-    public boolean isMine = false;
+    public boolean isMine;
 
     public TileWithMine() {
         super();

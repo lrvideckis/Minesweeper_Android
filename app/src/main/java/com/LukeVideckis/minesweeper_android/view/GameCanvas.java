@@ -99,6 +99,9 @@ public class GameCanvas extends View {
         if (gameCell.state == TileState.FLAGGED) {
             drawCellHelpers.drawFlag(canvas, startX, startY);
             if (currGameState == GameState.LOST) {
+                if(isMine == null) {
+                    throw new Exception("we should have mine info since game is over");
+                }
                 if (!isMine) {
                     drawCellHelpers.drawBlackX(canvas, startX, startY);
                 } else if (gameActivity.isGetHelpMode() && !mineProb.equals(1)) {
@@ -107,7 +110,7 @@ public class GameCanvas extends View {
             } else if (mineProb.equals(0) && (gameActivity.getToggleBacktrackingHintsOn() || gameActivity.getToggleMineProbabilityOn())) {
                 drawCellHelpers.drawBlackX(canvas, startX, startY);
             }
-        } else if (isMine && currGameState == GameState.LOST) {
+        } else if (currGameState == GameState.LOST && isMine != null && isMine) {
             drawCellHelpers.drawMine(canvas, startX, startY);
         }
     }

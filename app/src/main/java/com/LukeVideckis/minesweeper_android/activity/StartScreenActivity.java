@@ -75,120 +75,103 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         final int rows = rowsInput.getProgress() + rowsColsMin;
         final int cols = colsInput.getProgress() + rowsColsMin;
         final int mines = mineInput.getProgress() + minesMin;
-
-        switch (v.getId()) {
-            case R.id.normal_mode:
-                RadioButton noGuessingMode = findViewById(R.id.no_guessing_mode);
-                noGuessingMode.setChecked(false);
-                RadioButton noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-                noGuessingModeWith8.setChecked(false);
-                RadioButton getHelpMode = findViewById(R.id.get_help_mode);
-                getHelpMode.setChecked(false);
-                gameMode = R.id.normal_mode;
-                try {
-                    setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.no_guessing_mode:
-                RadioButton normalMode = findViewById(R.id.normal_mode);
-                normalMode.setChecked(false);
-                noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-                noGuessingModeWith8.setChecked(false);
-                getHelpMode = findViewById(R.id.get_help_mode);
-                getHelpMode.setChecked(false);
-                gameMode = R.id.no_guessing_mode;
-                try {
-                    setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.no_guessing_mode_with_an_8:
-                normalMode = findViewById(R.id.normal_mode);
-                normalMode.setChecked(false);
-                noGuessingMode = findViewById(R.id.no_guessing_mode);
-                noGuessingMode.setChecked(false);
-                getHelpMode = findViewById(R.id.get_help_mode);
-                getHelpMode.setChecked(false);
-                gameMode = R.id.no_guessing_mode_with_an_8;
-                try {
-                    setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.get_help_mode:
-                normalMode = findViewById(R.id.normal_mode);
-                normalMode.setChecked(false);
-                noGuessingMode = findViewById(R.id.no_guessing_mode);
-                noGuessingMode.setChecked(false);
-                noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-                noGuessingModeWith8.setChecked(false);
-                gameMode = R.id.get_help_mode;
-                try {
-                    setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-
-            case R.id.normal_mode_info:
-                displayNormalModeInfoPopup();
-                break;
-            case R.id.no_guessing_mode_info:
-                displayNoGuessingModeInfoPopup();
-                break;
-            case R.id.no_guessing_mode_with_8_info:
-                displayNoGuessingWith8ModeInfoPopup();
-                break;
-            case R.id.get_help_mode_info:
-                displayGetHelpModeInfoPopup();
-                break;
-
-            case R.id.rowsDecrement:
-                try {
-                    setMinMaxText(rows - 1, cols, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.rowsIncrement:
-                try {
-                    setMinMaxText(rows + 1, cols, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.colsDecrement:
-                try {
-                    setMinMaxText(rows, cols - 1, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.colsIncrement:
-                try {
-                    setMinMaxText(rows, cols + 1, mines, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.minesDecrement:
-                try {
-                    setMinMaxText(rows, cols, mines - 1, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.minesIncrement:
-                try {
-                    setMinMaxText(rows, cols, mines + 1, rowsInput, colsInput, mineInput);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
+        RadioButton noGuessingMode, normalMode, noGuessingModeWith8, getHelpMode;
+        if(v.getId() == R.id.normal_mode) {
+            noGuessingMode = findViewById(R.id.no_guessing_mode);
+            noGuessingMode.setChecked(false);
+            noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
+            noGuessingModeWith8.setChecked(false);
+            getHelpMode = findViewById(R.id.get_help_mode);
+            getHelpMode.setChecked(false);
+            gameMode = R.id.normal_mode;
+            try {
+                setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.no_guessing_mode) {
+            normalMode = findViewById(R.id.normal_mode);
+            normalMode.setChecked(false);
+            noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
+            noGuessingModeWith8.setChecked(false);
+            getHelpMode = findViewById(R.id.get_help_mode);
+            getHelpMode.setChecked(false);
+            gameMode = R.id.no_guessing_mode;
+            try {
+                setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.no_guessing_mode_with_an_8) {
+            normalMode = findViewById(R.id.normal_mode);
+            normalMode.setChecked(false);
+            noGuessingMode = findViewById(R.id.no_guessing_mode);
+            noGuessingMode.setChecked(false);
+            getHelpMode = findViewById(R.id.get_help_mode);
+            getHelpMode.setChecked(false);
+            gameMode = R.id.no_guessing_mode_with_an_8;
+            try {
+                setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.get_help_mode) {
+            normalMode = findViewById(R.id.normal_mode);
+            normalMode.setChecked(false);
+            noGuessingMode = findViewById(R.id.no_guessing_mode);
+            noGuessingMode.setChecked(false);
+            noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
+            noGuessingModeWith8.setChecked(false);
+            gameMode = R.id.get_help_mode;
+            try {
+                setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.normal_mode_info) {
+            displayNormalModeInfoPopup();
+        } else if(v.getId() == R.id.no_guessing_mode_info) {
+            displayNoGuessingModeInfoPopup();
+        } else if(v.getId() == R.id.no_guessing_mode_with_8_info) {
+            displayNoGuessingWith8ModeInfoPopup();
+        } else if(v.getId() == R.id.get_help_mode_info) {
+            displayGetHelpModeInfoPopup();
+        } else if(v.getId() == R.id.rowsDecrement) {
+            try {
+                setMinMaxText(rows - 1, cols, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.rowsIncrement) {
+            try {
+                setMinMaxText(rows + 1, cols, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.colsDecrement) {
+            try {
+                setMinMaxText(rows, cols - 1, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.colsIncrement) {
+            try {
+                setMinMaxText(rows, cols + 1, mines, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.minesDecrement) {
+            try {
+                setMinMaxText(rows, cols, mines - 1, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(v.getId() == R.id.minesIncrement) {
+            try {
+                setMinMaxText(rows, cols, mines + 1, rowsInput, colsInput, mineInput);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

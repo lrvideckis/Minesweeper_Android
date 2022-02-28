@@ -289,7 +289,7 @@ public class GameEngine {
         revealCell(row, col);
     }
 
-    //TODO: combine these 2 functions with logic around 8's existance
+    //TODO: combine these 2 functions with logic around 8's existence
     protected void initializeMineLocationsAfterFirstClickedCell(int row, int col) throws Exception {
         ArrayList<Pair<Integer, Integer>> spots = new ArrayList<>();
         for (int i = 0; i < grid.getRows(); ++i) {

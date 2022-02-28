@@ -16,14 +16,6 @@ public class BigFraction {
         reduceAndSet(numerator, denominator);
     }
 
-    public BigFraction(BigFraction other) {
-        try {
-            setValue(other);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     //this should only throw if denominator is 0
     public void setValues(int numerator, int denominator) throws Exception {
         reduceAndSet(BigInteger.valueOf(numerator), BigInteger.valueOf(denominator));

@@ -9,7 +9,6 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEli
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -129,10 +128,10 @@ public abstract class CreateSolvableBoard {
                             for (int j = 0; j < cols; j++) {
                                 TileWithLogistics solverCell = solverBoard.getCell(i, j);
                                 TileWithProbability tmpCell = tmpResult.getCell(i, j);
-                                solverCell.set((TileNoFlagsForSolver) tmpCell);
+                                solverCell.set(tmpCell);
                                 if(solverCell.isVisible) {
                                     solverCell.isLogicalFree = false;
-                                    solverCell.isLogicalFree = false;
+                                    solverCell.isLogicalMine = false;
                                 } else {
                                     solverCell.isLogicalFree = tmpCell.mineProbability.equals(0);
                                     solverCell.isLogicalMine = tmpCell.mineProbability.equals(1);

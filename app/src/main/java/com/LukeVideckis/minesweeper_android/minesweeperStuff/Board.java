@@ -69,7 +69,7 @@ public class Board<tile> {
     }
 
     public ArrayList<int[]> getAdjacentIndexes(int i, int j) {
-        ArrayList<int[]> adjIdxs = new ArrayList<>();
+        ArrayList<int[]> adjIndexes = new ArrayList<>();
         for (int di = -1; di <= 1; ++di) {
             for (int dj = -1; dj <= 1; ++dj) {
                 if (di == 0 && dj == 0) {
@@ -80,10 +80,10 @@ public class Board<tile> {
                 if (outOfBounds(adjI, adjJ)) {
                     continue;
                 }
-                adjIdxs.add(new int[]{adjI, adjJ});
+                adjIndexes.add(new int[]{adjI, adjJ});
             }
         }
-        return adjIdxs;
+        return adjIndexes;
     }
 }
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 
 public class CheckForLocalStuff {
-    public static boolean checkAndUpdateBoardForTrivialStuff(Board<TileWithLogistics> board/*input-outpout param, assumes logical stuff is correct*/) throws Exception {
+    public static boolean checkAndUpdateBoardForTrivialStuff(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
         boolean foundNewStuff = false;
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {

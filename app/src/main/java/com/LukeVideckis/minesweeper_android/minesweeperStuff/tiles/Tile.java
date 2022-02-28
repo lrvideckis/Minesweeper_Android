@@ -15,11 +15,6 @@ public class Tile {
         numberSurroundingMines = rhs.numberSurroundingMines;
     }
 
-    public Tile(TileState _state, int _numberSurroundingMines) {
-        state = _state;
-        numberSurroundingMines = _numberSurroundingMines;
-    }
-
     public void toggleFlag() {
         switch (state) {
             case FLAGGED:

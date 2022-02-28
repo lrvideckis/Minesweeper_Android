@@ -134,31 +134,27 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.newGameButton:
-                ImageButton newGameButton = findViewById(R.id.newGameButton);
-                newGameButton.setImageResource(R.drawable.smiley_face);
-                startNewGame();
-                GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
-                lastActionWasGetHelpButton = false;
-                gameCanvas.invalidate();
-                break;
-            case R.id.toggleFlagMode:
-                toggleFlagModeOn = !toggleFlagModeOn;
-                Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
-                if (toggleFlagModeOn) {
-                    toggleFlagMode.setText(flagEmoji);
-                } else {
-                    toggleFlagMode.setText(mineEmoji);
-                }
-                break;
-            case R.id.getHelpButton:
-                try {
-                    executeHelpButton();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
+        if(v.getId() == R.id.newGameButton) {
+            ImageButton newGameButton = findViewById(R.id.newGameButton);
+            newGameButton.setImageResource(R.drawable.smiley_face);
+            startNewGame();
+            GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
+            lastActionWasGetHelpButton = false;
+            gameCanvas.invalidate();
+        } else if(v.getId() == R.id.toggleFlagMode) {
+            toggleFlagModeOn = !toggleFlagModeOn;
+            Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
+            if (toggleFlagModeOn) {
+                toggleFlagMode.setText(flagEmoji);
+            } else {
+                toggleFlagMode.setText(mineEmoji);
+            }
+        } else if(v.getId() == R.id.getHelpButton) {
+            try {
+                executeHelpButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -176,13 +172,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        switch (buttonView.getId()) {
-            case R.id.toggleBacktrackingHints:
-                handleHintToggle(isChecked);
-                break;
-            case R.id.toggleMineProbability:
-                handleToggleMineProbability(isChecked);
-                break;
+        if(buttonView.getId() == R.id.toggleBacktrackingHints) {
+            handleHintToggle(isChecked);
+        } else if(buttonView.getId() == R.id.toggleMineProbability) {
+            handleToggleMineProbability(isChecked);
         }
     }
 

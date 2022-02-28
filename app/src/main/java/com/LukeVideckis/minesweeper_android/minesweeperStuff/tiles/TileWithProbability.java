@@ -11,10 +11,4 @@ public class TileWithProbability extends TileNoFlagsForSolver {
         super();
         mineProbability = new BigFraction(0);
     }
-
-    //copy constructor
-    public TileWithProbability(TileWithProbability rhs) {
-        super(rhs);
-        mineProbability = new BigFraction(rhs.mineProbability);
-    }
 }
