@@ -11,6 +11,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -95,18 +96,16 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
 
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                if (board.getCell(i, j).isVisible && (board.getCell(i, j).isLogicalMine || board.getCell(i, j).isLogicalFree)) {
+
+                if (board.getCell(i, j).isVisible && board.getCell(i, j).logic != LogisticState.UNKNOWN) {
                     throw new Exception("visible cells can't be logical frees/mines");
                 }
-                if (board.getCell(i, j).isLogicalMine && board.getCell(i, j).isLogicalFree) {
-                    throw new Exception("cell can't be both logical free and logical mine");
-                }
-                if (board.getCell(i, j).isLogicalMine) {
+                if (board.getCell(i, j).logic == LogisticState.MINE) {
                     if (!AwayCell.isAwayCellSolver(new Board<>(board.getGrid(), board.getMines()), i, j)) {
                         --numberOfMines;
                     }
                     boardWithProbability.getCell(i, j).mineProbability.setValues(1, 1);
-                } else if (board.getCell(i, j).isLogicalFree) {
+                } else if (board.getCell(i, j).logic == LogisticState.FREE) {
                     boardWithProbability.getCell(i, j).mineProbability.setValues(0, 1);
                 } else {
                     boardWithProbability.getCell(i, j).mineProbability.setValues(0, 1);
@@ -114,7 +113,7 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
                 if (board.getCell(i, j).isVisible) {
                     updatedNumberSurroundingMines[i][j] = board.getCell(i, j).numberSurroundingMines;
                     for (TileWithLogistics adjCell : board.getAdjacentCells(i, j)) {
-                        if (adjCell.isLogicalMine) {
+                        if (adjCell.logic == LogisticState.MINE) {
                             --updatedNumberSurroundingMines[i][j];
                         }
                     }
@@ -202,18 +201,19 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
             for (int j = 0; j < cols; ++j) {
                 TileWithLogistics boardCell = board.getCell(i, j);
                 TileWithProbability probCell = boardWithProbability.getCell(i, j);
-                if (boardCell.isVisible && (boardCell.isLogicalMine || boardCell.isLogicalFree)) {
+
+                if (boardCell.isVisible && boardCell.logic != LogisticState.UNKNOWN) {
                     throw new Exception("visible cells shouldn't be logical");
                 }
                 if (boardCell.isVisible && !probCell.mineProbability.equals(0)) {
                     throw new Exception("found a visible cell with non-zero mine probability: " + i + " " + j);
                 }
-                if (boardCell.isLogicalMine) {
+                if (boardCell.logic == LogisticState.MINE) {
                     if (!probCell.mineProbability.equals(1)) {
                         throw new Exception("found logical mine with mine probability != 1: " + i + " " + j);
                     }
                 }
-                if (boardCell.isLogicalFree) {
+                if (boardCell.logic == LogisticState.FREE) {
                     if (!probCell.mineProbability.equals(0)) {
                         throw new Exception("found logical free cell with mine probability != 0: " + i + " " + j);
                     }
@@ -611,7 +611,8 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
                 for (int[] adj2 : board.getAdjacentIndexes(adj[0], adj[1])) {
                     final int adjI = adj2[0], adjJ = adj2[1];
                     final int currKey = RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols);
-                    if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).isLogicalMine || board.getCell(adjI, adjJ).isLogicalFree) {
+
+                    if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).logic != LogisticState.UNKNOWN) {
                         continue;
                     }
                     if (!gridToNode.containsKey(currKey) || !isRemoved[Objects.requireNonNull(gridToNode.get(currKey))]) {
@@ -663,7 +664,8 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
                     if (!gridToNode.containsKey(RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols))) {
                         continue;
                     }
-                    if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).isLogicalMine || board.getCell(adjI, adjJ).isLogicalFree) {
+
+                    if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).logic != LogisticState.UNKNOWN) {
                         throw new Exception("node in component which is either visible, or logical");
                     }
                     final int currNode = Objects.requireNonNull(gridToNode.get(RowColToIndex.rowColToIndex(adjI, adjJ, rows, cols)));
@@ -926,7 +928,8 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
             boolean foundAll = true;
             for (int[] adj2 : board.getAdjacentIndexes(adjI, adjJ)) {
                 TileWithLogistics currTile = board.getCell(adj2[0], adj2[1]);
-                if (currTile.isVisible || currTile.isLogicalMine || currTile.isLogicalFree) {
+
+                if (currTile.isVisible || currTile.logic != LogisticState.UNKNOWN) {
                     continue;
                 }
                 boolean found = false;

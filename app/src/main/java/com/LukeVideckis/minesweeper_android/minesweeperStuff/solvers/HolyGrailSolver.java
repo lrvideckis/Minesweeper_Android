@@ -4,6 +4,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -35,8 +36,7 @@ public class HolyGrailSolver implements SolverWithProbability {
             for (int j = 0; j < cols; j++) {
                 logisticsGrid[i][j] = new TileWithLogistics();
                 logisticsGrid[i][j].set(board.getCell(i, j));
-                logisticsGrid[i][j].isLogicalFree = false;
-                logisticsGrid[i][j].isLogicalMine = false;
+                logisticsGrid[i][j].logic = LogisticState.UNKNOWN;
             }
         }
         Board<TileWithLogistics> logisticsBoard = new Board<>(logisticsGrid, board.getMines());

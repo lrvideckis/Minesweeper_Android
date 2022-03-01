@@ -4,6 +4,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
@@ -36,10 +37,7 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 TileWithLogistics cell = board.getCell(i, j);
-                if (cell.isLogicalMine && cell.isLogicalFree) {
-                    throw new Exception("cell can't be both logical mine and free");
-                }
-                if (cell.isLogicalMine) {
+                if (cell.logic == LogisticState.MINE) {
                     --numberOfMines;
                 }
                 newSurroundingMineCounts[i][j] = cell.numberSurroundingMines;
@@ -55,10 +53,10 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
                 if (cell.isVisible) {
                     boolean foundAdjacentUnknown = false;
                     for (TileWithLogistics adjTile : board.getAdjacentCells(i, j)) {
-                        if (adjTile.isLogicalMine) {
+                        if (adjTile.logic == LogisticState.MINE) {
                             --newSurroundingMineCounts[i][j];
                         }
-                        if (!adjTile.isLogicalMine && !adjTile.isLogicalFree) {
+                        if (adjTile.logic == LogisticState.UNKNOWN) {
                             foundAdjacentUnknown = true;
                         }
                     }
@@ -71,7 +69,8 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
                 if (AwayCell.isAwayCellSolver(new Board<>(board.getGrid(), board.getMines()), i, j) && !includeAwayCells) {
                     continue;
                 }
-                if (cell.isLogicalFree || cell.isLogicalMine) {
+
+                if (cell.logic != LogisticState.UNKNOWN) {
                     continue;
                 }
                 hiddenNodeToId[i][j] = numberOfHiddenNodes;
@@ -90,7 +89,8 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
             final int j = clueSpots.get(currentClue).second;
             for (int[] adj : board.getAdjacentIndexes(i, j)) {
                 final int adjI = adj[0], adjJ = adj[1];
-                if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).isLogicalMine || board.getCell(adjI, adjJ).isLogicalFree) {
+
+                if (board.getCell(adjI, adjJ).isVisible || board.getCell(adjI, adjJ).logic != LogisticState.UNKNOWN) {
                     continue;
                 }
                 if (hiddenNodeToId[adjI][adjJ] == -1) {
@@ -126,13 +126,13 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
                 }
                 final int gridI = idToHiddenNode[i][0];
                 final int gridJ = idToHiddenNode[i][1];
-                if (isMine[i] && !board.getCell(gridI, gridJ).isLogicalMine) {
+                if (isMine[i] && board.getCell(gridI, gridJ).logic != LogisticState.MINE) {
                     foundNewStuff = true;
-                    board.getCell(gridI, gridJ).isLogicalMine = true;
+                    board.getCell(gridI, gridJ).logic = LogisticState.MINE;
                 }
-                if (isFree[i] && !board.getCell(gridI, gridJ).isLogicalFree) {
+                if (isFree[i] && board.getCell(gridI, gridJ).logic != LogisticState.FREE) {
                     foundNewStuff = true;
-                    board.getCell(gridI, gridJ).isLogicalFree = true;
+                    board.getCell(gridI, gridJ).logic = LogisticState.FREE;
                 }
             }
         }

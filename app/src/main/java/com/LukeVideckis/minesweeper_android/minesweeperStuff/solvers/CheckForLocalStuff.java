@@ -2,6 +2,7 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 
@@ -25,10 +26,10 @@ public class CheckForLocalStuff implements SolverAddLogisticsInPlace {
                         continue;
                     }
                     ++cntTotalAdjacentCells;
-                    if (adjTile.isLogicalMine) {
+                    if (adjTile.logic == LogisticState.MINE) {
                         ++cntAdjacentMines;
                     }
-                    if (adjTile.isLogicalFree) {
+                    if (adjTile.logic == LogisticState.FREE) {
                         ++cntAdjacentFrees;
                     }
                 }
@@ -41,12 +42,12 @@ public class CheckForLocalStuff implements SolverAddLogisticsInPlace {
                         if (adjTile.isVisible) {
                             continue;
                         }
-                        if (adjTile.isLogicalMine) {
+                        if (adjTile.logic == LogisticState.MINE) {
                             continue;
                         }
-                        if (!adjTile.isLogicalFree) {
+                        if (adjTile.logic != LogisticState.FREE) {
                             foundNewStuff = true;
-                            adjTile.isLogicalFree = true;
+                            adjTile.logic = LogisticState.FREE;
                         }
                     }
                 }
@@ -56,12 +57,12 @@ public class CheckForLocalStuff implements SolverAddLogisticsInPlace {
                         if (adjTile.isVisible) {
                             continue;
                         }
-                        if (adjTile.isLogicalFree) {
+                        if (adjTile.logic == LogisticState.FREE) {
                             continue;
                         }
-                        if (!adjTile.isLogicalMine) {
+                        if (adjTile.logic != LogisticState.MINE) {
                             foundNewStuff = true;
-                            adjTile.isLogicalMine = true;
+                            adjTile.logic = LogisticState.MINE;
                         }
                     }
                 }

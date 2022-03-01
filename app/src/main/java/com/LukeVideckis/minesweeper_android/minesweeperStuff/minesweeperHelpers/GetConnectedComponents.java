@@ -1,6 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.miscHelpers.ComparablePair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
@@ -26,7 +27,7 @@ public class GetConnectedComponents {
                 for (int[] adj : board.getAdjacentIndexes(i, j)) {
                     final int adjI = adj[0], adjJ = adj[1];
                     TileWithLogistics adjTile = board.getCell(adjI, adjJ);
-                    if (adjTile.isVisible || adjTile.isLogicalMine || adjTile.isLogicalFree) {
+                    if (adjTile.isVisible || adjTile.logic != LogisticState.UNKNOWN) {
                         continue;
                     }
                     disjointSet.merge(RowColToIndex.rowColToIndex(i, j, board.getRows(), board.getCols()), RowColToIndex.rowColToIndex(adjI, adjJ, board.getRows(), board.getCols()));
@@ -61,7 +62,8 @@ public class GetConnectedComponents {
                 }
                 for (int[] adj1 : board.getAdjacentIndexes(i, j)) {
                     TileWithLogistics adjTile1 = board.getCell(adj1[0], adj1[1]);
-                    if (adjTile1.isVisible || adjTile1.isLogicalMine || adjTile1.isLogicalFree) {
+
+                    if (adjTile1.isVisible || adjTile1.logic != LogisticState.UNKNOWN) {
                         continue;
                     }
                     for (int[] adj2 : board.getAdjacentIndexes(i, j)) {
@@ -69,7 +71,7 @@ public class GetConnectedComponents {
                             continue;
                         }
                         TileWithLogistics adjTile2 = board.getCell(adj2[0], adj2[1]);
-                        if (adjTile2.isVisible || adjTile2.isLogicalMine || adjTile2.isLogicalFree) {
+                        if (adjTile2.isVisible || adjTile2.logic != LogisticState.UNKNOWN) {
                             continue;
                         }
                         //add edge
@@ -151,7 +153,7 @@ public class GetConnectedComponents {
                 for (int[] adj : board.getAdjacentIndexes(i, j)) {
                     final int adjI = adj[0], adjJ = adj[1];
                     TileWithLogistics adjTile = board.getCell(adjI, adjJ);
-                    if (adjTile.isVisible || adjTile.isLogicalMine) {
+                    if (adjTile.isVisible || adjTile.logic == LogisticState.MINE) {
                         continue;
                     }
                     disjointSet.merge(RowColToIndex.rowColToIndex(i, j, board.getRows(), board.getCols()), RowColToIndex.rowColToIndex(adjI, adjJ, board.getRows(), board.getCols()));

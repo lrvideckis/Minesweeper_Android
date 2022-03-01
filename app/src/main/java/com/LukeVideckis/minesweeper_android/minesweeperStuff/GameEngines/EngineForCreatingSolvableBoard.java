@@ -4,6 +4,7 @@ import com.LukeVideckis.minesweeper_android.customExceptions.NoAwayCellsToMoveAM
 import com.LukeVideckis.minesweeper_android.customExceptions.NoInterestingMinesException;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
@@ -114,21 +115,17 @@ public class EngineForCreatingSolvableBoard extends GameEngine {
     public void checkCorrectnessOfSolverOutput(Board<TileWithLogistics> SolverBoard) throws Exception {
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
-                if (SolverBoard.getCell(i, j).isVisible) {
-                    if (SolverBoard.getCell(i, j).isLogicalMine || SolverBoard.getCell(i, j).isLogicalFree) {
+                TileWithLogistics curr = SolverBoard.getCell(i, j);
+                if (curr.isVisible) {
+                    if (curr.logic != LogisticState.UNKNOWN) {
                         throw new Exception("visible tiles can't be logical");
                     }
                 }
-                if (SolverBoard.getCell(i, j).isLogicalFree && SolverBoard.getCell(i, j).isLogicalMine) {
-                    throw new Exception("can't be both logical free and logical mine");
-                }
-                if (SolverBoard.getCell(i, j).isLogicalMine && !grid.getCell(i, j).isMine) {
+                if (curr.logic == LogisticState.MINE && !grid.getCell(i, j).isMine) {
                     throw new Exception("found a logical mine which is free");
                 }
-                if (SolverBoard.getCell(i, j).isLogicalFree) {
-                    if (grid.getCell(i, j).isMine) {
-                        throw new Exception("found a logical free which is mine");
-                    }
+                if (curr.logic == LogisticState.FREE && grid.getCell(i, j).isMine) {
+                    throw new Exception("found a logical free which is mine");
                 }
             }
         }

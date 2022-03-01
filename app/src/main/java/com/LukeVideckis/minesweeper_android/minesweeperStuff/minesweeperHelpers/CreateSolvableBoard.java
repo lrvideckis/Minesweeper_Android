@@ -9,6 +9,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEli
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
@@ -97,8 +98,7 @@ public abstract class CreateSolvableBoard {
                     for (int j = 0; j < solverBoard.getCols(); j++) {
                         TileWithLogistics curr = solverBoard.getCell(i, j);
                         curr.set(gameEngine.getCell(i, j));
-                        curr.isLogicalFree = false;
-                        curr.isLogicalMine = false;
+                        curr.logic = LogisticState.UNKNOWN;
                     }
                 }
 
@@ -123,11 +123,9 @@ public abstract class CreateSolvableBoard {
                                 TileWithProbability tmpCell = tmpResult.getCell(i, j);
                                 solverCell.set(tmpCell);
                                 if (solverCell.isVisible) {
-                                    solverCell.isLogicalFree = false;
-                                    solverCell.isLogicalMine = false;
+                                    solverCell.logic = LogisticState.UNKNOWN;
                                 } else {
-                                    solverCell.isLogicalFree = tmpCell.mineProbability.equals(0);
-                                    solverCell.isLogicalMine = tmpCell.mineProbability.equals(1);
+                                    solverCell.setLogic(tmpCell.mineProbability);
                                 }
                             }
                         }
@@ -190,7 +188,7 @@ public abstract class CreateSolvableBoard {
         boolean clickedFree = false;
         for (int i = 0; i < solverBoard.getRows(); ++i) {
             for (int j = 0; j < solverBoard.getCols(); ++j) {
-                if (solverBoard.getCell(i, j).isLogicalFree) {
+                if (solverBoard.getCell(i, j).logic == LogisticState.FREE) {
                     gameEngine.clickCell(i, j, false);
                     clickedFree = true;
                 }
@@ -205,7 +203,7 @@ public abstract class CreateSolvableBoard {
         boolean hasAtLeastOneLogicalFree = false;
         for (int i = 0; i < solverBoard.getRows(); ++i) {
             for (int j = 0; j < solverBoard.getCols(); ++j) {
-                if (solverBoard.getCell(i, j).isLogicalFree) {
+                if (solverBoard.getCell(i, j).logic == LogisticState.FREE) {
                     hasAtLeastOneLogicalFree = true;
                     hasLogicalFree[disjointSet.find(RowColToIndex.rowColToIndex(i, j, solverBoard.getRows(), solverBoard.getCols()))] = true;
                 }
@@ -217,7 +215,7 @@ public abstract class CreateSolvableBoard {
         for (int i = 0; i < solverBoard.getRows(); ++i) {
             for (int j = 0; j < solverBoard.getCols(); ++j) {
                 if (gameEngine.isInterestingCell(i, j) &&
-                        !solverBoard.getCell(i, j).isLogicalMine &&
+                        solverBoard.getCell(i, j).logic != LogisticState.MINE &&
                         !hasLogicalFree[disjointSet.find(RowColToIndex.rowColToIndex(i, j, solverBoard.getRows(), solverBoard.getCols()))]) {
                     return false;
                 }
