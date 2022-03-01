@@ -59,7 +59,7 @@ public class GameCanvas extends View {
         //start of actually drawing cell
         if (gameCell.state == TileState.VISIBLE) {
             drawCellHelpers.drawNumberedCell(canvas, gameCell.numberSurroundingMines, i, j, startX, startY);
-            if (isGetHelp && currGameState == GameState.STILL_GOING) {
+            if (isGetHelp) {
                 drawCellHelpers.drawRedBoundary(canvas, startX, startY);
             }
             return;

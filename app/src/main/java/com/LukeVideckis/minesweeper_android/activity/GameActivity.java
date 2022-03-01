@@ -328,6 +328,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //solver succeeds - check logical stuff is correct, and either reveal cell or end game
             if (engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
                 engineGetHelpMode.revealRandomCell();
+                lastActionWasGetHelpButton = true;//only show red indicating square when we've newly revealed a cell
                 if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {//resolve now that board is updated
                     try {
                         runSolver();
@@ -354,7 +355,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             engineGetHelpMode.revealRandomCell();
             toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
         }
-        lastActionWasGetHelpButton = true;
         findViewById(R.id.gridCanvas).invalidate();
     }
 
