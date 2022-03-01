@@ -37,6 +37,10 @@ public class GameCanvas extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        // I need the # of pixels for this view -> it doesn't include the top/bottom bars. But
+        // because of how Android is set up, `getWidth()` and `getHeight()` return 0 in `GameCanvas`
+        // constructor. This is the workaround.
+        // https://stackoverflow.com/questions/3591784/views-getwidth-and-getheight-returns-0
         scaleListener.setScreenWidthAndHeight(w, h);
     }
 
