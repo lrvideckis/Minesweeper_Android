@@ -11,10 +11,10 @@ import android.view.View;
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
-import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.Tile;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
+import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 
 
 public class GameCanvas extends View {

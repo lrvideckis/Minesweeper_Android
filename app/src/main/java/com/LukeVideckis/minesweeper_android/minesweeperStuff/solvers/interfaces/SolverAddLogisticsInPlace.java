@@ -6,5 +6,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogis
 public interface SolverAddLogisticsInPlace {
     //it should be this:
     //Board<TileWithLogistics> solvePosition(Board<TileNoFlagsForSolver> board) throws Exception;
-    void solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception;
+
+    //returns true if new logical stuff is found
+    boolean solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception;
 }

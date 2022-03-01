@@ -36,6 +36,7 @@ public abstract class CreateSolvableBoard {
         Board<TileWithLogistics> solverBoard = new Board<>(tmpBoard, mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
+        SolverAddLogisticsInPlace localSolver = new CheckForLocalStuff();
         SolverAddLogisticsInPlace gaussSolver = new GaussianEliminationSolver(rows, cols);
 
         if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
@@ -104,7 +105,7 @@ public abstract class CreateSolvableBoard {
                 /*try to deduce free squares with local rules. There is the
                  * possibility of not finding deducible free squares, even if they exist.
                  */
-                if (CheckForLocalStuff.checkAndUpdateBoardForTrivialStuff(solverBoard)) {
+                if (localSolver.solvePosition(solverBoard)) {
                     if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
                         gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
                     }
@@ -116,12 +117,13 @@ public abstract class CreateSolvableBoard {
                 /*try to deduce free squares with gauss solver. Gaussian Elimination has the
                  * possibility of not finding deducible free squares, even if they exist.
                  */
-                gaussSolver.solvePosition(solverBoard);
-                if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
-                    gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
-                }
-                if (clickedLogicalFrees(gameEngine, solverBoard)) {
-                    continue;
+                if (gaussSolver.solvePosition(solverBoard)) {
+                    if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
+                        gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
+                    }
+                    if (clickedLogicalFrees(gameEngine, solverBoard)) {
+                        continue;
+                    }
                 }
 
                 try {

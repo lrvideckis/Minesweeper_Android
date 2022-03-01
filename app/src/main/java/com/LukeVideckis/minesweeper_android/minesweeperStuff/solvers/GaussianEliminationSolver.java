@@ -25,18 +25,13 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
         newSurroundingMineCounts = new int[rows][cols];
     }
 
+    //returns true if extra stuff is found
     @Override
-    public void solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
+    public boolean solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
         if (rows != board.getRows() || cols != board.getCols()) {
             throw new Exception("dimensions of board doesn't match what was passed in the constructor");
         }
-
-        //noinspection StatementWithEmptyBody
-        while (runGaussSolverOnce(board, board.getMines())) ;
-    }
-
-    //returns true if extra stuff is found
-    public boolean runGaussSolverOnce(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/, int numberOfMines /*intentional pass by value*/) throws Exception {
+        int numberOfMines = board.getMines();
         final boolean includeAwayCells = (AwayCell.getNumberOfAwayCells(new Board<>(board.getGrid(), board.getMines())) <= maxAwayCellsToIncludeThem);
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
@@ -142,7 +137,7 @@ public class GaussianEliminationSolver implements SolverAddLogisticsInPlace {
             }
         }
 
-        return (foundNewStuff || CheckForLocalStuff.checkAndUpdateBoardForTrivialStuff(board));
+        return foundNewStuff;
     }
 
     private void checkRowForSolvableStuff(double[] currRow, boolean[] isMine, boolean[] isFree) {

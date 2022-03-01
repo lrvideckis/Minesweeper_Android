@@ -1,18 +1,16 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 
 import java.util.ArrayList;
 
+public class CheckForLocalStuff implements SolverAddLogisticsInPlace {
 
-public class CheckForLocalStuff {
-    private CheckForLocalStuff() throws Exception {
-        throw new Exception("No instances allowed!");
-    }
-
-    public static boolean checkAndUpdateBoardForTrivialStuff(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
+    @Override
+    public boolean solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
         boolean foundNewStuff = false;
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {

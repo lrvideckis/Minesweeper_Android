@@ -11,7 +11,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProba
 public class HolyGrailSolver implements SolverWithProbability {
 
     private final SolverStartingWithLogistics recursiveSolver;
-    private final SolverAddLogisticsInPlace gaussSolver;
+    private final SolverAddLogisticsInPlace gaussSolver, localSolver;
     private final int rows, cols;
     private final TileWithLogistics[][] logisticsGrid;
 
@@ -20,6 +20,7 @@ public class HolyGrailSolver implements SolverWithProbability {
         this.cols = cols;
         recursiveSolver = new IntenseRecursiveSolver(rows, cols);
         gaussSolver = new GaussianEliminationSolver(rows, cols);
+        localSolver = new CheckForLocalStuff();
         logisticsGrid = new TileWithLogistics[rows][cols];
     }
 
@@ -40,9 +41,10 @@ public class HolyGrailSolver implements SolverWithProbability {
         }
         Board<TileWithLogistics> logisticsBoard = new Board<>(logisticsGrid, board.getMines());
 
-        //gauss solver runs until it doesn't find anything (including CheckForLocalStuff).
-        //It leaves logical frees/mines stored in logisticsBoard.
-        gaussSolver.solvePosition(logisticsBoard);
+        //Local & Gauss solver will leave logical frees/mines stored in logisticsBoard.
+        //noinspection StatementWithEmptyBody
+        while (localSolver.solvePosition(logisticsBoard) || gaussSolver.solvePosition(logisticsBoard))
+            ;
 
         //Now use gauss solver findings in IntenseRecursiveSolver to help split by components
         return recursiveSolver.solvePositionWithLogistics(logisticsBoard);
