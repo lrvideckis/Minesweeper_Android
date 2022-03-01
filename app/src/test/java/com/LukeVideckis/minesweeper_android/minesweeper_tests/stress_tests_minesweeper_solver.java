@@ -31,85 +31,6 @@ public class stress_tests_minesweeper_solver {
 
     private final static String[][] previousFailedBoards = {
 
-            //board such that at some point: there's no cut nodes, and there exists an edge pair which removes all nodes in sub-component
-            {
-                    "UUUUU1.1UUUU",
-                    "UUUUU422U2UU",
-                    "UUUUUUU32UUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUU22UUUUUUU",
-                    "UUUU2UUUUUUU",
-                    "UU3UUUUUUUUU",
-                    "12UUUUUUUUUU",
-                    "12244UU4UUUU",
-                    "U1.1U213UUUU",
-                    "221221.2UUUU",
-                    "U33U2223UUUU",
-                    "4UU3UUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-
-                    "61"
-            },
-
-            //every node is removed in some sub-component
-            {
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUU212BU",
-                    "UUUUUUU2112U",
-                    "UUUUUUUB2.1U",
-                    "UUUUUUBB2.1U",
-                    "UUUUUU32112U",
-                    "UUUUUU1.12BU",
-                    "UUUUUU113B4U",
-                    "UUUUUU2UUBUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "U3UUU33UUUUU",
-                    "U322U2BUUUUU",
-                    "BB11122UUUUU",
-                    "2211U11UUUUU",
-                    "..13U21UUUUU",
-                    "..1BBUUUUUUU",
-                    "..14BUUUUUUU",
-                    "..13B5BUUUUU",
-                    "112B24BUUUUU",
-                    "2B3123BUUUUU",
-                    "2B2.1B3UUUUU",
-                    "FF212FUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-                    "UUUUUUUUUUUU",
-
-                    "119"
-            },
-
-            //smallish failing test for first try of implementing removing edge pairs
-            {
-                    "UUUUUUU",
-                    "UBUU2UU",
-                    "U3212UU",
-                    "U1..1UU",
-
-                    "6"
-            },
-
-
             {
                     "UUU3B2.",
                     "U2U3B31",
@@ -118,84 +39,6 @@ public class stress_tests_minesweeper_solver {
                     "UUUUUUU",
 
                     "12"
-            },
-
-            {
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUBB22BBB32U",
-                    "UUUUUUUUUUUUU113BB31124B3UU",
-                    "UUUUUUUUUUUUU1.2B31...123UU",
-                    "UUUUUUUUUUUUU32211122112B21",
-                    "UUUUUUUUUUUUUBB4211BB12B31.",
-                    "UUUUUUUUUUUUUUBBB212223B2..",
-                    "UUUUUUUUUUUUUFU5B2...1B21..",
-                    "UUUUUUUUUUUUU1F211111111...",
-                    "UUUUUUUUUUUUF223222B211....",
-                    "UUUUUU2UUUUUU2UUBUU33B21211",
-                    "UUUUUUUUUUUUUUUUUUUUU33B2B2",
-                    "UUUUUUUUUU2UUUUUUUUUUUU233B",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-                    "UUUUUUUUUUUUUUUUUUUUUUUUUUU",
-
-                    "170"
-            },
-
-            //first failing test: new recursive solver thingy compared to old fast backtracking solver
-            {
-                    "U1.1UU",
-                    "U1.1UU",
-                    "11.13U",
-                    "U1.1UU",
-                    "U112UU",
-                    "233U4U",
-                    "UUUUUU",
-                    "UUUUUU",
-
-                    "18"
-            },
-
-            {
-                    "B1112B112B2BB21..12B22UUUU",
-                    "221B2111B2234B1..1B22BUUUU",
-                    "B1222..11212B21..111122UUU",
-                    "111B21...1B2221111.112UUUU",
-                    ".124B2...1111B12B2.1B2UUUU",
-                    "12B4B3.111..2333B312122UUU",
-                    "B213B423B2..1BB212B212UUUU",
-                    "12233BB3B21233221224B3UUUU",
-                    "13BB2222122BB1.2B32BB31UUU",
-                    "UUB4111212B432.2B3B322UUUU",
-                    "UUB2.1B2B212B1.11211.1UUUU",
-
-                    "60",
-            },
-
-            //big board where null pointer exception happens
-            {
-                    "...12BB11111UUUUUUUUUUUUUUUUUU",
-                    "11.1B4432B22UUUUUUUUUUUUUUUUUU",
-                    "B21212BB322B33UUUUUUUUUUUUUUUU",
-                    "12B1.123B2213BUUUUUUUUUUUUUUUU",
-                    "1211..123B1.3BU3UUBUUUUUUUUUUU",
-                    "B1..113B311.2BBB223UUUUUUUUUUU",
-                    "221.1B4B3...12321.2UUUUUUUUUUU",
-                    "1B1.113B2..11211113BUUUUUUUUUU",
-                    "111112332112B2B11B3UUUUUUUB311",
-                    "...1B2BB22B33321234UU3B3B4B2..",
-                    "..133324B33B3B112BB22B332322..",
-                    "..1BB1.2B23B4111B432113B21B21.",
-                    "..1221.1112B212322B3212B223B1.",
-                    "12321...112112BB123BB11111B21.",
-                    "2BBB1...1B2223B422B3332212221.",
-                    "B3321...112BB212B2111BB2B11B1.",
-
-                    "100"
             },
 
             //grid which causes cut nodes dfs to add multiple cut nodes to the list of cut nodes
@@ -254,26 +97,6 @@ public class stress_tests_minesweeper_solver {
                     "7",
             },
 
-            {
-                    ".112B1...1111UU",
-                    ".1B2121213B33UU",
-                    "2321.1B2B4B4BBB",
-                    "BB1..1233B3UUUU",
-                    "B31...1B224UUUB",
-                    "11.1122212BB5UU",
-                    "..12B2B212B4BB2",
-                    "..1B222B2212232",
-                    "..111.13B2...2B",
-                    ".111...2B31..2B",
-                    "23B1...12B1..11",
-                    "BB431..133311..",
-                    "U5BB4333BB2B21.",
-                    "UUUBBBBB4222B21",
-                    "UUUUUUUB2..112B",
-
-                    "55"
-            },
-
             //board where gauss solver determines away cells as mines
             {
                     "UUUUU",
@@ -282,25 +105,6 @@ public class stress_tests_minesweeper_solver {
                     "..2UU",
 
                     "11"
-            },
-
-            //gauss solver says a cell is both a logical mine, and logical free
-            {
-                    "UUUUUUUUUUUU",
-                    "U112UUUUUUUU",
-                    "U1.23U4U6UUU",
-                    "U2.2U4445UUU",
-                    "U314U5UUU5UU",
-                    "U3U4U6UU43UU",
-                    "2U4U4UUU22UU",
-                    "U5U45UUU21UU",
-                    "U5U3UU4U223U",
-                    "U5232222U23U",
-                    "U5U21122UUUU",
-                    "UUU43UUUUUUU",
-                    "UUUUUUUUUUUU",
-
-                    "61"
             },
 
             //cell (0,3) is a logical - free, but fast solver doesn't set it
@@ -344,32 +148,6 @@ public class stress_tests_minesweeper_solver {
                     "UUU",
 
                     "3",
-            },
-
-            //bug with calling BinomialCoefficient with invalid parameters
-            {
-                    "UUUU",
-                    "U2UU",
-                    "U3UU",
-                    "UUUU",
-                    "UUUU",
-                    "U211",
-                    "11..",
-                    "....",
-
-                    "6"
-            },
-            {
-                    "UUUU",
-                    "U2UU",
-                    "U3UU",
-                    "UUUU",
-                    "UUUU",
-                    "U211",
-                    "11..",
-                    "....",
-
-                    "11"
             },
 
             //bug with dfs connect components - upper component and lower component should be the same, but DFS splits them into separate components
