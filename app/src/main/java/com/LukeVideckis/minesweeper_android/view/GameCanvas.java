@@ -16,7 +16,6 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 
-
 public class GameCanvas extends View {
 
     private final Paint black = new Paint();
@@ -36,9 +35,9 @@ public class GameCanvas extends View {
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        scaleListener.setScreenWidthAndHeight(getWidth(), getHeight());
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        scaleListener.setScreenWidthAndHeight(w, h);
     }
 
     private void drawCell(
