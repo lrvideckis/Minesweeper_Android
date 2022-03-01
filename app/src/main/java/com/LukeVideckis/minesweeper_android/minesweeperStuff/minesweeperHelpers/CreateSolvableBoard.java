@@ -102,22 +102,10 @@ public abstract class CreateSolvableBoard {
                     }
                 }
 
-                /*try to deduce free squares with local rules. There is the
-                 * possibility of not finding deducible free squares, even if they exist.
+                /* Try to deduce free squares with local rules, and then Gaussian Elimination. There
+                 * is the possibility of not finding deducible free squares, even if they exist.
                  */
-                if (localSolver.solvePosition(solverBoard)) {
-                    if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
-                        gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
-                    }
-                    if (clickedLogicalFrees(gameEngine, solverBoard)) {
-                        continue;
-                    }
-                }
-
-                /*try to deduce free squares with gauss solver. Gaussian Elimination has the
-                 * possibility of not finding deducible free squares, even if they exist.
-                 */
-                if (gaussSolver.solvePosition(solverBoard)) {
+                if (localSolver.solvePosition(solverBoard) || gaussSolver.solvePosition(solverBoard)) {
                     if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
                         gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
                     }
