@@ -442,11 +442,12 @@ public class stress_tests_minesweeper_solver {
     public void performTestsForGaussSolver() throws Exception {
         int numberOfTests = 20;
         for (int testID = 1; testID <= numberOfTests; ++testID) {
-            System.out.println("test number: " + testID);
+            System.out.print("test number: " + testID);
             //a 3-by-8 grid is guaranteed to have some place for the 8
             final int rows = MyMath.getRand(3, 15);
             final int cols = MyMath.getRand(8, 15);
-            final int mines = MyMath.getRand(8, rows * cols - 9);//if you click in the middle of a 3-by-8 grid, you can fit an 8 above/below and then 6 extra mines below/above
+            final int mines = MyMath.getRand(8, rows * cols - 10);//if you click in the middle of a 3-by-8 grid, you can fit an 8 above/below and then 6 extra mines below/above
+            System.out.println(" rows, cols, mines " + rows + " " + cols + " " + mines);
 
             SolverStartingWithLogistics fastSolver = new IntenseRecursiveSolver(rows, cols);
             SolverAddLogisticsInPlace gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
@@ -532,7 +533,7 @@ public class stress_tests_minesweeper_solver {
             //TODO: revisit these bounds - too big for slow solver
             final int rows = MyMath.getRand(8, 30);
             final int cols = MyMath.getRand(8, 30);
-            final int mines = MyMath.getRand(8, Math.min(100, Math.min(rows * cols - 9, (int) (rows * cols * 0.23f))));
+            final int mines = MyMath.getRand(8, Math.min(100, Math.min(rows * cols - 10, (int) (rows * cols * 0.23f))));
             final boolean hasAn8 = (testID <= 10);
 
             System.out.print(" rows, cols, mines, hasAn8: " + rows + " " + cols + " " + mines + " " + hasAn8);
