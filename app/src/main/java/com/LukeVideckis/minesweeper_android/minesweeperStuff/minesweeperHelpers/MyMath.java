@@ -1,5 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
+import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
+
 import java.math.BigInteger;
 
 public class MyMath {

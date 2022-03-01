@@ -1,4 +1,6 @@
-package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
+package com.LukeVideckis.minesweeper_android.miscHelpers;
+
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 
 public class MutableInt {
     private int value;

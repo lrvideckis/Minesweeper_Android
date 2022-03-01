@@ -4,12 +4,12 @@ import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitEx
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AllCellsAreHidden;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AwayCell;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
+import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CutNodes;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.EdgePair;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetConnectedComponents;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetSubComponentByRemovedNodes;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MutableInt;
+import com.LukeVideckis.minesweeper_android.miscHelpers.MutableInt;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;

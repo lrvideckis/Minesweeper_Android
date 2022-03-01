@@ -1,7 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles;
 
 
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
+import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 
 public class TileWithProbability extends TileNoFlagsForSolver {
 

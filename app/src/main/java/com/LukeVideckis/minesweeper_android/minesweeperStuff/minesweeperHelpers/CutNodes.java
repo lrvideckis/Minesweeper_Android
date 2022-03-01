@@ -1,5 +1,7 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
+import com.LukeVideckis.minesweeper_android.miscHelpers.MutableInt;
+
 import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;

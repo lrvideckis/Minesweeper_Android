@@ -14,7 +14,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
+import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 
 import java.util.Objects;
 

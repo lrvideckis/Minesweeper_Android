@@ -1,4 +1,4 @@
-package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
+package com.LukeVideckis.minesweeper_android.miscHelpers;
 
 import java.math.BigInteger;
 
