@@ -24,26 +24,13 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
     private int prevPointerCount = 0;
     //variables to handle a tap
     private boolean seenMoreThanOnePointer = false, hasBeenTooFar = false;
-    private Context context;
+    private final Context context;
     private volatile float startOfTapX, startOfTapY;
     private float minScaleVal;
     private float startAbsoluteX, startAbsoluteY;
     //variables to handle long tap
     private volatile boolean longTapOccurred;
-    private final Runnable mLongPressed = () -> {
-        synchronized (this) {
-            longTapOccurred = true;
-            try {
-                ((GameActivity) context).handleTap(
-                        convertScreenToGridX(startOfTapX),
-                        convertScreenToGridY(startOfTapY),
-                        true
-                );
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
+    private final Runnable mLongPressed;
 
     public ScaleListener(Context context, GameCanvas gameCanvas, int rows, int cols) {
         this.rows = rows;
@@ -51,6 +38,20 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
         this.context = context;
         SGD = new ScaleGestureDetector(context, this);
         this.gameCanvas = gameCanvas;
+        mLongPressed = () -> {
+            synchronized (this) {
+                longTapOccurred = true;
+                try {
+                    ((GameActivity) context).handleTap(
+                            convertScreenToGridX(startOfTapX),
+                            convertScreenToGridY(startOfTapY),
+                            true
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 
     public void setScreenWidthAndHeight(float screenWidth, float screenHeight) {

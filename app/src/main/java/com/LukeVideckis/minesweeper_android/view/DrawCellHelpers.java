@@ -10,10 +10,13 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.BigFraction;
+
+import java.util.Objects;
 
 public class DrawCellHelpers {
     private final Paint
@@ -99,14 +102,8 @@ public class DrawCellHelpers {
                         startX + GameActivity.cellPixelLength * 11 / 100,
                         startY + GameActivity.cellPixelLength * 11 / 100);
 
-                Rect currBackground = new Rect(startX, startY, startX + GameActivity.cellPixelLength, startY + GameActivity.cellPixelLength);
-
-                Rect lowerTriangleBounds = new Rect();
-                lowerTriangleBounds.set(startX, startY, startX + GameActivity.cellPixelLength, startY + GameActivity.cellPixelLength);
-
                 middleSquareRectangles[i][j] = middleSquare;
-                backgroundRectangles[i][j] = currBackground;
-                lowerTriangleRectangles[i][j] = lowerTriangleBounds;
+                backgroundRectangles[i][j] = lowerTriangleRectangles[i][j] = new Rect(startX, startY, startX + GameActivity.cellPixelLength, startY + GameActivity.cellPixelLength);
             }
         }
     }
@@ -123,8 +120,8 @@ public class DrawCellHelpers {
     }
 
     void drawBlankCell(Canvas canvas, int i, int j, Resources resources) {
-        final Drawable lowerTriangleDrawable = resources.getDrawable(R.drawable.lower_triangle_grey, null);
-        lowerTriangleDrawable.setBounds(lowerTriangleRectangles[i][j]);
+        final Drawable lowerTriangleDrawable = ResourcesCompat.getDrawable(resources, R.drawable.lower_triangle_grey, null);
+        Objects.requireNonNull(lowerTriangleDrawable).setBounds(lowerTriangleRectangles[i][j]);
         lowerTriangleDrawable.draw(canvas);
         canvas.drawRect(middleSquareRectangles[i][j], middleSquare);
     }
@@ -151,21 +148,21 @@ public class DrawCellHelpers {
     }
 
     void drawLogicalMine(Canvas canvas, int i, int j, Resources resources) {
-        final Drawable upperTriangleDrawable = resources.getDrawable(R.drawable.upper_triangle_red, null);
-        upperTriangleDrawable.setBounds(lowerTriangleRectangles[i][j]);
+        final Drawable upperTriangleDrawable = ResourcesCompat.getDrawable(resources, R.drawable.upper_triangle_red, null);
+        Objects.requireNonNull(upperTriangleDrawable).setBounds(lowerTriangleRectangles[i][j]);
         upperTriangleDrawable.draw(canvas);
-        final Drawable lowerTriangleDrawable = resources.getDrawable(R.drawable.lower_triangle_red, null);
-        lowerTriangleDrawable.setBounds(lowerTriangleRectangles[i][j]);
+        final Drawable lowerTriangleDrawable = ResourcesCompat.getDrawable(resources, R.drawable.lower_triangle_red, null);
+        Objects.requireNonNull(lowerTriangleDrawable).setBounds(lowerTriangleRectangles[i][j]);
         lowerTriangleDrawable.draw(canvas);
         canvas.drawRect(middleSquareRectangles[i][j], middleRedSquare);
     }
 
     void drawLogicalFree(Canvas canvas, int i, int j, Resources resources) {
-        final Drawable upperTriangleDrawable = resources.getDrawable(R.drawable.upper_triangle_green, null);
-        upperTriangleDrawable.setBounds(lowerTriangleRectangles[i][j]);
+        final Drawable upperTriangleDrawable = ResourcesCompat.getDrawable(resources, R.drawable.upper_triangle_green, null);
+        Objects.requireNonNull(upperTriangleDrawable).setBounds(lowerTriangleRectangles[i][j]);
         upperTriangleDrawable.draw(canvas);
-        final Drawable lowerTriangleDrawable = resources.getDrawable(R.drawable.lower_triangle_green, null);
-        lowerTriangleDrawable.setBounds(lowerTriangleRectangles[i][j]);
+        final Drawable lowerTriangleDrawable = ResourcesCompat.getDrawable(resources, R.drawable.lower_triangle_green, null);
+        Objects.requireNonNull(lowerTriangleDrawable).setBounds(lowerTriangleRectangles[i][j]);
         lowerTriangleDrawable.draw(canvas);
         canvas.drawRect(middleSquareRectangles[i][j], middleGreenSquare);
     }

@@ -10,11 +10,11 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
@@ -63,7 +63,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int lastTapRow, lastTapCol;
     private volatile Thread updateTimeThread;
     private volatile AlertDialog loadingScreenForSolvableBoardGeneration;
-    private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread();
+    private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread(maxTimeToCreateSolvableBoard);;
     private volatile SolvableBoardRunnable solvableBoardRunnable;
 
     public void stopTimerThread() {
@@ -202,12 +202,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void solverHitIterationLimit() {
         //TODO: think about changing this behavior to just (temporarily) switching modes to back to normal mode
         if (toggleBacktrackingHintsOn) {
-            Switch toggleHints = findViewById(R.id.toggleBacktrackingHints);
+            SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
             toggleHints.setChecked(false);
             toggleBacktrackingHintsOn = false;
         }
         if (toggleMineProbabilityOn) {
-            Switch toggleProb = findViewById(R.id.toggleMineProbability);
+            SwitchCompat toggleProb = findViewById(R.id.toggleMineProbability);
             toggleProb.setChecked(false);
             toggleMineProbabilityOn = false;
         }
@@ -229,10 +229,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void disableSwitchesAndButtons() {
-        Switch toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setClickable(false);
 
-        Switch toggleProbability = findViewById(R.id.toggleMineProbability);
+        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
         toggleProbability.setClickable(false);
 
         Button flagModeButton = findViewById(R.id.toggleFlagMode);
@@ -243,11 +243,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void enableButtonsAndSwitchesAndSetToFalse() {
-        Switch toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setClickable(true);
         toggleHints.setChecked(false);
 
-        Switch toggleProbability = findViewById(R.id.toggleMineProbability);
+        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
         toggleProbability.setClickable(true);
         toggleProbability.setChecked(false);
 
@@ -594,9 +594,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         toggleFlagMode.setOnClickListener(this);
         toggleFlagMode.setText(mineEmoji);
 
-        Switch toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setOnCheckedChangeListener(this);
-        Switch toggleProbability = findViewById(R.id.toggleMineProbability);
+        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
         toggleProbability.setOnCheckedChangeListener(this);
 
         ImageButton getHelpButton = findViewById(R.id.getHelpButton);
