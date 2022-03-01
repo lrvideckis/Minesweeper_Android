@@ -19,18 +19,18 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
     private final Matrix matrix = new Matrix();
     private final Handler handler = new Handler();
     private final int rows, cols;
+    private final Context context;
+    private final Runnable mLongPressed;
     private int halfScreenWidth = 0, halfScreenHeight = 0;
     private float scale = 1f, absoluteX = 0f, absoluteY = 0f, prevFocusX, prevFocusY;
     private int prevPointerCount = 0;
     //variables to handle a tap
     private boolean seenMoreThanOnePointer = false, hasBeenTooFar = false;
-    private final Context context;
     private volatile float startOfTapX, startOfTapY;
     private float minScaleVal;
     private float startAbsoluteX, startAbsoluteY;
     //variables to handle long tap
     private volatile boolean longTapOccurred;
-    private final Runnable mLongPressed;
 
     public ScaleListener(Context context, GameCanvas gameCanvas, int rows, int cols) {
         this.rows = rows;

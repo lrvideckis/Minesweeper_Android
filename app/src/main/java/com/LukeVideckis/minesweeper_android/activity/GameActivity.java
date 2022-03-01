@@ -63,7 +63,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int lastTapRow, lastTapCol;
     private volatile Thread updateTimeThread;
     private volatile AlertDialog loadingScreenForSolvableBoardGeneration;
-    private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread(maxTimeToCreateSolvableBoard);;
+    private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread(maxTimeToCreateSolvableBoard);
+    ;
     private volatile SolvableBoardRunnable solvableBoardRunnable;
 
     public void stopTimerThread() {
@@ -118,10 +119,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 //run solver if in get help mode to correctly display deducible stuff (after losing)
                 if (isGetHelpMode()) {
                     toggleBacktrackingHintsOn = true;
-                    updateSolvedBoardWithBacktrackingSolver(false);
+                    try {
+                        runSolver();
+                    } catch (HitIterationLimitException ignored) {
+                        solverHitIterationLimit();
+                    }
                 }
             } else if (!(toggleFlag && engineGetHelpMode.getCell(row, col).state != TileState.VISIBLE) && (toggleBacktrackingHintsOn || toggleMineProbabilityOn)) {
-                updateSolvedBoardWithBacktrackingSolver(false);
+                try {
+                    runSolver();
+                } catch (HitIterationLimitException ignored) {
+                    solverHitIterationLimit();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -137,7 +146,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == R.id.newGameButton) {
             ImageButton newGameButton = findViewById(R.id.newGameButton);
             newGameButton.setImageResource(R.drawable.smiley_face);
-            startNewGame();
+            try {
+                startNewGame();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
             lastActionWasGetHelpButton = false;
             gameCanvas.invalidate();
@@ -173,13 +186,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView.getId() == R.id.toggleBacktrackingHints) {
-            handleHintToggle(isChecked);
+            try {
+                handleHintToggle(isChecked);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else if (buttonView.getId() == R.id.toggleMineProbability) {
-            handleToggleMineProbability(isChecked);
+            try {
+                handleToggleMineProbability(isChecked);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void updateSolvedBoardWithBacktrackingSolver(boolean updatingFromGetHintButtonPress) throws Exception {
+    public void runSolver() throws Exception {
         for (int i = 0; i < boardSolverInput.getRows(); i++) {
             for (int j = 0; j < boardSolverInput.getCols(); j++) {
                 boardSolverInput.getCell(i, j).set(engineGetHelpMode.getCell(i, j));
@@ -188,15 +209,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (boardSolverInput.getMines() != engineGetHelpMode.getNumberOfMines()) {
             throw new Exception("number of mines doesn't match");
         }
-        try {
-            boardSolverOutput = holyGrailSolver.solvePositionWithProbability(boardSolverInput);
-        } catch (HitIterationLimitException e) {
-            if (updatingFromGetHintButtonPress) {
-                displayGetHelpDisabledPopup();
-            } else {
-                solverHitIterationLimit();
-            }
-        }
+        boardSolverOutput = holyGrailSolver.solvePositionWithProbability(boardSolverInput);
     }
 
     public void solverHitIterationLimit() {
@@ -311,28 +324,41 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void executeHelpButton() throws Exception {
         try {
-            updateSolvedBoardWithBacktrackingSolver(true);
+            runSolver();
             //solver succeeds - check logical stuff is correct, and either reveal cell or end game
             if (engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
                 engineGetHelpMode.revealRandomCell();
-                if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {
-                    updateSolvedBoardWithBacktrackingSolver(false);
+                if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {//resolve now that board is updated
+                    try {
+                        runSolver();
+                    } catch (HitIterationLimitException ignored) {
+                        solverHitIterationLimit();
+                        toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
+                    }
                 }
             } else {
                 engineGetHelpMode.endGameFromFailedHint();
                 gameEndedFromHelpButton = true;
-                updateSolvedBoardWithBacktrackingSolver(false);
-                toggleBacktrackingHintsOn = true;
+                //run solver when game ends to show user what deducible stuff they missed
+                try {
+                    runSolver();
+                    toggleBacktrackingHintsOn = true;
+                } catch (HitIterationLimitException ignored) {
+                    //end of game, fail quietly (no error popup)
+                    toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
+                }
             }
         } catch (HitIterationLimitException ignored) {
-            //solver doesn't succeed - reveal random cell
+            //solver doesn't succeed - display error message and reveal random cell
+            displayGetHelpDisabledPopup();
             engineGetHelpMode.revealRandomCell();
+            toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
         }
         lastActionWasGetHelpButton = true;
         findViewById(R.id.gridCanvas).invalidate();
     }
 
-    private void startNewGame() {
+    private void startNewGame() throws Exception {
         try {
             engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
             TileWithProbability[][] tmpBoard = new TileWithProbability[numberOfRows][numberOfCols];
@@ -364,28 +390,28 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         updateTime(0);
     }
 
-    private void handleToggleMineProbability(boolean isChecked) {
+    private void handleToggleMineProbability(boolean isChecked) throws Exception {
         toggleMineProbabilityOn = isChecked;
         if (isChecked) {
             //TODO: don't update if hints is already enabled, it will do nothing
             try {
-                updateSolvedBoardWithBacktrackingSolver(false);
-            } catch (Exception e) {
-                e.printStackTrace();
+                runSolver();
+            } catch (HitIterationLimitException ignored) {
+                solverHitIterationLimit();
             }
         }
         lastActionWasGetHelpButton = false;
         findViewById(R.id.gridCanvas).invalidate();
     }
 
-    private void handleHintToggle(boolean isChecked) {
+    private void handleHintToggle(boolean isChecked) throws Exception {
         toggleBacktrackingHintsOn = isChecked;
         GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
         if (isChecked) {
             try {
-                updateSolvedBoardWithBacktrackingSolver(false);
-            } catch (Exception e) {
-                e.printStackTrace();
+                runSolver();
+            } catch (HitIterationLimitException ignored) {
+                solverHitIterationLimit();
             }
         }
         lastActionWasGetHelpButton = false;
@@ -399,7 +425,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         TextView textView = solverHitLimitPopup.getContentView().findViewById(R.id.iterationLimitText);
         String text = "Solver took more than ";
         text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
-        text += " iterations. Hints and mine probability are currently not available.";
+        text += " iterations. Deducible squares and mine probability are currently not available.";
         textView.setText(text);
     }
 
@@ -441,6 +467,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         timeText.setText(currTime);
     }
 
+    //TODO: move to it's own file
     private class DelayLoadingScreenRunnable implements Runnable {
         private final AtomicBoolean finishedBoardGen;
 
@@ -463,6 +490,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //TODO: move to it's own file
     private class MaxTimeToCreateSolvableBoard implements Runnable {
         public void run() {
             try {
@@ -476,6 +504,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //TODO: move to it's own file
     private class SolvableBoardRunnable implements Runnable {
         private final AtomicBoolean
                 isInterrupted = new AtomicBoolean(false);
@@ -571,15 +600,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
             holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
             TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
-            for(int i = 0; i < numberOfRows; i++) {
-                for(int j = 0; j < numberOfCols; j++) {
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
                     tmpIn[i][j] = new TileNoFlagsForSolver();
                 }
             }
             boardSolverInput = new Board<>(tmpIn, numberOfMines);
             TileWithProbability[][] tmpOut = new TileWithProbability[numberOfRows][numberOfCols];
-            for(int i = 0; i < numberOfRows; i++) {
-                for(int j = 0; j < numberOfCols; j++) {
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
                     tmpOut[i][j] = new TileWithProbability();
                 }
             }
