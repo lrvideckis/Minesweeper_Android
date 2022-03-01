@@ -208,7 +208,7 @@ public class stress_tests_minesweeper_solver {
         return board;
     }
 
-    private static void printBoardDebug(Board<TileWithProbability> board) throws Exception {
+    private static void printBoardWithProb(Board<TileWithProbability> board) throws Exception {
         System.out.println("mines: " + board.getMines() + " visible board is:");
         for (int i = 0; i < board.getRows(); i++) {
             for (int j = 0; j < board.getCols(); j++) {
@@ -232,6 +232,26 @@ public class stress_tests_minesweeper_solver {
         System.out.println();
     }
 
+    private static void printBoard(Board<TileNoFlagsForSolver> board) throws Exception {
+        System.out.println("mines: " + board.getMines() + " visible board is:");
+        for (int i = 0; i < board.getRows(); i++) {
+            for (int j = 0; j < board.getCols(); j++) {
+                TileNoFlagsForSolver visibleTile = board.getCell(i, j);
+                if (visibleTile.isVisible) {
+                    if (visibleTile.numberSurroundingMines == 0) {
+                        System.out.print('.');
+                    } else {
+                        System.out.print(visibleTile.numberSurroundingMines);
+                    }
+                } else {
+                    System.out.print('U');
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
     private static void throwIfBoardsAreDifferent(
             Board<TileWithProbability> boardFast,
             Board<TileWithProbability> boardSlow
@@ -242,7 +262,7 @@ public class stress_tests_minesweeper_solver {
         for (int i = 0; i < boardSlow.getRows(); ++i) {
             for (int j = 0; j < boardSlow.getCols(); ++j) {
                 if (boardFast.getCell(i, j).isVisible != boardSlow.getCell(i, j).isVisible) {
-                    printBoardDebug(boardFast);
+                    printBoardWithProb(boardFast);
                     throw new Exception("tile visibility differs");
                 }
                 if (boardFast.getCell(i, j).isVisible) {
@@ -258,9 +278,9 @@ public class stress_tests_minesweeper_solver {
                     System.out.println("fast solver " + fastTile.mineProbability.getNumerator() + '/' + fastTile.mineProbability.getDenominator());
                     System.out.println("slow solver " + slowTile.mineProbability.getNumerator() + '/' + slowTile.mineProbability.getDenominator());
                     System.out.println("fast solver");
-                    printBoardDebug(boardFast);
+                    printBoardWithProb(boardFast);
                     System.out.println("slow solver");
-                    printBoardDebug(boardSlow);
+                    printBoardWithProb(boardSlow);
                     throw new Exception("boards don't match");
                 }
             }
@@ -275,11 +295,11 @@ public class stress_tests_minesweeper_solver {
         for (int i = 0; i < boardBacktracking.getRows(); ++i) {
             for (int j = 0; j < boardBacktracking.getCols(); ++j) {
                 if (!boardBacktracking.getCell(i, j).mineProbability.equals(1) && boardGauss.getCell(i, j).isLogicalMine) {
-                    printBoardDebug(boardBacktracking);
+                    printBoardWithProb(boardBacktracking);
                     throw new Exception("it isn't a logical mine, but Gauss solver says it's a logical mine " + i + " " + j);
                 }
                 if (!boardBacktracking.getCell(i, j).mineProbability.equals(0) && boardGauss.getCell(i, j).isLogicalFree) {
-                    printBoardDebug(boardBacktracking);
+                    printBoardWithProb(boardBacktracking);
                     throw new Exception("it isn't a logical free, but Gauss solver says it's a logical free " + i + " " + j);
                 }
             }
@@ -360,12 +380,14 @@ public class stress_tests_minesweeper_solver {
         int numberOfTests = 128;
         for (int testID = 1; testID <= numberOfTests; ++testID) {
             //TODO: revisit these bounds
-            System.out.println("test number: " + testID);
+            System.out.println();
+            System.out.print("test number: " + testID);
             int[] bounds = genSmallBoundsForSlowSolver();
             final int rows = bounds[0];
             final int cols = bounds[1];
             final int mines = bounds[2];
             final boolean hasAn8 = (bounds[3] == 1);
+            System.out.print(" dimensions (rows, cols, mines, has8) = (" + rows + " " + cols + " " + mines + " " + hasAn8 + ") ");
 
             SolverWithProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
             SolverWithProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
@@ -373,6 +395,7 @@ public class stress_tests_minesweeper_solver {
             TestEngine gameEngine = new TestEngine(rows, cols, mines, hasAn8);
             gameEngine.clickCell(MyMath.getRand(0, rows - 1), MyMath.getRand(0, cols - 1), false);
 
+            int numberOfTimesSolverIsRun = 0;
             while (gameEngine.getGameState() != GameState.WON) {
                 if (gameEngine.getGameState() == GameState.LOST) {
                     throw new Exception("here 1: game is lost, but this shouldn't happen, failed test");
@@ -381,16 +404,18 @@ public class stress_tests_minesweeper_solver {
                 try {
                     fastOut = holyGrailSolver.solvePositionWithProbability(convertToNewBoard(gameEngine));
                 } catch (HitIterationLimitException ignored) {
-                    System.out.println("fast solver hit iteration limit, void test");
+                    printBoard(convertToNewBoard(gameEngine));
+                    System.out.print("fast solver hit iteration limit, void test");
                     break;
                 }
                 try {
                     slowOut = slowBacktrackingSolver.solvePositionWithProbability(convertToNewBoard(gameEngine));
                 } catch (HitIterationLimitException ignored) {
-                    System.out.println("slow solver hit iteration limit, void test");
+                    System.out.print("slow solver hit iteration limit, void test, # of solver previous successful runs this game = " + numberOfTimesSolverIsRun);
                     break;
                 }
                 throwIfBoardsAreDifferent(fastOut, slowOut);
+                numberOfTimesSolverIsRun++;
                 //click all logical frees
                 boolean clickedFree = false;
                 for (int i = 0; i < rows; ++i) {
@@ -584,7 +609,7 @@ public class stress_tests_minesweeper_solver {
                 }
 
                 if (noLogicalFrees(solverRes)) {
-                    printBoardDebug(solverRes);
+                    printBoardWithProb(solverRes);
                     throw new Exception("no logical frees, failed test");
                 }
 
@@ -617,10 +642,9 @@ public class stress_tests_minesweeper_solver {
             final int mines = MyMath.getRand(8, 14);//if you click in the middle of a 3-by-8 grid, you can fit an 8 above/below and then 6 extra mines below/above
             return new int[]{rows, cols, mines, 1};
         }
-        final int rows = MyMath.getRand(3, 8);
-        final int cols = MyMath.getRand(3, 40 / rows);
-        int mines = MyMath.getRand(0, 16);
-        mines = Math.min(mines, rows * cols - 9);
+        final int rows = MyMath.getRand(3, 10);
+        final int cols = MyMath.getRand(3, 45 / rows);
+        int mines = MyMath.getRand(0, Math.min(16, rows * cols - 9));
 
         return new int[]{rows, cols, mines, 0};
     }
