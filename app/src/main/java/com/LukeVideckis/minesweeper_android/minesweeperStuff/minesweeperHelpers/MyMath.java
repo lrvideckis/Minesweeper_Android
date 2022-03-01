@@ -5,6 +5,10 @@ import java.math.BigInteger;
 public class MyMath {
     public static final double EPSILON = 1e-8;
 
+    private MyMath() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     //returns (n choose x) / (n choose y)
     public static BigFraction BinomialCoefficientFraction(int n, int x, int y) throws Exception {
         if (x < 0 || y < 0 || x > n || y > n) {

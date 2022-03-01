@@ -8,6 +8,10 @@ import java.util.ArrayList;
 
 
 public class CheckForLocalStuff {
+    private CheckForLocalStuff() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     public static boolean checkAndUpdateBoardForTrivialStuff(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
         boolean foundNewStuff = false;
         for (int i = 0; i < board.getRows(); ++i) {

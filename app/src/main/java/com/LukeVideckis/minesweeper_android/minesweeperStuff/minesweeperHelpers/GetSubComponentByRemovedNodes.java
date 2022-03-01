@@ -6,6 +6,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class GetSubComponentByRemovedNodes {
+    private GetSubComponentByRemovedNodes() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     public static ArrayList<SortedSet<Integer>> getSubComponentByRemovedNodes(
             SortedSet<Integer> nodes,
             ArrayList<SortedSet<Integer>> adjList,

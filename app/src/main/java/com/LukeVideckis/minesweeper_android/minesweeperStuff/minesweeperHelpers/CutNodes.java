@@ -5,6 +5,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class CutNodes {
+    private CutNodes() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     public static TreeSet<Integer> getCutNodes(SortedSet<Integer> nodes, ArrayList<SortedSet<Integer>> adjList, boolean[] isRemoved) throws Exception {
         //TODO: change these to Trees, for better complexity
         //initialize variables for finding cut nodes

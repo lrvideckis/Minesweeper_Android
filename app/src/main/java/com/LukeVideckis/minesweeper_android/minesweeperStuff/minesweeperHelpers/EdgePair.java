@@ -8,6 +8,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class EdgePair {
+    private EdgePair() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     public static Pair<ComparablePair, ComparablePair> getPairOfEdges(
             final SortedSet<Integer> subComponent,
             final int componentPos,

@@ -17,6 +17,9 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class CreateSolvableBoard {
+    private CreateSolvableBoard() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
 
     //returns positions of mines as we need to initialize the game engine with this board. and it's
     //exponentially hard to figure out where the mines are from the visible board. We know where the

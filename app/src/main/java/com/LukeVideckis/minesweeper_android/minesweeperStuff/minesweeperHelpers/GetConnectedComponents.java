@@ -11,6 +11,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class GetConnectedComponents {
+    private GetConnectedComponents() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
 
     public static Pair<ArrayList<ArrayList<Pair<Integer, Integer>>>, ArrayList<ArrayList<SortedSet<Integer>>>> getComponentsWithKnownCells(Board<TileWithLogistics> board) throws Exception {
         Dsu disjointSet = new Dsu(board.getRows() * board.getCols());

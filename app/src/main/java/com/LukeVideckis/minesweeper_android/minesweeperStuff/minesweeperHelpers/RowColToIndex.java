@@ -4,6 +4,10 @@ import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 //TODO: try to remove this class entirely
 public class RowColToIndex {
+    private RowColToIndex() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     public static int rowColToIndex(int i, int j, int rows, int cols) {
         if (i < 0 || j < 0 || i >= rows || j >= cols) {
             throw new ArrayIndexOutOfBoundsException("throwing from getConnectedComponents.getNode()");

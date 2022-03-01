@@ -7,6 +7,10 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 
 
 public class AwayCell {
+    private AwayCell() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
+
     public static int getNumberOfAwayCells(Board<TileNoFlagsForSolver> board) throws Exception {
         int cntAwayCells = 0;
         for (int i = 0; i < board.getRows(); ++i) {

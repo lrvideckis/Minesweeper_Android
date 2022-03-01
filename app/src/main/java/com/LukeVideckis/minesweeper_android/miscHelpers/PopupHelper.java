@@ -17,6 +17,9 @@ import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 
 public class PopupHelper {
+    private PopupHelper() throws Exception {
+        throw new Exception("No instances allowed!");
+    }
 
     public static PopupWindow initializePopup(Context context, int layoutId) {
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
