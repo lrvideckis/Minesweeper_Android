@@ -38,7 +38,7 @@ public class EngineGetHelpMode extends GameEngine {
         if (solverBoard.getRows() != getRows() || solverBoard.getCols() != getCols()) {
             throw new Exception("solver board dimensions don't match game engine dimensions");
         }
-        if(firstClick && getNumberOfMines() == 0) {
+        if (firstClick && getNumberOfMines() == 0) {
             return false;
         }
         for (int i = 0; i < grid.getRows(); ++i) {
@@ -59,7 +59,7 @@ public class EngineGetHelpMode extends GameEngine {
 
     //when user presses getHint, without correctly identifying the logical stuff, the game is over
     public void endGameFromFailedHint() throws Exception {
-        if(getGameState() == GameState.WON) {
+        if (getGameState() == GameState.WON) {
             throw new Exception("can't end game when it's won");
         }
         isGameLost = true;

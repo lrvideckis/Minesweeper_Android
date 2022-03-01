@@ -313,7 +313,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         try {
             updateSolvedBoardWithBacktrackingSolver(true);
             //solver succeeds - check logical stuff is correct, and either reveal cell or end game
-            if(engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
+            if (engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
                 engineGetHelpMode.revealRandomCell();
                 if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {
                     updateSolvedBoardWithBacktrackingSolver(false);
@@ -335,6 +335,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void startNewGame() {
         try {
             engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
+            TileWithProbability[][] tmpBoard = new TileWithProbability[numberOfRows][numberOfCols];
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
+                    tmpBoard[i][j] = new TileWithProbability();
+                }
+            }
+            boardSolverOutput = new Board<>(tmpBoard, numberOfMines);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -563,7 +570,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         try {
             engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
             holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
-            boardSolverInput = new Board<>(new TileNoFlagsForSolver[numberOfRows][numberOfCols], numberOfMines);
+            TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
+            for(int i = 0; i < numberOfRows; i++) {
+                for(int j = 0; j < numberOfCols; j++) {
+                    tmpIn[i][j] = new TileNoFlagsForSolver();
+                }
+            }
+            boardSolverInput = new Board<>(tmpIn, numberOfMines);
+            TileWithProbability[][] tmpOut = new TileWithProbability[numberOfRows][numberOfCols];
+            for(int i = 0; i < numberOfRows; i++) {
+                for(int j = 0; j < numberOfCols; j++) {
+                    tmpOut[i][j] = new TileWithProbability();
+                }
+            }
+            boardSolverOutput = new Board<>(tmpOut, numberOfMines);
         } catch (Exception e) {
             e.printStackTrace();
         }

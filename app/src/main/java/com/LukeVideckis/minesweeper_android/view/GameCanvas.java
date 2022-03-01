@@ -130,7 +130,6 @@ public class GameCanvas extends View {
             e.printStackTrace();
         }
 
-
         for (int i = 0; i < numberOfRows; ++i) {
             boolean haveDrawnACell = false;
             for (int j = 0; j < numberOfCols; ++j) {
