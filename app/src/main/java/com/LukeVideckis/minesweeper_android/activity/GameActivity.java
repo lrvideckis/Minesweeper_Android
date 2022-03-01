@@ -64,7 +64,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private volatile Thread updateTimeThread;
     private volatile AlertDialog loadingScreenForSolvableBoardGeneration;
     private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread(maxTimeToCreateSolvableBoard);
-    ;
+
     private volatile SolvableBoardRunnable solvableBoardRunnable;
 
     public void stopTimerThread() {
