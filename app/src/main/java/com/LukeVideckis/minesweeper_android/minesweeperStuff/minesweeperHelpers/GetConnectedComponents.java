@@ -2,7 +2,7 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
-import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
+import com.LukeVideckis.minesweeper_android.miscHelpers.ComparablePair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class GetConnectedComponents {
         boolean[][] visited = new boolean[board.getRows()][board.getCols()];
         ArrayList<ArrayList<Pair<Integer, Integer>>> components = new ArrayList<>();
         ArrayList<ArrayList<TreeSet<Integer>>> mutableAdjList = new ArrayList<>();
-        MyPair[][] rowColToComponent = new MyPair[board.getRows()][board.getCols()];
+        ComparablePair[][] rowColToComponent = new ComparablePair[board.getRows()][board.getCols()];
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {
                 if (visited[i][j] || !unknownStatusSpot[i][j]) {
@@ -70,8 +70,8 @@ public class GetConnectedComponents {
                             continue;
                         }
                         //add edge
-                        final MyPair node1 = rowColToComponent[adj1[0]][adj1[1]];
-                        final MyPair node2 = rowColToComponent[adj2[0]][adj2[1]];
+                        final ComparablePair node1 = rowColToComponent[adj1[0]][adj1[1]];
+                        final ComparablePair node2 = rowColToComponent[adj2[0]][adj2[1]];
                         if (!node1.first.equals(node2.first)) {
                             throw new Exception("edge between 2 nodes not in the same component");
                         }
@@ -107,10 +107,10 @@ public class GetConnectedComponents {
             final boolean[][] unknownStatusSpot,
             final int ccDsuParent,
             final Dsu disjointSet,
-            MyPair[][] rowColToComponent,
+            ComparablePair[][] rowColToComponent,
             final int componentId
     ) {
-        rowColToComponent[i][j] = new MyPair(componentId, component.size());
+        rowColToComponent[i][j] = new ComparablePair(componentId, component.size());
         component.add(new Pair<>(i, j));
         visited[i][j] = true;
         for (int[] adj : board.getAdjacentIndexes(i, j)) {

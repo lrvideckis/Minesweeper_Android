@@ -16,7 +16,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
-import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
+import com.LukeVideckis.minesweeper_android.miscHelpers.ComparablePair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -517,7 +517,7 @@ public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
 
         //3rd try: find pairs of edges - only once there are no cut nodes, if there's >= 1 cut node, then we'll recurse again
         if (allCutNodes.isEmpty()) {
-            Pair<MyPair, MyPair> edgePair = EdgePair.getPairOfEdges(subComponent, componentPos, isRemoved, adjList);
+            Pair<ComparablePair, ComparablePair> edgePair = EdgePair.getPairOfEdges(subComponent, componentPos, isRemoved, adjList);
             TreeSet<Integer> uniqueNodes = new TreeSet<>();
             if (edgePair != null) {
                 uniqueNodes.add(edgePair.first.first);

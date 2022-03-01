@@ -1,6 +1,6 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers;
 
-import com.LukeVideckis.minesweeper_android.miscHelpers.MyPair;
+import com.LukeVideckis.minesweeper_android.miscHelpers.ComparablePair;
 import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
@@ -8,13 +8,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class EdgePair {
-    public static Pair<MyPair, MyPair> getPairOfEdges(
+    public static Pair<ComparablePair, ComparablePair> getPairOfEdges(
             final SortedSet<Integer> subComponent,
             final int componentPos,
             final boolean[] isRemoved,
             final ArrayList<ArrayList<SortedSet<Integer>>> adjList
     ) throws Exception {
-        TreeSet<MyPair> edges = new TreeSet<>();
+        TreeSet<ComparablePair> edges = new TreeSet<>();
         for (int node : subComponent) {
             if (isRemoved[node]) {
                 continue;
@@ -30,13 +30,13 @@ public class EdgePair {
                     u = v;
                     v = temp;
                 }
-                edges.add(new MyPair(u, v));
+                edges.add(new ComparablePair(u, v));
             }
         }
-        Pair<MyPair, MyPair> edgePairWithSmallestLargestComponent = null;
+        Pair<ComparablePair, ComparablePair> edgePairWithSmallestLargestComponent = null;
         int smallestLargestComponentSize = (int) 1e9;
-        for (MyPair edge1 : edges) {
-            for (MyPair edge2 : edges) {
+        for (ComparablePair edge1 : edges) {
+            for (ComparablePair edge2 : edges) {
                 if (isRemoved[edge1.first] ||
                         isRemoved[edge1.second] ||
                         isRemoved[edge2.first] ||
