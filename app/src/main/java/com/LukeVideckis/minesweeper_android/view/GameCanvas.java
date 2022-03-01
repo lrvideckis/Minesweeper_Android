@@ -34,16 +34,6 @@ public class GameCanvas extends View {
         drawCellHelpers = new DrawCellHelpers(context, gameActivity.getNumberOfRows(), gameActivity.getNumberOfCols());
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        // I need the # of pixels for this view -> it doesn't include the top/bottom bars. But
-        // because of how Android is set up, `getWidth()` and `getHeight()` return 0 in `GameCanvas`
-        // constructor. This is the workaround.
-        // https://stackoverflow.com/questions/3591784/views-getwidth-and-getheight-returns-0
-        scaleListener.setScreenWidthAndHeight(w, h);
-    }
-
     private void drawCell(
             Canvas canvas,
             BigFraction mineProb,
@@ -110,6 +100,16 @@ public class GameCanvas extends View {
         tempCellRect.set(startX, startY, startX + GameActivity.cellPixelLength, startY + GameActivity.cellPixelLength);
         scaleListener.getMatrix().mapRect(tempCellRect);
         return (tempCellRect.right < 0 || tempCellRect.bottom < 0 || tempCellRect.top > getHeight() || tempCellRect.left > getWidth());
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        // I need the # of pixels for this view -> it doesn't include the top/bottom bars. But
+        // because of how Android is set up, `getWidth()` and `getHeight()` return 0 in `GameCanvas`
+        // constructor. This is the workaround.
+        // https://stackoverflow.com/questions/3591784/views-getwidth-and-getheight-returns-0
+        scaleListener.setScreenWidthAndHeight(w, h);
     }
 
     @Override
