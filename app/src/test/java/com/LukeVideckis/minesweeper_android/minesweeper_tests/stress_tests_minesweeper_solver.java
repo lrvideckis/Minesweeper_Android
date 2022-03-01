@@ -12,6 +12,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecu
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
@@ -294,11 +295,11 @@ public class stress_tests_minesweeper_solver {
         }
         for (int i = 0; i < boardBacktracking.getRows(); ++i) {
             for (int j = 0; j < boardBacktracking.getCols(); ++j) {
-                if (!boardBacktracking.getCell(i, j).mineProbability.equals(1) && boardGauss.getCell(i, j).isLogicalMine) {
+                if (!boardBacktracking.getCell(i, j).mineProbability.equals(1) && boardGauss.getCell(i, j).logic == LogisticState.MINE) {
                     printBoardWithProb(boardBacktracking);
                     throw new Exception("it isn't a logical mine, but Gauss solver says it's a logical mine " + i + " " + j);
                 }
-                if (!boardBacktracking.getCell(i, j).mineProbability.equals(0) && boardGauss.getCell(i, j).isLogicalFree) {
+                if (!boardBacktracking.getCell(i, j).mineProbability.equals(0) && boardGauss.getCell(i, j).logic == LogisticState.FREE) {
                     printBoardWithProb(boardBacktracking);
                     throw new Exception("it isn't a logical free, but Gauss solver says it's a logical free " + i + " " + j);
                 }
