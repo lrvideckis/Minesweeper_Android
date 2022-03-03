@@ -183,7 +183,8 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            System.out.println("hello world from settings!");
+            Intent intent = new Intent(StartScreenActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
         return true;
     }

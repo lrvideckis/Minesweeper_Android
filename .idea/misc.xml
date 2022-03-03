@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/drawable/light_bulb_for_hint.xml" value="0.198" />
         <entry key="app/src/main/res/drawable/settings_gear.xml" value="0.1675" />
         <entry key="app/src/main/res/drawable/upper_triangle_green.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_settings.xml" value="0.7278079710144928" />
         <entry key="app/src/main/res/layout/game.xml" value="0.19382022471910113" />
         <entry key="app/src/main/res/layout/get_help_disabled_popup.xml" value="0.1" />
         <entry key="app/src/main/res/layout/no_guessing_mode_with_8_info.xml" value="0.22" />

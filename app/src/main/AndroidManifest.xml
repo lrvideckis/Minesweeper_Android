@@ -11,15 +11,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.LukeVideckis.minesweeper_android.activity.StartScreenActivity"
+            android:name=".activity.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.StartScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.LukeVideckis.minesweeper_android.activity.GameActivity"
+            android:name=".activity.GameActivity"
             android:exported="false"
             android:hardwareAccelerated="true" />
     </application>
