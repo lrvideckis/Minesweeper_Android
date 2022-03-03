@@ -58,7 +58,7 @@
                 android:layout_toStartOf="@id/rowsIncrement"
                 android:height="@android:dimen/app_icon_size"
                 android:text="@string/decrement"
-                android:textColor="#795548" />
+                android:textColor="#000000" />
 
             <Button
                 android:id="@+id/rowsIncrement"
@@ -67,7 +67,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
                 android:text="@string/increment"
-                android:textColor="#795548" />
+                android:textColor="#000000" />
 
         </RelativeLayout>
 
@@ -103,7 +103,7 @@
                 android:layout_height="55dp"
                 android:layout_toStartOf="@id/colsIncrement"
                 android:text="@string/decrement"
-                android:textColor="#795548" />
+                android:textColor="#000000" />
 
             <Button
                 android:id="@+id/colsIncrement"
@@ -112,7 +112,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
                 android:text="@string/increment"
-                android:textColor="#795548" />
+                android:textColor="#000000" />
 
         </RelativeLayout>
 
@@ -147,7 +147,7 @@
                 android:layout_height="55dp"
                 android:layout_toStartOf="@id/minesIncrement"
                 android:text="@string/decrement"
-                android:textColor="#795548" />
+                android:textColor="#000000" />
 
             <Button
                 android:id="@+id/minesIncrement"
@@ -156,7 +156,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
                 android:text="@string/increment"
-                android:textColor="#795548" />
+                android:textColor="#000000" />
 
         </RelativeLayout>
 
