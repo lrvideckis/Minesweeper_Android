@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.PopupWindow;
@@ -12,6 +14,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
@@ -75,12 +78,10 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         final int rows = rowsInput.getProgress() + rowsColsMin;
         final int cols = colsInput.getProgress() + rowsColsMin;
         final int mines = mineInput.getProgress() + minesMin;
-        RadioButton noGuessingMode, normalMode, noGuessingModeWith8, getHelpMode;
+        RadioButton noGuessingMode, normalMode, getHelpMode;
         if (v.getId() == R.id.normal_mode) {
             noGuessingMode = findViewById(R.id.no_guessing_mode);
             noGuessingMode.setChecked(false);
-            noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-            noGuessingModeWith8.setChecked(false);
             getHelpMode = findViewById(R.id.get_help_mode);
             getHelpMode.setChecked(false);
             gameMode = R.id.normal_mode;
@@ -92,24 +93,9 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         } else if (v.getId() == R.id.no_guessing_mode) {
             normalMode = findViewById(R.id.normal_mode);
             normalMode.setChecked(false);
-            noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-            noGuessingModeWith8.setChecked(false);
             getHelpMode = findViewById(R.id.get_help_mode);
             getHelpMode.setChecked(false);
             gameMode = R.id.no_guessing_mode;
-            try {
-                setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (v.getId() == R.id.no_guessing_mode_with_an_8) {
-            normalMode = findViewById(R.id.normal_mode);
-            normalMode.setChecked(false);
-            noGuessingMode = findViewById(R.id.no_guessing_mode);
-            noGuessingMode.setChecked(false);
-            getHelpMode = findViewById(R.id.get_help_mode);
-            getHelpMode.setChecked(false);
-            gameMode = R.id.no_guessing_mode_with_an_8;
             try {
                 setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
             } catch (Exception e) {
@@ -120,8 +106,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             normalMode.setChecked(false);
             noGuessingMode = findViewById(R.id.no_guessing_mode);
             noGuessingMode.setChecked(false);
-            noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-            noGuessingModeWith8.setChecked(false);
             gameMode = R.id.get_help_mode;
             try {
                 setMinMaxText(rows, cols, mines, rowsInput, colsInput, mineInput);
@@ -132,8 +116,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             displayNormalModeInfoPopup();
         } else if (v.getId() == R.id.no_guessing_mode_info) {
             displayNoGuessingModeInfoPopup();
-        } else if (v.getId() == R.id.no_guessing_mode_with_8_info) {
-            displayNoGuessingWith8ModeInfoPopup();
         } else if (v.getId() == R.id.get_help_mode_info) {
             displayGetHelpModeInfoPopup();
         } else if (v.getId() == R.id.rowsDecrement) {
@@ -183,10 +165,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         PopupHelper.displayPopup(noGuessingModeInfoPopup, findViewById(R.id.startScreenLayout), getResources());
     }
 
-    public void displayNoGuessingWith8ModeInfoPopup() {
-        PopupHelper.displayPopup(noGuessingModeWith8InfoPopup, findViewById(R.id.startScreenLayout), getResources());
-    }
-
     public void displayGetHelpModeInfoPopup() {
         PopupHelper.displayPopup(getHelpModeInfoPopup, findViewById(R.id.startScreenLayout), getResources());
     }
@@ -196,8 +174,22 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         moveTaskToBack(true);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {//needed to show settings gear
+        getMenuInflater().inflate(R.menu.top_toolbar_actions, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            System.out.println("hello world from settings!");
+        }
+        return true;
+    }
+
     private void setMinMaxText(int rows, int cols, int mines, SeekBar rowsInput, SeekBar colsInput, SeekBar mineInput) throws Exception {
-        if (gameMode == R.id.no_guessing_mode || gameMode == R.id.no_guessing_mode_with_an_8) {
+        if (gameMode == R.id.no_guessing_mode) {
             rowsColsMin = 10;
         } else {
             rowsColsMin = 3;
@@ -208,13 +200,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         rows = Math.min(rowsColsMax, Math.max(rowsColsMin, rows));
         cols = Math.min(rowsColsMax, Math.max(rowsColsMin, cols));
 
+        //TODO if guaranteed 8 setting is checked, then minesMin = 8
+
         if (gameMode == R.id.no_guessing_mode) {
             minesMin = 0;
             minesMax = (int) (rows * cols * maxMinePercentage);
-            minesMax = Math.min(minesMax, 100);
-        } else if (gameMode == R.id.no_guessing_mode_with_an_8) {
-            minesMin = 8;
-            minesMax = (int) (rows * cols * maxMinePercentageWith8);
             minesMax = Math.min(minesMax, 100);
         } else if (gameMode == R.id.get_help_mode) {
             minesMin = 0;
@@ -266,12 +256,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         okButton.setOnClickListener(view -> noGuessingModeInfoPopup.dismiss());
     }
 
-    private void setUpNoGuessingWith8ModeInfoPopup() {
-        noGuessingModeWith8InfoPopup = PopupHelper.initializePopup(this, R.layout.no_guessing_mode_with_8_info);
-        Button okButton = noGuessingModeWith8InfoPopup.getContentView().findViewById(R.id.noGuessingModeWith8InfoOkButton);
-        okButton.setOnClickListener(view -> noGuessingModeWith8InfoPopup.dismiss());
-    }
-
     private void setUpGetHelpModeInfoPopup() {
         getHelpModeInfoPopup = PopupHelper.initializePopup(this, R.layout.get_help_mode_info);
         Button okButton = getHelpModeInfoPopup.getContentView().findViewById(R.id.getHelpModeOkButton);
@@ -297,7 +281,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
             final RadioButton normalMode = findViewById(R.id.normal_mode);
             final RadioButton noGuessMode = findViewById(R.id.no_guessing_mode);
-            final RadioButton noGuessModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
             final RadioButton getHelpMode = findViewById(R.id.get_help_mode);
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -308,8 +291,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
                 editor.putInt(GAME_MODE, R.id.normal_mode);
             } else if (noGuessMode.isChecked()) {
                 editor.putInt(GAME_MODE, R.id.no_guessing_mode);
-            } else if (noGuessModeWith8.isChecked()) {
-                editor.putInt(GAME_MODE, R.id.no_guessing_mode_with_an_8);
             } else if (getHelpMode.isChecked()) {
                 editor.putInt(GAME_MODE, R.id.get_help_mode);
             }
@@ -321,8 +302,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             intent.putExtra(NUMBER_OF_MINES, numberOfMines);
             if (noGuessMode.isChecked()) {
                 intent.putExtra(GAME_MODE, R.id.no_guessing_mode);
-            } else if (noGuessModeWith8.isChecked()) {
-                intent.putExtra(GAME_MODE, R.id.no_guessing_mode_with_an_8);
             } else if (getHelpMode.isChecked()) {
                 intent.putExtra(GAME_MODE, R.id.get_help_mode);
             } else {//default is normal mode
@@ -336,6 +315,12 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_screen);
+
+        // Find the toolbar view inside the activity layout
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        // Sets the Toolbar to act as the ActionBar for this Activity window.
+        // Make sure the toolbar exists in the activity and is not null
+        setSupportActionBar(toolbar);
 
         sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
@@ -366,9 +351,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         RadioButton noGuessingMode = findViewById(R.id.no_guessing_mode);
         noGuessingMode.setOnClickListener(this);
 
-        RadioButton noGuessingModeWith8 = findViewById(R.id.no_guessing_mode_with_an_8);
-        noGuessingModeWith8.setOnClickListener(this);
-
         RadioButton getHelpMode = findViewById(R.id.get_help_mode);
         getHelpMode.setOnClickListener(this);
 
@@ -379,8 +361,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
         if (gameMode == R.id.no_guessing_mode) {
             noGuessingMode.setChecked(true);
-        } else if (gameMode == R.id.no_guessing_mode_with_an_8) {
-            noGuessingModeWith8.setChecked(true);
         } else if (gameMode == R.id.get_help_mode) {
             getHelpMode.setChecked(true);
         } else {//default is normal mode
@@ -449,15 +429,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         TextView noGuessingModeInfo = findViewById(R.id.no_guessing_mode_info);
         noGuessingModeInfo.setOnClickListener(this);
 
-        TextView noGuessingModeWith8Info = findViewById(R.id.no_guessing_mode_with_8_info);
-        noGuessingModeWith8Info.setOnClickListener(this);
-
         TextView getHelpModeInfo = findViewById(R.id.get_help_mode_info);
         getHelpModeInfo.setOnClickListener(this);
 
         setUpNormalModeInfoPopup();
         setUpNoGuessingModeInfoPopup();
-        setUpNoGuessingWith8ModeInfoPopup();
         setUpGetHelpModeInfoPopup();
     }
 }

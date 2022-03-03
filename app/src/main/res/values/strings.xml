@@ -14,18 +14,19 @@
     <string name="decrement">-</string>
     <string name="increment">+</string>
     <string name="minesweeper">Minesweeper</string>
-    <string name="normalModeExplanation">This mode is normal minesweeper. The first square won\'t be a mine.</string>
-    <string name="no_guessing_mode_explanation">It is possible to solve the entire grid by deduction. No guessing is required. You may need to use the total number of mines in deductions.</string>
-    <string name="no_guessing_mode_with_8_explanation">It is possible to solve the entire grid by deduction, and there will be at least one 8 (which is also deducible). Knowledge of the 8\'s existence won\'t be needed in deductions.</string>
-    <string name="get_help_mode_explanation">This mode is normal minesweeper with a twist: there is a help button. The help button will reveal 1 square which isn\'t a mine. If you tap the help button when there are un-flagged deducible mines or un-tapped deducible non-mines, then you lose.</string>
+    <string name="normalModeExplanation">This is normal minesweeper. The first square won\'t be a mine.</string>
+    <string name="no_guessing_mode_explanation">It is possible to win the entire game with reasoning so no guessing is required. You may need to consider the total number of mines for your reasoning.</string>
+    <string name="get_help_mode_explanation">This mode is minesweeper with a twist: there is a help button which randomly reveals 1 square (which isn\'t a mine). But if you tap the help button when there are un-flagged deducible mines or un-tapped deducible non-mines, then you lose.</string>
 
     <string name="normal_mode">Normal Mode</string>
-    <string name="no_guessing_mode">No Guessing Mode</string>
+    <string name="no_guessing_mode">No Guess Mode</string>
     <string name="no_guessing_mode_with_an_8">No Guessing Mode With An 8</string>
     <string name="get_help_mode_text">Get Help Mode</string>
     <string name="no_guess_board_not_found">Could not find a no guess board. This board might have guesses.</string>
     <string name="loading_text">Please wait! This may take a moment.</string>
     <string name="deducible_squares">Deducible Squares</string>
+    <string name="go_to_settings_page">go to settings page</string>
+    <string name="action_settings">settings</string>
 
     <!--
     TODO: these modes

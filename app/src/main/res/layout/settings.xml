@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/startScreenLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/reallyLightGrey"
+    android:tag="@string/is_relative_layout">
+
+    <LinearLayout
+        android:id="@+id/gameControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/defaultSetFlags"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="toggle flags is the default" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/isGuaranteed8"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Generate games with a guaranteed 8" />
+    </LinearLayout>
+</RelativeLayout>

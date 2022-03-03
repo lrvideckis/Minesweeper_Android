@@ -84,7 +84,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         final boolean toggleFlag = (toggleFlagModeOn ^ isLongTap);
 
         if (engineGetHelpMode.isBeforeFirstClick() && !toggleFlag) {
-            if (gameMode == R.id.no_guessing_mode || gameMode == R.id.no_guessing_mode_with_an_8) {
+            if (gameMode == R.id.no_guessing_mode) {
                 finishedBoardGen.set(false);
 
                 new Thread(new DelayLoadingScreenRunnable(finishedBoardGen)).start();
@@ -360,7 +360,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startNewGame() throws Exception {
         try {
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, false/*TODO: initialize here by setting val*/);
             TileWithProbability[][] tmpBoard = new TileWithProbability[numberOfRows][numberOfCols];
             for (int i = 0; i < numberOfRows; i++) {
                 for (int j = 0; j < numberOfCols; j++) {
@@ -519,7 +519,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         public void run() {
             try {
-                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, gameMode == R.id.no_guessing_mode_with_an_8, isInterrupted);
+                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, false /*TODO: initilize with setting value*/, isInterrupted);
                 if (isInterrupted.get()) {
                     if (backButtonWasPressed.get()) {
                         return;
@@ -535,7 +535,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     }
-                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, gameMode == R.id.no_guessing_mode_with_an_8);
+                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, false /*TODO: initialize with setting value*/);
                 }
                 finishedBoardGen.set(true);
                 updateTimeThread.start();
@@ -597,7 +597,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.game);
 
         try {
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, false/*TODO: initialize with setting value*/);
             holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
             TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
             for (int i = 0; i < numberOfRows; i++) {
