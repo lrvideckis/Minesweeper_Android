@@ -24,7 +24,6 @@ import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 //TODO: Make minesweeper endless: always force >= 1 visible tile on the screen
 //TODO: Recommend the guess which will reveal the greatest amount of further stuff
 //TODO: save personal high scores (the time) for beginner, intermediate, expert
-//TODO: figure out what to make button to the left of the yellow smiley face button
 //TODO: revisit todos on google keep
 
 public class StartScreenActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
@@ -38,7 +37,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
     private static final float maxMinePercentage = 0.23f, maxMinePercentageWith8 = 0.22f;
     private static final int rowsColsMax = 30;
     private SharedPreferences sharedPreferences;
-    private PopupWindow normalModeInfoPopup, noGuessingModeInfoPopup, noGuessingModeWith8InfoPopup, getHelpModeInfoPopup;
+    private PopupWindow normalModeInfoPopup, noGuessingModeInfoPopup, getHelpModeInfoPopup;
     private int gameMode, rowsColsMin, minesMin, minesMax;
 
     @Override
