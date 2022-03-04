@@ -14,13 +14,14 @@
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:titleTextColor="@android:color/white">
+
         <TextView
             android:id="@+id/settingsTitleText"
-            android:text="@string/settings"
-            android:textColor="#000000"
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"/>
+            android:text="@string/settings"
+            android:textColor="#000000" />
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
