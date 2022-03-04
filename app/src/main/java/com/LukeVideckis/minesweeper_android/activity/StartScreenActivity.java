@@ -19,12 +19,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 
-//TODO: change game board scale to be pivoted around focus point instead of the middle of the screen
-//TODO: add settings page were you can choose whether or not to have a zero-start, also choose iteration limit of backtracking solver, also choose defaults for Flag Mode, Game mode, etc
-//TODO: Make minesweeper endless: always force >= 1 visible tile on the screen
-//TODO: Recommend the guess which will reveal the greatest amount of further stuff
-//TODO: save personal high scores (the time) for beginner, intermediate, expert
-
 public class StartScreenActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
     public static final String
