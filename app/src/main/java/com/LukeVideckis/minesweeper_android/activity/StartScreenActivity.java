@@ -28,10 +28,10 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             NUMBER_OF_MINES = "numMines",
             GAME_MODE = "gameMode";
     private static final float maxMinePercentage = 0.23f;
-    private static final int rowsColsMax = 30;
+    private static final int rowsColsMin = 10, rowsColsMax = 30, minesMin = 8;
     private SharedPreferences sharedPreferences;
     private PopupWindow normalModeInfoPopup, noGuessingModeInfoPopup, getHelpModeInfoPopup;
-    private int gameMode, rowsColsMin, minesMin, minesMax;
+    private int gameMode, minesMax;
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -182,39 +182,25 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
     }
 
     private void setMinMaxText(int rows, int cols, int mines, SeekBar rowsInput, SeekBar colsInput, SeekBar mineInput) throws Exception {
-        if (gameMode == R.id.no_guessing_mode) {
-            rowsColsMin = 10;
-        } else {
-            rowsColsMin = 3;
-        }
-        rowsInput.setMax(rowsColsMax - rowsColsMin);
-        colsInput.setMax(rowsColsMax - rowsColsMin);
-
+        //logic for settings rows, cols, mines
         rows = Math.min(rowsColsMax, Math.max(rowsColsMin, rows));
         cols = Math.min(rowsColsMax, Math.max(rowsColsMin, cols));
 
-        if (sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false)) {
-            minesMin = 8;
+        if (gameMode == R.id.no_guessing_mode) {
+            minesMax = Math.min((int) (rows * cols * maxMinePercentage), 100);
+        } else if (gameMode == R.id.get_help_mode) {
+            minesMax = Math.min(rows * cols - 9, 100);
+        } else {//only normal mode
+            minesMax = Math.min(rows * cols - 9, 999);
         }
 
-        if (gameMode == R.id.no_guessing_mode) {
-            minesMin = 0;
-            minesMax = (int) (rows * cols * maxMinePercentage);
-            minesMax = Math.min(minesMax, 100);
-        } else if (gameMode == R.id.get_help_mode) {
-            minesMin = 0;
-            minesMax = rows * cols - 9;
-            minesMax = Math.min(minesMax, 100);
-        } else {//only normal mode
-            minesMin = 0;
-            minesMax = rows * cols - 9;
-            minesMax = Math.min(minesMax, 999);
-        }
-        mineInput.setMax(minesMax - minesMin);
         if (minesMin > minesMax) {
             throw new Exception("minesMin > minesMax");
         }
         mines = Math.max(minesMin, Math.min(minesMax, mines));
+
+        //update seekbars and UI text
+        mineInput.setMax(minesMax - minesMin);
 
         rowsInput.setProgress(rows - rowsColsMin);
         colsInput.setProgress(cols - rowsColsMin);
