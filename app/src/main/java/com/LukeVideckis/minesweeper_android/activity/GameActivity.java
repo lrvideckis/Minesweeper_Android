@@ -2,7 +2,9 @@ package com.LukeVideckis.minesweeper_android.activity;
 
 import static java.lang.Thread.sleep;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -48,7 +50,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private final MaxTimeToCreateSolvableBoard maxTimeToCreateSolvableBoard = new MaxTimeToCreateSolvableBoard();
     private final AtomicBoolean finishedBoardGen = new AtomicBoolean(false);
     private boolean
-            toggleFlagModeOn = false,
+            toggleFlagModeOn,
             toggleBacktrackingHintsOn = false,
             toggleMineProbabilityOn = false,
             gameEndedFromHelpButton = false,
@@ -84,7 +86,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         final boolean toggleFlag = (toggleFlagModeOn ^ isLongTap);
 
         if (engineGetHelpMode.isBeforeFirstClick() && !toggleFlag) {
-            if (gameMode == R.id.no_guessing_mode || gameMode == R.id.no_guessing_mode_with_an_8) {
+            if (gameMode == R.id.no_guessing_mode) {
                 finishedBoardGen.set(false);
 
                 new Thread(new DelayLoadingScreenRunnable(finishedBoardGen)).start();
@@ -360,7 +362,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startNewGame() throws Exception {
         try {
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
+            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
             TileWithProbability[][] tmpBoard = new TileWithProbability[numberOfRows][numberOfCols];
             for (int i = 0; i < numberOfRows; i++) {
                 for (int j = 0; j < numberOfCols; j++) {
@@ -393,7 +397,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void handleToggleMineProbability(boolean isChecked) throws Exception {
         toggleMineProbabilityOn = isChecked;
         if (isChecked) {
-            //TODO: don't update if hints is already enabled, it will do nothing
             try {
                 runSolver();
             } catch (HitIterationLimitException ignored) {
@@ -519,7 +522,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         public void run() {
             try {
-                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, gameMode == R.id.no_guessing_mode_with_an_8, isInterrupted);
+                SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+                final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, hasAn8, isInterrupted);
                 if (isInterrupted.get()) {
                     if (backButtonWasPressed.get()) {
                         return;
@@ -535,7 +540,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     }
-                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, gameMode == R.id.no_guessing_mode_with_an_8);
+                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, hasAn8);
                 }
                 finishedBoardGen.set(true);
                 updateTimeThread.start();
@@ -597,7 +602,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.game);
 
         try {
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, gameMode == R.id.no_guessing_mode_with_an_8);
+            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
             holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
             TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
             for (int i = 0; i < numberOfRows; i++) {
@@ -621,7 +628,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton.setOnClickListener(this);
         Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
         toggleFlagMode.setOnClickListener(this);
-        toggleFlagMode.setText(mineEmoji);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        toggleFlagModeOn = sharedPreferences.getBoolean(SettingsActivity.TOGGLE_FLAGS_SETTING, false);
+        if (toggleFlagModeOn) {
+            toggleFlagMode.setText(flagEmoji);
+        } else {
+            toggleFlagMode.setText(mineEmoji);
+        }
 
         SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setOnCheckedChangeListener(this);

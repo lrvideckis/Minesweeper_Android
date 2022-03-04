@@ -5,22 +5,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/reallyLightGrey"
+    android:fitsSystemWindows="true"
     android:tag="@string/is_relative_layout">
 
-    <TextView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/gameControls"
-        android:layout_alignParentTop="true"
-        android:gravity="center"
-        android:text="@string/minesweeper"
-        android:textSize="40sp" />
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:titleTextColor="@android:color/white">
+
+        <TextView
+            android:id="@+id/settingsTitleText"
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Minesweeper"
+            android:textColor="#000000" />
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/gameControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:layout_alignParentBottom="true"
         android:layout_centerVertical="true"
+        android:gravity="center"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -34,6 +46,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:text="Height: 8"
+                android:textColor="#000000"
                 tools:ignore="HardcodedText" />
 
             <SeekBar
@@ -49,19 +62,21 @@
 
             <Button
                 android:id="@+id/rowsDecrement"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_toStartOf="@id/rowsIncrement"
                 android:height="@android:dimen/app_icon_size"
-                android:text="@string/decrement" />
+                android:text="@string/decrement"
+                android:textColor="#000000" />
 
             <Button
                 android:id="@+id/rowsIncrement"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
-                android:text="@string/increment" />
+                android:text="@string/increment"
+                android:textColor="#000000" />
 
         </RelativeLayout>
 
@@ -77,6 +92,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:text="Width: 8"
+                android:textColor="#000000"
                 tools:ignore="HardcodedText" />
 
             <SeekBar
@@ -92,19 +108,20 @@
 
             <Button
                 android:id="@+id/colsDecrement"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_toStartOf="@id/colsIncrement"
-                android:text="@string/decrement" />
+                android:text="@string/decrement"
+                android:textColor="#000000" />
 
             <Button
                 android:id="@+id/colsIncrement"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
-                android:text="@string/increment" />
-
+                android:text="@string/increment"
+                android:textColor="#000000" />
 
         </RelativeLayout>
 
@@ -119,6 +136,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:text="Mines: 0\n0.00%"
+                android:textColor="#000000"
                 tools:ignore="HardcodedText" />
 
             <SeekBar
@@ -134,18 +152,20 @@
 
             <Button
                 android:id="@+id/minesDecrement"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_toStartOf="@id/minesIncrement"
-                android:text="@string/decrement" />
+                android:text="@string/decrement"
+                android:textColor="#000000" />
 
             <Button
                 android:id="@+id/minesIncrement"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
-                android:text="@string/increment" />
+                android:text="@string/increment"
+                android:textColor="#000000" />
 
         </RelativeLayout>
 
@@ -188,15 +208,15 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -206,8 +226,8 @@
                     android:text="@string/normal_mode" />
 
                 <RelativeLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginStart="10dp">
 
                     <TextView
@@ -230,7 +250,8 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -240,8 +261,8 @@
                     android:text="@string/no_guessing_mode" />
 
                 <RelativeLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginStart="10dp">
 
                     <TextView
@@ -264,41 +285,8 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/no_guessing_mode_with_an_8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/no_guessing_mode_with_an_8" />
-
-                <RelativeLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="10dp">
-
-                    <TextView
-                        android:id="@+id/no_guessing_mode_with_8_info"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerInParent="true"
-                        android:gravity="center"
-                        android:text="i"
-                        android:textStyle="bold"
-                        tools:ignore="HardcodedText" />
-
-                    <TextView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerInParent="true"
-                        android:background="@drawable/circle" />
-                </RelativeLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -308,8 +296,8 @@
                     android:text="@string/get_help_mode_text" />
 
                 <RelativeLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginStart="10dp">
 
                     <TextView

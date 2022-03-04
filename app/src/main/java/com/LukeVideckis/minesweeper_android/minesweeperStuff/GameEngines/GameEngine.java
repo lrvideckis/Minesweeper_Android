@@ -248,6 +248,10 @@ public class GameEngine {
             if (i == 0 || j == 0 || i == grid.getRows() - 1 || j == grid.getCols() - 1) {
                 continue;
             }
+            if (Math.abs(row - i) <= 2 && Math.abs(col - j) <= 2) {
+                continue;
+            }
+
             rowWith8 = i;
             colWith8 = j;
             for (int[] adj : grid.getAdjacentIndexes(i, j)) {
