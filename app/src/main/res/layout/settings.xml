@@ -16,7 +16,7 @@
         android:titleTextColor="@android:color/white">
         <TextView
             android:id="@+id/settingsTitleText"
-            android:text="Settings"
+            android:text="@string/settings"
             android:textColor="#000000"
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:layout_height="wrap_content"
@@ -34,12 +34,12 @@
             android:id="@+id/defaultSetFlags"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Make toggling flags the default" />
+            android:text="@string/make_toggling_flags_the_default" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/isGuaranteed8"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Generate games with an 8" />
+            android:text="@string/generate_games_with_an_8" />
     </LinearLayout>
 </RelativeLayout>

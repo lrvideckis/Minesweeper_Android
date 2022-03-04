@@ -27,6 +27,9 @@
     <string name="deducible_squares">Deducible Squares</string>
     <string name="go_to_settings_page">go to settings page</string>
     <string name="action_settings">settings</string>
+    <string name="settings">Settings</string>
+    <string name="make_toggling_flags_the_default">Make toggling flags the default</string>
+    <string name="generate_games_with_an_8">Generate games with an 8</string>
 
     <!--
     TODO: these modes

@@ -12,7 +12,7 @@
         <entry key="app/src/main/res/layout/game.xml" value="0.19382022471910113" />
         <entry key="app/src/main/res/layout/get_help_disabled_popup.xml" value="0.1" />
         <entry key="app/src/main/res/layout/no_guessing_mode_with_8_info.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/settings.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/settings.xml" value="0.1" />
         <entry key="app/src/main/res/layout/solver_hit_limit_popup.xml" value="0.71875" />
         <entry key="app/src/main/res/layout/start_screen.xml" value="0.5" />
         <entry key="app/src/main/res/menu/top_toolbar_actions.xml" value="0.671875" />
