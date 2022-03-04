@@ -2,7 +2,9 @@ package com.LukeVideckis.minesweeper_android.activity;
 
 import static java.lang.Thread.sleep;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -48,7 +50,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private final MaxTimeToCreateSolvableBoard maxTimeToCreateSolvableBoard = new MaxTimeToCreateSolvableBoard();
     private final AtomicBoolean finishedBoardGen = new AtomicBoolean(false);
     private boolean
-            toggleFlagModeOn = false,
+            toggleFlagModeOn,
             toggleBacktrackingHintsOn = false,
             toggleMineProbabilityOn = false,
             gameEndedFromHelpButton = false,
@@ -621,7 +623,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton.setOnClickListener(this);
         Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
         toggleFlagMode.setOnClickListener(this);
-        toggleFlagMode.setText(mineEmoji);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        toggleFlagModeOn = sharedPreferences.getBoolean(SettingsActivity.TOGGLE_FLAGS_SETTING, false);
+        if (toggleFlagModeOn) {
+            toggleFlagMode.setText(flagEmoji);
+        } else {
+            toggleFlagMode.setText(mineEmoji);
+        }
 
         SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setOnCheckedChangeListener(this);
