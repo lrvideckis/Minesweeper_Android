@@ -189,9 +189,10 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         if (gameMode == R.id.no_guessing_mode) {
             minesMax = Math.min((int) (rows * cols * maxMinePercentage), 100);
         } else if (gameMode == R.id.get_help_mode) {
-            minesMax = Math.min(rows * cols - 9, 100);
+            //reasoning for minus 10: 9 to ensure a zero start, and an extra 1 non-mine to ensure space for an 8
+            minesMax = Math.min(rows * cols - 10, 100);
         } else {//only normal mode
-            minesMax = Math.min(rows * cols - 9, 999);
+            minesMax = Math.min(rows * cols - 10, 999);
         }
 
         if (minesMin > minesMax) {
