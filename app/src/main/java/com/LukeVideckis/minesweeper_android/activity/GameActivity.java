@@ -362,7 +362,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startNewGame() throws Exception {
         try {
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, false/*TODO: initialize here by setting val*/);
+            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
             TileWithProbability[][] tmpBoard = new TileWithProbability[numberOfRows][numberOfCols];
             for (int i = 0; i < numberOfRows; i++) {
                 for (int j = 0; j < numberOfCols; j++) {
@@ -395,7 +397,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void handleToggleMineProbability(boolean isChecked) throws Exception {
         toggleMineProbabilityOn = isChecked;
         if (isChecked) {
-            //TODO: don't update if hints is already enabled, it will do nothing
             try {
                 runSolver();
             } catch (HitIterationLimitException ignored) {
@@ -521,7 +522,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         public void run() {
             try {
-                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, false /*TODO: initilize with setting value*/, isInterrupted);
+                SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+                final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+                Board<TileWithMine> solvableBoard = CreateSolvableBoard.getSolvableBoard(numberOfRows, numberOfCols, numberOfMines, row, col, hasAn8, isInterrupted);
                 if (isInterrupted.get()) {
                     if (backButtonWasPressed.get()) {
                         return;
@@ -537,7 +540,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     }
-                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, false /*TODO: initialize with setting value*/);
+                    engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, hasAn8);
                 }
                 finishedBoardGen.set(true);
                 updateTimeThread.start();
@@ -599,7 +602,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.game);
 
         try {
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, false/*TODO: initialize with setting value*/);
+            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
             holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
             TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
             for (int i = 0; i < numberOfRows; i++) {
