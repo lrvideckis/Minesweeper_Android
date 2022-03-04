@@ -24,7 +24,6 @@ import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 //TODO: Make minesweeper endless: always force >= 1 visible tile on the screen
 //TODO: Recommend the guess which will reveal the greatest amount of further stuff
 //TODO: save personal high scores (the time) for beginner, intermediate, expert
-//TODO: revisit todos on google keep
 
 public class StartScreenActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
@@ -34,7 +33,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             NUMBER_OF_COLS = "numCols",
             NUMBER_OF_MINES = "numMines",
             GAME_MODE = "gameMode";
-    private static final float maxMinePercentage = 0.23f, maxMinePercentageWith8 = 0.22f;
+    private static final float maxMinePercentage = 0.23f;
     private static final int rowsColsMax = 30;
     private SharedPreferences sharedPreferences;
     private PopupWindow normalModeInfoPopup, noGuessingModeInfoPopup, getHelpModeInfoPopup;
@@ -200,7 +199,9 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         rows = Math.min(rowsColsMax, Math.max(rowsColsMin, rows));
         cols = Math.min(rowsColsMax, Math.max(rowsColsMin, cols));
 
-        //TODO if guaranteed 8 setting is checked, then minesMin = 8
+        if (sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false)) {
+            minesMin = 8;
+        }
 
         if (gameMode == R.id.no_guessing_mode) {
             minesMin = 0;
