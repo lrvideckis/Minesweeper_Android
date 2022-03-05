@@ -15,8 +15,8 @@ android {
         applicationId 'com.LukeVideckis.minesweeper'
         minSdkVersion 26
         targetSdkVersion 32
-        versionCode 5
-        versionName '1.2'
+        versionCode 9
+        versionName '2'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
