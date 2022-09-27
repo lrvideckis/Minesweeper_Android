@@ -179,6 +179,7 @@ public class GameCanvas extends View {
                 gameActivity.disableSwitchesAndButtons();
                 gameActivity.setNewGameButtonWinFace();
                 gameActivity.stopTimerThread();
+                gameActivity.showWinPopup();
             } else if (currGameState == GameState.LOST) {
                 gameActivity.disableSwitchesAndButtons();
                 gameActivity.setNewGameButtonDeadFace();

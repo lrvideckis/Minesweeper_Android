@@ -56,7 +56,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             gameEndedFromHelpButton = false,
             lastActionWasGetHelpButton = false;
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
-    private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup;
+    private long startGameTime;
+    private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup, gameWonPopup;
     private volatile PopupWindow couldNotFindNoGuessBoardPopup;
     private volatile EngineGetHelpMode engineGetHelpMode;
     private SolverWithProbability holyGrailSolver;
@@ -106,6 +107,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 return;
             }
             updateTimeThread.start();
+            startGameTime = System.nanoTime();
         }
 
         if (engineGetHelpMode.getGameState() != GameState.LOST) {
@@ -285,6 +287,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton.setImageResource(R.drawable.win_face);
     }
 
+    public void showWinPopup() {
+        //server stores time format as longs to avoid type conversion
+        long completionTime = System.nanoTime() - startGameTime;
+        System.out.println(completionTime);
+        displayGameWonPopup();
+    }
+
     @Override
     public void onBackPressed() {
         stopTimerThread();
@@ -449,12 +458,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         okButton.setOnClickListener(view -> couldNotFindNoGuessBoardPopup.dismiss());
     }
 
+    private void setUpGameWonPopup() {
+        gameWonPopup = PopupHelper.initializePopup(this, R.layout.game_won_popup);
+    }
+
     private void displayNoGuessBoardPopup() {
         PopupHelper.displayPopup(couldNotFindNoGuessBoardPopup, findViewById(R.id.gameLayout), getResources());
     }
 
     private void displayGetHelpDisabledPopup() {
         PopupHelper.displayPopup(getHelpModeIsDisabledPopup, findViewById(R.id.gameLayout), getResources());
+    }
+
+
+    private void displayGameWonPopup() {
+        PopupHelper.displayPopup(gameWonPopup, findViewById(R.id.gameLayout), getResources());
     }
 
     private void updateTime(int newTime) {
@@ -652,6 +670,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setUpIterationLimitPopup();
         setUpGetHelpDisabledPopup();
         setUpNoGuessBoardPopup();
+        setUpGameWonPopup();
 
         updateTimeThread = new TimeUpdateThread();
 
