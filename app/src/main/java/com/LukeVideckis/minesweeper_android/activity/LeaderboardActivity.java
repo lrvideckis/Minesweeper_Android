@@ -2,6 +2,9 @@ package com.LukeVideckis.minesweeper_android.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -29,5 +32,30 @@ public class LeaderboardActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        TableLayout leaderboard_ui_table = findViewById(R.id.leaderboard_ui_table);
+
+        for(int i = 0; i < 100; i++) {
+            TextView rankText = new TextView(this);
+            rankText.setText(String.valueOf(i + 1));
+
+            TextView nameText = new TextView(this);
+            nameText.setText("player example name");
+
+            TextView completionTimeText = new TextView(this);
+            completionTimeText.setText("123");
+
+            TextView dateAddedText = new TextView(this);
+            dateAddedText.setText("Oct 2 2022");
+
+            TableRow newLeaderboardEntry = new TableRow(this);
+            newLeaderboardEntry.addView(rankText);
+            newLeaderboardEntry.addView(nameText);
+            newLeaderboardEntry.addView(completionTimeText);
+            newLeaderboardEntry.addView(dateAddedText);
+
+            leaderboard_ui_table.addView(newLeaderboardEntry);
+        }
     }
+
 }
