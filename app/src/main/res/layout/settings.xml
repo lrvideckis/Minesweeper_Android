@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/settingsLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/reallyLightGrey"
     android:fitsSystemWindows="true"
-    android:tag="@string/is_relative_layout">
+    android:tag="@string/is_relative_layout"
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/settings_toolbar"
@@ -27,9 +28,10 @@
     <LinearLayout
         android:id="@+id/gameControls"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_centerVertical="true"
         android:layout_marginStart="20dp"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <androidx.appcompat.widget.SwitchCompat
@@ -47,4 +49,4 @@
             android:textSize="18sp"
             android:text="@string/generate_games_with_an_8" />
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>
