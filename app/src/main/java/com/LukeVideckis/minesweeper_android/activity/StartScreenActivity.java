@@ -178,6 +178,10 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             Intent intent = new Intent(StartScreenActivity.this, SettingsActivity.class);
             startActivity(intent);
         }
+        if (item.getItemId() == R.id.action_leaderboard) {
+            Intent intent = new Intent(StartScreenActivity.this, LeaderboardActivity.class);
+            startActivity(intent);
+        }
         return true;
     }
 

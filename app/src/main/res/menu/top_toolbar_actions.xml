@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_leaderboard"
+        android:icon="@drawable/leaderboard_icon"
+        android:title="leaderboard"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_settings"
         android:icon="@drawable/settings_gear"
         android:title="@string/settings"

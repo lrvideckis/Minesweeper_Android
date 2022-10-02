@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/leaderboardLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/reallyLightGrey"
+    android:fitsSystemWindows="true"
+    android:tag="@string/is_relative_layout">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/leaderboard_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:titleTextColor="@android:color/white">
+
+        <TextView
+            android:id="@+id/leaderboardTitleText"
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leaderboard"
+            android:textColor="#000000" />
+    </androidx.appcompat.widget.Toolbar>
+
+</RelativeLayout>
