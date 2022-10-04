@@ -61,7 +61,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         TableLayout leaderboard_ui_table = findViewById(R.id.leaderboard_ui_table);
 
         //TODO: set limit on player name length
-        //TODO: increase font size
+        //TODO: test font on smaller screen
         //aws guarantees leaderboard is sorted by time
         for (int i = 0; i < leaderboardJson.length(); i++) {
 
@@ -72,20 +72,24 @@ public class LeaderboardActivity extends AppCompatActivity {
             TextView rankText = new TextView(this);
             rankText.setText(String.valueOf(i + 1));
             rankText.setPadding(paddingAmount, 0, paddingAmount, 0);
+            rankText.setTextSize(20);
 
             TextView nameText = new TextView(this);
             nameText.setText(leaderboardEntry.getString("player_name"));
             nameText.setPadding(paddingAmount, 0, paddingAmount, 0);
+            nameText.setTextSize(20);
 
             TextView completionTimeText = new TextView(this);
             long timeNanoseconds = leaderboardEntry.getLong("completion_time");
             String timeFormatted = String.format("%.2f", timeNanoseconds / 1000000000.0);
             completionTimeText.setText(timeFormatted);
             completionTimeText.setPadding(paddingAmount, 0, paddingAmount, 0);
+            completionTimeText.setTextSize(20);
 
             TextView dateAddedText = new TextView(this);
             dateAddedText.setText(leaderboardEntry.getString("date_of_score"));
             dateAddedText.setPadding(paddingAmount, 0, paddingAmount, 0);
+            dateAddedText.setTextSize(20);
 
             TableRow newLeaderboardEntry = new TableRow(this);
             newLeaderboardEntry.addView(rankText);
