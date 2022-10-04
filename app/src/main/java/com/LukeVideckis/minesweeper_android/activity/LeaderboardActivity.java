@@ -6,6 +6,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -26,6 +27,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class LeaderboardActivity extends AppCompatActivity {
     private LeaderboardThread leaderboardThread;
+    private AlertDialog loadingScreenForGetLeaderboard;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -45,6 +47,11 @@ public class LeaderboardActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setMessage("Loading leaderboard")
+                .create();
+
         //calls AWS to get leaderboard + update UI
         leaderboardThread = new LeaderboardThread();
         leaderboardThread.start();
@@ -54,6 +61,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         TableLayout leaderboard_ui_table = findViewById(R.id.leaderboard_ui_table);
 
         //TODO: set limit on player name length
+        //TODO: increase font size
         //aws guarantees leaderboard is sorted by time
         for (int i = 0; i < leaderboardJson.length(); i++) {
 
@@ -87,11 +95,13 @@ public class LeaderboardActivity extends AppCompatActivity {
 
             leaderboard_ui_table.addView(newLeaderboardEntry);
         }
+        loadingScreenForGetLeaderboard.hide();
     }
 
     private class LeaderboardThread extends Thread {
         @Override
         public void run() {
+            runOnUiThread(() -> loadingScreenForGetLeaderboard.show());
             try {
                 URL url = new URL("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com/get_leaderboard?difficulty_mode=easy_regular");
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
