@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.LukeVideckis.minesweeper_android.R;
+import com.LukeVideckis.minesweeper_android.miscHelpers.CompletionTimeFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +52,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setMessage("Loading leaderboard")
                 .create();
+        loadingScreenForGetLeaderboard.show();
 
         //calls AWS to get leaderboard + update UI
         leaderboardThread = new LeaderboardThread();
@@ -81,8 +83,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 
             TextView completionTimeText = new TextView(this);
             long timeNanoseconds = leaderboardEntry.getLong("completion_time");
-            String timeFormatted = String.format("%.2f", timeNanoseconds / 1000000000.0);
-            completionTimeText.setText(timeFormatted);
+            completionTimeText.setText(CompletionTimeFormatter.formatTime(timeNanoseconds));
             completionTimeText.setPadding(paddingAmount, 0, paddingAmount, 0);
             completionTimeText.setTextSize(20);
 
@@ -105,9 +106,8 @@ public class LeaderboardActivity extends AppCompatActivity {
     private class LeaderboardThread extends Thread {
         @Override
         public void run() {
-            runOnUiThread(() -> loadingScreenForGetLeaderboard.show());
             try {
-                URL url = new URL("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com/get_leaderboard?difficulty_mode=easy_regular");
+                URL url = new URL("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com/get_leaderboard?difficulty_mode=beginner_normal");
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("User-Agent", "lrvideckis_minesweeper_android_app");

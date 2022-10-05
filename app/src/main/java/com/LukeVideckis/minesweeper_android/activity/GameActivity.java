@@ -3,13 +3,17 @@ package com.LukeVideckis.minesweeper_android.activity;
 import static java.lang.Thread.sleep;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -31,13 +35,29 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsFo
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
+import com.LukeVideckis.minesweeper_android.miscHelpers.CompletionTimeFormatter;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     public final static String
@@ -57,7 +77,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             lastActionWasGetHelpButton = false;
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
     private long startGameTime;
-    private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup, gameWonPopup;
+    private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup;
     private volatile PopupWindow couldNotFindNoGuessBoardPopup;
     private volatile EngineGetHelpMode engineGetHelpMode;
     private SolverWithProbability holyGrailSolver;
@@ -66,6 +86,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int lastTapRow, lastTapCol;
     private volatile Thread updateTimeThread;
     private volatile AlertDialog loadingScreenForSolvableBoardGeneration;
+    private AlertDialog loadingScreenForLeaderboard;
     private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread(maxTimeToCreateSolvableBoard);
 
     private volatile SolvableBoardRunnable solvableBoardRunnable;
@@ -289,9 +310,99 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     public void showWinPopup() {
         //server stores time format as longs to avoid type conversion
+        //server stores unique keys (completion time is the key), so I'm
+        //assuming no 2 times will have the same exact nano-time
         long completionTime = System.nanoTime() - startGameTime;
-        System.out.println(completionTime);
-        displayGameWonPopup();
+        int leaderboardRank = 5;//TODO - send request to get this info
+        String difficulty = "beginner";
+        String mode = "normal";
+        //TODO (important!!): only add to leaderboard when user didn't use any hints
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setMessage("You completed " + difficulty + ", " + mode + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds, achieving rank " + leaderboardRank + "!\n\nEnter your name");
+        EditText playerNameInput = new EditText(this);
+
+        final int maxLength = 15;
+        playerNameInput.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
+
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        builder.setView(playerNameInput);
+
+        // Set up the buttons
+        builder.setPositiveButton("Add Entry to Leaderboard", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String playerName = playerNameInput.getText().toString();
+                UpdateLeaderboardThread updateLeaderboardThread = new UpdateLeaderboardThread(playerName, completionTime);
+                loadingScreenForLeaderboard.show();
+                updateLeaderboardThread.start();
+                //TODO 2) update dialog to have 2 buttons: cancel and view leaderboard
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private class UpdateLeaderboardThread extends Thread {
+        private String playerName;
+        private long completionTime;
+        UpdateLeaderboardThread(String playerName, long completionTime) {
+            this.playerName = playerName;
+            this.completionTime = completionTime;
+        }
+        @Override
+        public void run() {
+            try {
+                //TODO: update difficulty mode
+                StringBuilder rawUrl = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
+                rawUrl.append("/add_entry");
+                rawUrl.append("?difficulty_mode=beginner_normal");
+                rawUrl.append("&completion_time=" + this.completionTime);
+
+                URL url = new URL(rawUrl.toString());
+
+                HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestMethod("PUT");
+                urlConnection.setRequestProperty("User-Agent", "lrvideckis_minesweeper_android_app");
+                urlConnection.setRequestProperty("content-type", "application/json");
+
+                OutputStream os = urlConnection.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+                JSONObject playerNameObj = new JSONObject();
+                playerNameObj.put("player_name", this.playerName);
+                osw.write(playerNameObj.toString());
+                osw.flush();
+                osw.close();
+                os.close();
+
+                try {
+                    urlConnection.connect();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    //TODO: handle exception from `result`
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            runOnUiThread(() -> loadingScreenForLeaderboard.hide());
+        }
     }
 
     @Override
@@ -458,21 +569,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         okButton.setOnClickListener(view -> couldNotFindNoGuessBoardPopup.dismiss());
     }
 
-    private void setUpGameWonPopup() {
-        gameWonPopup = PopupHelper.initializePopup(this, R.layout.game_won_popup);
-    }
-
     private void displayNoGuessBoardPopup() {
         PopupHelper.displayPopup(couldNotFindNoGuessBoardPopup, findViewById(R.id.gameLayout), getResources());
     }
 
     private void displayGetHelpDisabledPopup() {
         PopupHelper.displayPopup(getHelpModeIsDisabledPopup, findViewById(R.id.gameLayout), getResources());
-    }
-
-
-    private void displayGameWonPopup() {
-        PopupHelper.displayPopup(gameWonPopup, findViewById(R.id.gameLayout), getResources());
     }
 
     private void updateTime(int newTime) {
@@ -670,7 +772,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setUpIterationLimitPopup();
         setUpGetHelpDisabledPopup();
         setUpNoGuessBoardPopup();
-        setUpGameWonPopup();
 
         updateTimeThread = new TimeUpdateThread();
 
@@ -691,5 +792,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         builder.setCancelable(false);
         builder.setView(R.layout.layout_loading_dialog);
         loadingScreenForSolvableBoardGeneration = builder.create();
+        loadingScreenForLeaderboard = new AlertDialog.Builder(this)
+                .setMessage("Adding entry to leaderboard")
+                .create();
     }
 }

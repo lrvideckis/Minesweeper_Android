@@ -43,7 +43,7 @@
             android:layout_height="match_parent" >
 
             <TableRow>
-                <TextView android:text="Rank" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
+                <TextView android:text="" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
                 <TextView android:text="Name" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
                 <TextView android:text="Time\n(seconds)" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
                 <TextView android:text="Date Added" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
