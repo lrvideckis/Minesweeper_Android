@@ -27,7 +27,6 @@ import java.util.Objects;
 import javax.net.ssl.HttpsURLConnection;
 
 public class LeaderboardActivity extends AppCompatActivity {
-    private LeaderboardThread leaderboardThread;
     private AlertDialog loadingScreenForGetLeaderboard;
 
     @Override
@@ -53,10 +52,8 @@ public class LeaderboardActivity extends AppCompatActivity {
                 .setMessage("Loading leaderboard")
                 .create();
         loadingScreenForGetLeaderboard.show();
-
         //calls AWS to get leaderboard + update UI
-        leaderboardThread = new LeaderboardThread();
-        leaderboardThread.start();
+        (new LeaderboardThread()).start();
     }
 
     private void updateLeaderboardUITable(JSONArray leaderboardJson) throws JSONException {
@@ -100,7 +97,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 
             leaderboard_ui_table.addView(newLeaderboardEntry);
         }
-        loadingScreenForGetLeaderboard.hide();
+        loadingScreenForGetLeaderboard.dismiss();
     }
 
     private class LeaderboardThread extends Thread {

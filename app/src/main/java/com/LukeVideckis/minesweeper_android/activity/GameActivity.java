@@ -401,7 +401,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            runOnUiThread(() -> loadingScreenForLeaderboard.hide());
+            runOnUiThread(() -> loadingScreenForLeaderboard.dismiss());
         }
     }
 
