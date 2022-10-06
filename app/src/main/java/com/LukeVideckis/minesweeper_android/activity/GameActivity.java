@@ -3,17 +3,13 @@ package com.LukeVideckis.minesweeper_android.activity;
 import static java.lang.Thread.sleep;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -23,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.LukeVideckis.minesweeper_android.R;
+import com.LukeVideckis.minesweeper_android.activity.activityHelpers.GameWonDialog;
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineGetHelpMode;
@@ -35,29 +32,13 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsFo
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
-import com.LukeVideckis.minesweeper_android.miscHelpers.CompletionTimeFormatter;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     public final static String
@@ -74,7 +55,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             toggleBacktrackingHintsOn = false,
             toggleMineProbabilityOn = false,
             gameEndedFromHelpButton = false,
-            lastActionWasGetHelpButton = false;
+            lastActionWasGetHelpButton = false,
+            usedHelpDuringGame = false;//if user uses help, then don't give option to add entry to leaderboard
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
     private long startGameTime;
     private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup;
@@ -86,8 +68,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int lastTapRow, lastTapCol;
     private volatile Thread updateTimeThread;
     private volatile AlertDialog loadingScreenForSolvableBoardGeneration;
-    private AlertDialog loadingScreenForLeaderboard;
     private Thread createSolvableBoardThread, timerToBreakBoardGen = new Thread(maxTimeToCreateSolvableBoard);
+    private GameWonDialog gameWonDialog;
 
     private volatile SolvableBoardRunnable solvableBoardRunnable;
 
@@ -127,8 +109,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 timerToBreakBoardGen.start();
                 return;
             }
-            updateTimeThread.start();
-            startGameTime = System.nanoTime();
+            onFirstTapAfterNewGame();
         }
 
         if (engineGetHelpMode.getGameState() != GameState.LOST) {
@@ -169,16 +150,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.newGameButton) {
-            ImageButton newGameButton = findViewById(R.id.newGameButton);
-            newGameButton.setImageResource(R.drawable.smiley_face);
             try {
                 startNewGame();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
-            lastActionWasGetHelpButton = false;
-            gameCanvas.invalidate();
         } else if (v.getId() == R.id.toggleFlagMode) {
             toggleFlagModeOn = !toggleFlagModeOn;
             Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
@@ -309,99 +285,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void showWinPopup() {
-        //server stores time format as longs to avoid type conversion
-        //server stores unique keys (completion time is the key), so I'm
-        //assuming no 2 times will have the same exact nano-time
         long completionTime = System.nanoTime() - startGameTime;
-        int leaderboardRank = 5;//TODO - send request to get this info
-        String difficulty = "beginner";
-        String mode = "normal";
-        //TODO (important!!): only add to leaderboard when user didn't use any hints
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setMessage("You completed " + difficulty + ", " + mode + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds, achieving rank " + leaderboardRank + "!\n\nEnter your name");
-        EditText playerNameInput = new EditText(this);
-
-        final int maxLength = 15;
-        playerNameInput.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        builder.setView(playerNameInput);
-
-        // Set up the buttons
-        builder.setPositiveButton("Add Entry to Leaderboard", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String playerName = playerNameInput.getText().toString();
-                UpdateLeaderboardThread updateLeaderboardThread = new UpdateLeaderboardThread(playerName, completionTime);
-                loadingScreenForLeaderboard.show();
-                updateLeaderboardThread.start();
-                //TODO 2) update dialog to have 2 buttons: cancel and view leaderboard
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-
-    private class UpdateLeaderboardThread extends Thread {
-        private String playerName;
-        private long completionTime;
-        UpdateLeaderboardThread(String playerName, long completionTime) {
-            this.playerName = playerName;
-            this.completionTime = completionTime;
-        }
-        @Override
-        public void run() {
-            try {
-                //TODO: update difficulty mode
-                StringBuilder rawUrl = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
-                rawUrl.append("/add_entry");
-                rawUrl.append("?difficulty_mode=beginner_normal");
-                rawUrl.append("&completion_time=" + this.completionTime);
-
-                URL url = new URL(rawUrl.toString());
-
-                HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestMethod("PUT");
-                urlConnection.setRequestProperty("User-Agent", "lrvideckis_minesweeper_android_app");
-                urlConnection.setRequestProperty("content-type", "application/json");
-
-                OutputStream os = urlConnection.getOutputStream();
-                OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-                JSONObject playerNameObj = new JSONObject();
-                playerNameObj.put("player_name", this.playerName);
-                osw.write(playerNameObj.toString());
-                osw.flush();
-                osw.close();
-                os.close();
-
-                try {
-                    urlConnection.connect();
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    //TODO: handle exception from `result`
-                } finally {
-                    urlConnection.disconnect();
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            runOnUiThread(() -> loadingScreenForLeaderboard.dismiss());
+        try {
+            gameWonDialog.showGameWonDialog(completionTime, usedHelpDuringGame);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -444,6 +332,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return boardSolverOutput;
     }
 
+    //also, this runs *after* board generation is completed (which matters for no guess board gen
+    //which can take a couple seconds)
+    private void onFirstTapAfterNewGame() {
+        updateTimeThread.start();
+        startGameTime = System.nanoTime();
+    }
+
     private void executeHelpButton() throws Exception {
         try {
             runSolver();
@@ -480,7 +375,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.gridCanvas).invalidate();
     }
 
-    private void startNewGame() throws Exception {
+    public void startNewGame() throws Exception {
+        ImageButton newGameButton = findViewById(R.id.newGameButton);
+        newGameButton.setImageResource(R.drawable.smiley_face);
         try {
             SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
             final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
@@ -498,6 +395,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         enableButtonsAndSwitchesAndSetToFalse();
         handleHintToggle(false);
         gameEndedFromHelpButton = false;
+        usedHelpDuringGame = false;
 
         if (timerToBreakBoardGen.isAlive()) {
             timerToBreakBoardGen.interrupt();
@@ -512,9 +410,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         stopTimerThread();
         updateTimeThread = new TimeUpdateThread();
         updateTime(0);
+
+        GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
+        lastActionWasGetHelpButton = false;
+        gameCanvas.invalidate();
     }
 
     private void handleToggleMineProbability(boolean isChecked) throws Exception {
+        if (isChecked) {
+            usedHelpDuringGame = true;
+        }
         toggleMineProbabilityOn = isChecked;
         if (isChecked) {
             try {
@@ -528,6 +433,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleHintToggle(boolean isChecked) throws Exception {
+        if (isChecked) {
+            usedHelpDuringGame = true;
+        }
         toggleBacktrackingHintsOn = isChecked;
         GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
         if (isChecked) {
@@ -588,6 +496,90 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         TextView timeText = findViewById(R.id.timeTextView);
         timeText.setText(currTime);
+    }
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        numberOfRows = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_ROWS, 1);
+        numberOfCols = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_COLS, 1);
+        numberOfMines = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_MINES, 1);
+        //default game mode is normal mode
+        gameMode = getIntent().getIntExtra(StartScreenActivity.GAME_MODE, R.id.normal_mode);
+        setContentView(R.layout.game);
+
+        try {
+            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
+            holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
+            TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
+                    tmpIn[i][j] = new TileNoFlagsForSolver();
+                }
+            }
+            boardSolverInput = new Board<>(tmpIn, numberOfMines);
+            TileWithProbability[][] tmpOut = new TileWithProbability[numberOfRows][numberOfCols];
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
+                    tmpOut[i][j] = new TileWithProbability();
+                }
+            }
+            boardSolverOutput = new Board<>(tmpOut, numberOfMines);
+            gameWonDialog = new GameWonDialog(this, numberOfRows, numberOfCols, numberOfMines, gameMode, hasAn8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ImageButton newGameButton = findViewById(R.id.newGameButton);
+        newGameButton.setOnClickListener(this);
+        Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
+        toggleFlagMode.setOnClickListener(this);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        toggleFlagModeOn = sharedPreferences.getBoolean(SettingsActivity.TOGGLE_FLAGS_SETTING, false);
+        if (toggleFlagModeOn) {
+            toggleFlagMode.setText(flagEmoji);
+        } else {
+            toggleFlagMode.setText(mineEmoji);
+        }
+
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        toggleHints.setOnCheckedChangeListener(this);
+        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
+        toggleProbability.setOnCheckedChangeListener(this);
+
+        ImageButton getHelpButton = findViewById(R.id.getHelpButton);
+        getHelpButton.setOnClickListener(this);
+        if (gameMode == R.id.get_help_mode) {
+            getHelpButton.setVisibility(View.VISIBLE);
+        }
+
+        updateNumberOfMines(numberOfMines);
+        setUpIterationLimitPopup();
+        setUpGetHelpDisabledPopup();
+        setUpNoGuessBoardPopup();
+
+        updateTimeThread = new TimeUpdateThread();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setOnKeyListener((dialog, keyCode, event) -> {
+                    if (keyCode == KeyEvent.KEYCODE_BACK &&
+                            event.getAction() == KeyEvent.ACTION_UP &&
+                            !event.isCanceled()) {
+                        dialog.cancel();
+                        solvableBoardRunnable.setBackButtonPressed();
+                        createSolvableBoardThread.interrupt();
+                        onBackPressed();
+                        return true;
+                    }
+                    return false;
+                });
+
+        builder.setCancelable(false);
+        builder.setView(R.layout.layout_loading_dialog);
+        loadingScreenForSolvableBoardGeneration = builder.create();
     }
 
     //TODO: move to it's own file
@@ -663,7 +655,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     engineGetHelpMode = new EngineGetHelpMode(solvableBoard, row, col, hasAn8);
                 }
                 finishedBoardGen.set(true);
-                updateTimeThread.start();
+                onFirstTapAfterNewGame();
                 runOnUiThread(() -> {
                     loadingScreenForSolvableBoardGeneration.dismiss();
                     lastActionWasGetHelpButton = false;
@@ -671,7 +663,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 });
             } catch (Exception ignored) {
                 finishedBoardGen.set(true);
-                updateTimeThread.start();
+                onFirstTapAfterNewGame();
                 try {
                     engineGetHelpMode.clickCell(row, col, false);
                 } catch (Exception e) {
@@ -709,91 +701,5 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } catch (InterruptedException ignored) {
             }
         }
-    }
-
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        numberOfRows = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_ROWS, 1);
-        numberOfCols = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_COLS, 1);
-        numberOfMines = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_MINES, 1);
-        //default game mode is normal mode
-        gameMode = getIntent().getIntExtra(StartScreenActivity.GAME_MODE, R.id.normal_mode);
-        setContentView(R.layout.game);
-
-        try {
-            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
-            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
-            holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
-            TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfCols; j++) {
-                    tmpIn[i][j] = new TileNoFlagsForSolver();
-                }
-            }
-            boardSolverInput = new Board<>(tmpIn, numberOfMines);
-            TileWithProbability[][] tmpOut = new TileWithProbability[numberOfRows][numberOfCols];
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfCols; j++) {
-                    tmpOut[i][j] = new TileWithProbability();
-                }
-            }
-            boardSolverOutput = new Board<>(tmpOut, numberOfMines);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        ImageButton newGameButton = findViewById(R.id.newGameButton);
-        newGameButton.setOnClickListener(this);
-        Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
-        toggleFlagMode.setOnClickListener(this);
-
-        SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
-        toggleFlagModeOn = sharedPreferences.getBoolean(SettingsActivity.TOGGLE_FLAGS_SETTING, false);
-        if (toggleFlagModeOn) {
-            toggleFlagMode.setText(flagEmoji);
-        } else {
-            toggleFlagMode.setText(mineEmoji);
-        }
-
-        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
-        toggleHints.setOnCheckedChangeListener(this);
-        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
-        toggleProbability.setOnCheckedChangeListener(this);
-
-        ImageButton getHelpButton = findViewById(R.id.getHelpButton);
-        getHelpButton.setOnClickListener(this);
-        if (gameMode == R.id.get_help_mode) {
-            getHelpButton.setVisibility(View.VISIBLE);
-        }
-
-        updateNumberOfMines(numberOfMines);
-        setUpIterationLimitPopup();
-        setUpGetHelpDisabledPopup();
-        setUpNoGuessBoardPopup();
-
-        updateTimeThread = new TimeUpdateThread();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setOnKeyListener((dialog, keyCode, event) -> {
-                    if (keyCode == KeyEvent.KEYCODE_BACK &&
-                            event.getAction() == KeyEvent.ACTION_UP &&
-                            !event.isCanceled()) {
-                        dialog.cancel();
-                        solvableBoardRunnable.setBackButtonPressed();
-                        createSolvableBoardThread.interrupt();
-                        onBackPressed();
-                        return true;
-                    }
-                    return false;
-                });
-
-        builder.setCancelable(false);
-        builder.setView(R.layout.layout_loading_dialog);
-        loadingScreenForSolvableBoardGeneration = builder.create();
-        loadingScreenForLeaderboard = new AlertDialog.Builder(this)
-                .setMessage("Adding entry to leaderboard")
-                .create();
     }
 }

@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.LukeVideckis.minesweeper_android.R;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.DifficultyConstants;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 
 public class StartScreenActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
@@ -375,11 +376,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
              * with start click in the center. It was easier to just make 10x10 the default for
              * beginner boards
              */
-            rowsInput.setProgress(10 - rowsColsMin);
-            colsInput.setProgress(10 - rowsColsMin);
-            minesInput.setProgress(10 - minesMin);
+            rowsInput.setProgress(DifficultyConstants.BeginnerRows - rowsColsMin);
+            colsInput.setProgress(DifficultyConstants.BeginnerCols - rowsColsMin);
+            minesInput.setProgress(DifficultyConstants.BeginnerMines - minesMin);
             try {
-                setMinMaxText(10, 10, 10, rowsInput, colsInput, minesInput);
+                setMinMaxText(DifficultyConstants.BeginnerRows, DifficultyConstants.BeginnerCols, DifficultyConstants.BeginnerMines, rowsInput, colsInput, minesInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -387,11 +388,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
         Button intermediate = findViewById(R.id.intermediate);
         intermediate.setOnClickListener(view -> {
-            rowsInput.setProgress(14 - rowsColsMin);
-            colsInput.setProgress(16 - rowsColsMin);
-            minesInput.setProgress(40 - minesMin);
+            rowsInput.setProgress(DifficultyConstants.IntermediateRows - rowsColsMin);
+            colsInput.setProgress(DifficultyConstants.IntermediateCols - rowsColsMin);
+            minesInput.setProgress(DifficultyConstants.IntermediateMines - minesMin);
             try {
-                setMinMaxText(14, 16, 40, rowsInput, colsInput, minesInput);
+                setMinMaxText(DifficultyConstants.IntermediateRows, DifficultyConstants.IntermediateCols, DifficultyConstants.IntermediateMines, rowsInput, colsInput, minesInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -399,11 +400,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
         Button expert = findViewById(R.id.expert);
         expert.setOnClickListener(view -> {
-            rowsInput.setProgress(16 - rowsColsMin);
-            colsInput.setProgress(30 - rowsColsMin);
-            minesInput.setProgress(99 - minesMin);
+            rowsInput.setProgress(DifficultyConstants.ExpertRows - rowsColsMin);
+            colsInput.setProgress(DifficultyConstants.ExpertCols - rowsColsMin);
+            minesInput.setProgress(DifficultyConstants.ExpertMines - minesMin);
             try {
-                setMinMaxText(16, 30, 99, rowsInput, colsInput, minesInput);
+                setMinMaxText(DifficultyConstants.ExpertRows, DifficultyConstants.ExpertCols, DifficultyConstants.ExpertMines, rowsInput, colsInput, minesInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }

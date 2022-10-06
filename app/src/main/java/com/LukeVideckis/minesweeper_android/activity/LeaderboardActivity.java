@@ -104,7 +104,6 @@ public class LeaderboardActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                //if you send dishonest requests to this endpoint, you're actually a piece of trash
                 URL url = new URL("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com/get_leaderboard?difficulty_mode=beginner_normal");
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
