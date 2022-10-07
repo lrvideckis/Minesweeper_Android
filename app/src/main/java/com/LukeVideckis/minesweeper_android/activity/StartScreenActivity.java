@@ -18,15 +18,16 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.activity.activityHelpers.DifficultyDeterminer;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.DifficultyConstants;
+import com.LukeVideckis.minesweeper_android.miscHelpers.DifficultyConstants;
+import com.LukeVideckis.minesweeper_android.miscHelpers.GameModeConstants;
 
 public class StartScreenActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
-
     public static final String
             MY_PREFERENCES = "MyPrefs",
             NUMBER_OF_ROWS = "numRows",
             NUMBER_OF_COLS = "numCols",
             NUMBER_OF_MINES = "numMines",
+            DIFFICULTY_STR = "difficultyStr",
             GAME_MODE = "gameMode";
     private static final float maxMinePercentage = 0.23f;
     private static final int rowsColsMin = 10, rowsColsMax = 30, minesMin = 8;
@@ -180,8 +181,22 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             DifficultyDeterminer difficultyDeterminer = new DifficultyDeterminer(rows, cols, mines);
 
             if (difficultyDeterminer.isStandardDifficulty()) {
-                //TODO: pass rows, cols, height, gameMode to LeaderboardActivity so LeaderboardActivity can load the appropriate leaderboard
                 Intent intent = new Intent(StartScreenActivity.this, LeaderboardActivity.class);
+                try {
+                    intent.putExtra(DIFFICULTY_STR, difficultyDeterminer.getDifficultyAsString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                final RadioButton noGuessMode = findViewById(R.id.no_guessing_mode);
+                final RadioButton getHelpMode = findViewById(R.id.get_help_mode);
+                if (noGuessMode.isChecked()) {
+                    intent.putExtra(GAME_MODE, GameModeConstants.NO_GUESS_MODE);
+                } else if (getHelpMode.isChecked()) {
+                    intent.putExtra(GAME_MODE, GameModeConstants.GET_HELP_MODE);
+                } else {//default is normal mode
+                    intent.putExtra(GAME_MODE, GameModeConstants.NORMAL_MODE);
+                }
                 startActivity(intent);
             } else {
                 new AlertDialog.Builder(this)
@@ -315,11 +330,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
              * with start click in the center. It was easier to just make 10x10 the default for
              * beginner boards
              */
-            rowsInput.setProgress(DifficultyConstants.BeginnerRows - rowsColsMin);
-            colsInput.setProgress(DifficultyConstants.BeginnerCols - rowsColsMin);
-            minesInput.setProgress(DifficultyConstants.BeginnerMines - minesMin);
+            rowsInput.setProgress(DifficultyConstants.BEGINNER_ROWS - rowsColsMin);
+            colsInput.setProgress(DifficultyConstants.BEGINNER_COLS - rowsColsMin);
+            minesInput.setProgress(DifficultyConstants.BEGINNER_MINES - minesMin);
             try {
-                setMinMaxText(DifficultyConstants.BeginnerRows, DifficultyConstants.BeginnerCols, DifficultyConstants.BeginnerMines, rowsInput, colsInput, minesInput);
+                setMinMaxText(DifficultyConstants.BEGINNER_ROWS, DifficultyConstants.BEGINNER_COLS, DifficultyConstants.BEGINNER_MINES, rowsInput, colsInput, minesInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -327,11 +342,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
         Button intermediate = findViewById(R.id.intermediate);
         intermediate.setOnClickListener(view -> {
-            rowsInput.setProgress(DifficultyConstants.IntermediateRows - rowsColsMin);
-            colsInput.setProgress(DifficultyConstants.IntermediateCols - rowsColsMin);
-            minesInput.setProgress(DifficultyConstants.IntermediateMines - minesMin);
+            rowsInput.setProgress(DifficultyConstants.INTERMEDIATE_ROWS - rowsColsMin);
+            colsInput.setProgress(DifficultyConstants.INTERMEDIATE_COLS - rowsColsMin);
+            minesInput.setProgress(DifficultyConstants.INTERMEDIATE_MINES - minesMin);
             try {
-                setMinMaxText(DifficultyConstants.IntermediateRows, DifficultyConstants.IntermediateCols, DifficultyConstants.IntermediateMines, rowsInput, colsInput, minesInput);
+                setMinMaxText(DifficultyConstants.INTERMEDIATE_ROWS, DifficultyConstants.INTERMEDIATE_COLS, DifficultyConstants.INTERMEDIATE_MINES, rowsInput, colsInput, minesInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -339,11 +354,11 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
         Button expert = findViewById(R.id.expert);
         expert.setOnClickListener(view -> {
-            rowsInput.setProgress(DifficultyConstants.ExpertRows - rowsColsMin);
-            colsInput.setProgress(DifficultyConstants.ExpertCols - rowsColsMin);
-            minesInput.setProgress(DifficultyConstants.ExpertMines - minesMin);
+            rowsInput.setProgress(DifficultyConstants.EXPERT_ROWS - rowsColsMin);
+            colsInput.setProgress(DifficultyConstants.EXPERT_COLS - rowsColsMin);
+            minesInput.setProgress(DifficultyConstants.EXPERT_MINES - minesMin);
             try {
-                setMinMaxText(DifficultyConstants.ExpertRows, DifficultyConstants.ExpertCols, DifficultyConstants.ExpertMines, rowsInput, colsInput, minesInput);
+                setMinMaxText(DifficultyConstants.EXPERT_ROWS, DifficultyConstants.EXPERT_COLS, DifficultyConstants.EXPERT_MINES, rowsInput, colsInput, minesInput);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.miscHelpers.CompletionTimeFormatter;
+import com.LukeVideckis.minesweeper_android.miscHelpers.GameModeConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,11 +57,11 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
     public void showGameWonDialog(long completionTime, boolean usedHelpDuringGame) throws Exception {
         String modeStr;
         if (gameMode == R.id.normal_mode) {
-            modeStr = "normal";
+            modeStr = GameModeConstants.NORMAL_MODE;
         } else if (gameMode == R.id.no_guessing_mode) {
-            modeStr = "no-guess";
+            modeStr = GameModeConstants.NO_GUESS_MODE;
         } else {
-            modeStr = "get-help";
+            modeStr = GameModeConstants.GET_HELP_MODE;
         }
 
         if (difficultyDeterminer.isStandardDifficulty() && !usedHelpDuringGame && !hasAn8) {
