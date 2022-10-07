@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -20,7 +19,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.LukeVideckis.minesweeper_android.R;
 import com.LukeVideckis.minesweeper_android.activity.activityHelpers.DifficultyDeterminer;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.DifficultyConstants;
-import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 
 public class StartScreenActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
@@ -33,7 +31,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
     private static final float maxMinePercentage = 0.23f;
     private static final int rowsColsMin = 10, rowsColsMax = 30, minesMin = 8;
     private SharedPreferences sharedPreferences;
-    private PopupWindow normalModeInfoPopup, noGuessingModeInfoPopup, getHelpModeInfoPopup;
     private int gameMode, minesMax;
 
     @Override
@@ -108,11 +105,17 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
                 e.printStackTrace();
             }
         } else if (v.getId() == R.id.normal_mode_info) {
-            displayNormalModeInfoPopup();
+            new AlertDialog.Builder(this)
+                    .setMessage("This is normal minesweeper. The first square won't be a mine.")
+                    .show();
         } else if (v.getId() == R.id.no_guessing_mode_info) {
-            displayNoGuessingModeInfoPopup();
+            new AlertDialog.Builder(this)
+                    .setMessage("It is possible to win the entire game with reasoning. No guessing is required. You may need to consider the total number of mines in your deductions.")
+                    .show();
         } else if (v.getId() == R.id.get_help_mode_info) {
-            displayGetHelpModeInfoPopup();
+            new AlertDialog.Builder(this)
+                    .setMessage("This is minesweeper with a twist: there is a help button which randomly reveals 1 square (which isn\\'t a mine). If you tap the help button when there are un-flagged deducible mines or un-tapped deducible non-mines, then you lose.")
+                    .show();
         } else if (v.getId() == R.id.rowsDecrement) {
             try {
                 setMinMaxText(rows - 1, cols, mines, rowsInput, colsInput, mineInput);
@@ -150,18 +153,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
                 e.printStackTrace();
             }
         }
-    }
-
-    public void displayNormalModeInfoPopup() {
-        PopupHelper.displayPopup(normalModeInfoPopup, findViewById(R.id.startScreenLayout), getResources());
-    }
-
-    public void displayNoGuessingModeInfoPopup() {
-        PopupHelper.displayPopup(noGuessingModeInfoPopup, findViewById(R.id.startScreenLayout), getResources());
-    }
-
-    public void displayGetHelpModeInfoPopup() {
-        PopupHelper.displayPopup(getHelpModeInfoPopup, findViewById(R.id.startScreenLayout), getResources());
     }
 
     @Override
@@ -244,73 +235,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         text += String.format(getResources().getString(R.string.two_decimal_places), minePercentage);
         text += '%';
         minesText.setText(text);
-    }
-
-    private void setUpNormalModeInfoPopup() {
-        normalModeInfoPopup = PopupHelper.initializePopup(this, R.layout.normal_mode_info);
-        Button okButton = normalModeInfoPopup.getContentView().findViewById(R.id.normalModeInfoOkButton);
-        okButton.setOnClickListener(view -> normalModeInfoPopup.dismiss());
-    }
-
-    private void setUpNoGuessingModeInfoPopup() {
-        noGuessingModeInfoPopup = PopupHelper.initializePopup(this, R.layout.no_guessing_mode_info);
-        Button okButton = noGuessingModeInfoPopup.getContentView().findViewById(R.id.noGuessingModeInfoOkButton);
-        okButton.setOnClickListener(view -> noGuessingModeInfoPopup.dismiss());
-    }
-
-    private void setUpGetHelpModeInfoPopup() {
-        getHelpModeInfoPopup = PopupHelper.initializePopup(this, R.layout.get_help_mode_info);
-        Button okButton = getHelpModeInfoPopup.getContentView().findViewById(R.id.getHelpModeOkButton);
-        okButton.setOnClickListener(view -> getHelpModeInfoPopup.dismiss());
-    }
-
-    private class startNewGameButtonListener implements View.OnClickListener {
-        private final SeekBar rowInput;
-        private final SeekBar colInput;
-        private final SeekBar mineInput;
-
-        public startNewGameButtonListener(SeekBar rowInput, SeekBar colInput, SeekBar mineInput) {
-            this.rowInput = rowInput;
-            this.colInput = colInput;
-            this.mineInput = mineInput;
-        }
-
-        @Override
-        public void onClick(View v) {
-            final int numberOfRows = rowInput.getProgress() + rowsColsMin;
-            final int numberOfCols = colInput.getProgress() + rowsColsMin;
-            final int numberOfMines = mineInput.getProgress() + minesMin;
-
-            final RadioButton normalMode = findViewById(R.id.normal_mode);
-            final RadioButton noGuessMode = findViewById(R.id.no_guessing_mode);
-            final RadioButton getHelpMode = findViewById(R.id.get_help_mode);
-
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putInt(NUMBER_OF_ROWS, numberOfRows);
-            editor.putInt(NUMBER_OF_COLS, numberOfCols);
-            editor.putInt(NUMBER_OF_MINES, numberOfMines);
-            if (normalMode.isChecked()) {
-                editor.putInt(GAME_MODE, R.id.normal_mode);
-            } else if (noGuessMode.isChecked()) {
-                editor.putInt(GAME_MODE, R.id.no_guessing_mode);
-            } else if (getHelpMode.isChecked()) {
-                editor.putInt(GAME_MODE, R.id.get_help_mode);
-            }
-            editor.apply();
-
-            Intent intent = new Intent(StartScreenActivity.this, GameActivity.class);
-            intent.putExtra(NUMBER_OF_ROWS, numberOfRows);
-            intent.putExtra(NUMBER_OF_COLS, numberOfCols);
-            intent.putExtra(NUMBER_OF_MINES, numberOfMines);
-            if (noGuessMode.isChecked()) {
-                intent.putExtra(GAME_MODE, R.id.no_guessing_mode);
-            } else if (getHelpMode.isChecked()) {
-                intent.putExtra(GAME_MODE, R.id.get_help_mode);
-            } else {//default is normal mode
-                intent.putExtra(GAME_MODE, R.id.normal_mode);
-            }
-            startActivity(intent);
-        }
     }
 
     @Override
@@ -433,9 +357,54 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
 
         TextView getHelpModeInfo = findViewById(R.id.get_help_mode_info);
         getHelpModeInfo.setOnClickListener(this);
+    }
 
-        setUpNormalModeInfoPopup();
-        setUpNoGuessingModeInfoPopup();
-        setUpGetHelpModeInfoPopup();
+    private class startNewGameButtonListener implements View.OnClickListener {
+        private final SeekBar rowInput;
+        private final SeekBar colInput;
+        private final SeekBar mineInput;
+
+        public startNewGameButtonListener(SeekBar rowInput, SeekBar colInput, SeekBar mineInput) {
+            this.rowInput = rowInput;
+            this.colInput = colInput;
+            this.mineInput = mineInput;
+        }
+
+        @Override
+        public void onClick(View v) {
+            final int numberOfRows = rowInput.getProgress() + rowsColsMin;
+            final int numberOfCols = colInput.getProgress() + rowsColsMin;
+            final int numberOfMines = mineInput.getProgress() + minesMin;
+
+            final RadioButton normalMode = findViewById(R.id.normal_mode);
+            final RadioButton noGuessMode = findViewById(R.id.no_guessing_mode);
+            final RadioButton getHelpMode = findViewById(R.id.get_help_mode);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt(NUMBER_OF_ROWS, numberOfRows);
+            editor.putInt(NUMBER_OF_COLS, numberOfCols);
+            editor.putInt(NUMBER_OF_MINES, numberOfMines);
+            if (normalMode.isChecked()) {
+                editor.putInt(GAME_MODE, R.id.normal_mode);
+            } else if (noGuessMode.isChecked()) {
+                editor.putInt(GAME_MODE, R.id.no_guessing_mode);
+            } else if (getHelpMode.isChecked()) {
+                editor.putInt(GAME_MODE, R.id.get_help_mode);
+            }
+            editor.apply();
+
+            Intent intent = new Intent(StartScreenActivity.this, GameActivity.class);
+            intent.putExtra(NUMBER_OF_ROWS, numberOfRows);
+            intent.putExtra(NUMBER_OF_COLS, numberOfCols);
+            intent.putExtra(NUMBER_OF_MINES, numberOfMines);
+            if (noGuessMode.isChecked()) {
+                intent.putExtra(GAME_MODE, R.id.no_guessing_mode);
+            } else if (getHelpMode.isChecked()) {
+                intent.putExtra(GAME_MODE, R.id.get_help_mode);
+            } else {//default is normal mode
+                intent.putExtra(GAME_MODE, R.id.normal_mode);
+            }
+            startActivity(intent);
+        }
     }
 }

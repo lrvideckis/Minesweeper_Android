@@ -13,9 +13,6 @@
     <string name="is_relative_layout">is_relative_layout</string>
     <string name="decrement">-</string>
     <string name="increment">+</string>
-    <string name="normalModeExplanation">This is normal minesweeper. The first square won\'t be a mine.</string>
-    <string name="no_guessing_mode_explanation">It is possible to win the entire game with reasoning. No guessing is required. You may need to consider the total number of mines in your deductions.</string>
-    <string name="get_help_mode_explanation">This is minesweeper with a twist: there is a help button which randomly reveals 1 square (which isn\'t a mine). If you tap the help button when there are un-flagged deducible mines or un-tapped deducible non-mines, then you lose.</string>
 
     <string name="normal_mode">Normal Mode</string>
     <string name="no_guessing_mode">No Guess Mode</string>
