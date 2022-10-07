@@ -13,10 +13,12 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.LukeVideckis.minesweeper_android.R;
+import com.LukeVideckis.minesweeper_android.activity.activityHelpers.DifficultyDeterminer;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.DifficultyConstants;
 import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 
@@ -180,8 +182,21 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
             startActivity(intent);
         }
         if (item.getItemId() == R.id.action_leaderboard) {
-            Intent intent = new Intent(StartScreenActivity.this, LeaderboardActivity.class);
-            startActivity(intent);
+            final int rows = ((SeekBar) findViewById(R.id.rowsInput)).getProgress() + rowsColsMin;
+            final int cols = ((SeekBar) findViewById(R.id.colsInput)).getProgress() + rowsColsMin;
+            final int mines = ((SeekBar) findViewById(R.id.mineInput)).getProgress() + minesMin;
+
+            DifficultyDeterminer difficultyDeterminer = new DifficultyDeterminer(rows, cols, mines);
+
+            if (difficultyDeterminer.isStandardDifficulty()) {
+                //TODO: pass rows, cols, height, gameMode to LeaderboardActivity so LeaderboardActivity can load the appropriate leaderboard
+                Intent intent = new Intent(StartScreenActivity.this, LeaderboardActivity.class);
+                startActivity(intent);
+            } else {
+                new AlertDialog.Builder(this)
+                        .setMessage("Set the Height, Width, Mines to Beginner, Intermediate, or Expert to view that specific leaderboard.")
+                        .show();
+            }
         }
         return true;
     }

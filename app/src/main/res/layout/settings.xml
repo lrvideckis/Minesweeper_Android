@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="Note leaderboard feature is disabled when games are generated with an 8."/>
+                android:text="Note: leaderboards are disabled when games are generated with an 8."/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

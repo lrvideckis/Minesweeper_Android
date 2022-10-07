@@ -4,7 +4,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 
 public class DifficultyDeterminer {
     private int numberOfRows, numberOfCols, numberOfMines;
-    DifficultyDeterminer(int numberOfRows, int numberOfCols, int numberOfMines) {
+    public DifficultyDeterminer(int numberOfRows, int numberOfCols, int numberOfMines) {
         this.numberOfRows = numberOfRows;
         this.numberOfCols = numberOfCols;
         this.numberOfMines = numberOfMines;
@@ -28,7 +28,7 @@ public class DifficultyDeterminer {
                 && numberOfMines == DifficultyConstants.ExpertMines;
     }
 
-    boolean isStandardDifficulty() {
+    public boolean isStandardDifficulty() {
         return isBeginner() || isIntermediate() || isExpert();
     }
 
