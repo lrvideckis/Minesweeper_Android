@@ -114,7 +114,7 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
                     .show();
         } else if (v.getId() == R.id.get_help_mode_info) {
             new AlertDialog.Builder(this)
-                    .setMessage("This is minesweeper with a twist: there is a help button which randomly reveals 1 square (which isn\\'t a mine). If you tap the help button when there are un-flagged deducible mines or un-tapped deducible non-mines, then you lose.")
+                    .setMessage("This is minesweeper with a twist: there is a help button which randomly reveals 1 square (which isn't a mine). If you tap the help button when there are un-flagged deducible mines or un-tapped deducible non-mines, then you lose.")
                     .show();
         } else if (v.getId() == R.id.rowsDecrement) {
             try {
