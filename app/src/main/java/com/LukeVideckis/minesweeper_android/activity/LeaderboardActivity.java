@@ -51,6 +51,9 @@ public class LeaderboardActivity extends AppCompatActivity {
         String difficultyStr = getIntent().getStringExtra(StartScreenActivity.DIFFICULTY_STR);
         String gameModeStr = getIntent().getStringExtra(StartScreenActivity.GAME_MODE);
 
+        TextView difficultyModeText = findViewById(R.id.leaderboardTitleText);
+        difficultyModeText.setText(difficultyStr + " " + gameModeStr + "-mode");
+
         loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
                 .setMessage("Loading " + difficultyStr + ", " + gameModeStr + "-mode leaderboard")
                 .setCancelable(false)
