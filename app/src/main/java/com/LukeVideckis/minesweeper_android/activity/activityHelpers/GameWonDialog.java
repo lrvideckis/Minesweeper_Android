@@ -83,6 +83,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
 
             AlertDialog.Builder builder = getNewDialogBuilder()
                     .setMessage(gameWonGenericText + " This achieves rank " + leaderboardRank + ".\n\nEnter your name below to add this time to the leaderboard.");
+
             EditText playerNameInput = new EditText(gameContext);
             final int maxLength = 15;
             playerNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
@@ -96,9 +97,14 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                         .setMessage("Adding entry to leaderboard")
                         .create();
                 loadingScreenForLeaderboard.show();
-                new AddEntryToLeaderboardThread(difficultyStr, modeStr, playerName, completionTime).start();
-                loadingScreenForLeaderboard.dismiss();
+                new AddEntryToLeaderboardThread(difficultyStr, modeStr, playerName, completionTime, loadingScreenForLeaderboard).start();
                 //TODO 2) update dialog to have 2 buttons: cancel and view leaderboard
+            });
+
+            //to prevent accidentally tapping outside the dialog, closing it, and losing the chance to add entry to leaderboard.
+            builder.setCancelable(false);
+            builder.setNegativeButton("Cancel", (dialog, which) -> {
+                dialog.dismiss();
             });
 
             builder.show();
@@ -148,18 +154,22 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
     private class AddEntryToLeaderboardThread extends Thread {
         private String difficultyStr, modeStr, playerName;
         private long completionTime;
+        private AlertDialog loadingScreenForLeaderboard;
 
-        AddEntryToLeaderboardThread(String difficultyStr, String modeStr, String playerName, long completionTime) {
+        AddEntryToLeaderboardThread(String difficultyStr, String modeStr, String playerName, long completionTime, AlertDialog loadingScreenForLeaderboard) {
             this.difficultyStr = difficultyStr;
             this.modeStr = modeStr;
             this.playerName = playerName;
             this.completionTime = completionTime;
+            this.loadingScreenForLeaderboard = loadingScreenForLeaderboard;
         }
 
         @Override
         public void run() {
             try {
                 //if you send dishonest requests to this endpoint, you're actually a piece of trash
+                //like congrats bro!!!!! you now added a time to the leaderboard which you didn't achieve. congrats!!!!
+                //have fun going through life being a liar!!!
                 StringBuilder rawUrl = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
                 rawUrl.append("/add_entry");
                 rawUrl.append("?difficulty_mode=" + difficultyStr + "_" + modeStr);
@@ -193,6 +203,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     //TODO: handle exception from `result`
                 } finally {
                     urlConnection.disconnect();
+                    loadingScreenForLeaderboard.dismiss();
                 }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
