@@ -99,7 +99,6 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                         .create();
                 loadingScreenForLeaderboard.show();
                 new AddEntryToLeaderboardThread(difficultyStr, modeStr, playerName, completionTime, loadingScreenForLeaderboard).start();
-                //TODO 2) update dialog to have 2 buttons: cancel and view leaderboard
             });
 
             //to prevent accidentally tapping outside the dialog, closing it, and losing the chance to add entry to leaderboard.
@@ -114,11 +113,11 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
             StringBuilder gameWonMessage = new StringBuilder();
             gameWonMessage.append("You completed ");
             try {
-                gameWonMessage.append(difficultyDeterminer.getDifficultyAsString() + " ");
+                gameWonMessage.append(difficultyDeterminer.getDifficultyAsString()).append(" ");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            gameWonMessage.append(modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!\n\nReason(s) why adding to leaderboard is disabled:\n");
+            gameWonMessage.append(modeStr).append("-mode minesweeper in ").append(CompletionTimeFormatter.formatTime(completionTime)).append(" seconds!\n\nReason(s) why adding to leaderboard is disabled:\n");
             if (!difficultyDeterminer.isStandardDifficulty()) {
                 gameWonMessage.append("- Game dimension is not one of: beginner, intermediate, or expert.\n");
             }
@@ -152,10 +151,10 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
         }
     }
 
-    private class AddEntryToLeaderboardThread extends Thread {
-        private String difficultyStr, modeStr, playerName;
-        private long completionTime;
-        private AlertDialog loadingScreenForLeaderboard;
+    private static class AddEntryToLeaderboardThread extends Thread {
+        private final String difficultyStr, modeStr, playerName;
+        private final long completionTime;
+        private final AlertDialog loadingScreenForLeaderboard;
 
         AddEntryToLeaderboardThread(String difficultyStr, String modeStr, String playerName, long completionTime, AlertDialog loadingScreenForLeaderboard) {
             this.difficultyStr = difficultyStr;
@@ -173,12 +172,11 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                 //have fun going through life being a liar!!!
                 //this is personal
                 //if I catch you, I will tweet about it as you deserve PUBLIC SHAME
-                StringBuilder rawUrl = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
-                rawUrl.append("/add_entry");
-                rawUrl.append("?difficulty_mode=" + difficultyStr + "_" + modeStr);
-                rawUrl.append("&completion_time=" + completionTime);
+                String rawUrl = "https://j8u9lipy35.execute-api.us-east-2.amazonaws.com" + "/add_entry" +
+                        "?difficulty_mode=" + difficultyStr + "_" + modeStr +
+                        "&completion_time=" + completionTime;
 
-                URL url = new URL(rawUrl.toString());
+                URL url = new URL(rawUrl);
 
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
@@ -208,11 +206,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     urlConnection.disconnect();
                     loadingScreenForLeaderboard.dismiss();
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
         }
