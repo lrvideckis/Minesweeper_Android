@@ -21,15 +21,8 @@
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Leaderboard"
             android:textColor="#000000" />
     </androidx.appcompat.widget.Toolbar>
-
-    <TextView
-        android:id="@+id/difficulty_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Easy - Normal Mode - Has 8" />
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -40,14 +33,41 @@
         <TableLayout
             android:id="@+id/leaderboard_ui_table"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent">
 
             <TableRow>
-                <TextView android:text="" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
-                <TextView android:text="Name" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
-                <TextView android:text="Time\n(seconds)" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
-                <TextView android:text="Date Added" android:paddingLeft="8px" android:paddingRight="8px" android:textSize="20dp"/>
+
+                <TextView
+                    android:paddingLeft="8px"
+                    android:paddingRight="8px"
+                    android:text=""
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:paddingLeft="8px"
+                    android:paddingRight="8px"
+                    android:text="Name"
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:paddingLeft="8px"
+                    android:paddingRight="8px"
+                    android:text="Time"
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:paddingLeft="8px"
+                    android:paddingRight="8px"
+                    android:text="Date Added"
+                    android:textSize="20dp" />
             </TableRow>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="#c0c0c0"/>
         </TableLayout>
 
     </ScrollView>

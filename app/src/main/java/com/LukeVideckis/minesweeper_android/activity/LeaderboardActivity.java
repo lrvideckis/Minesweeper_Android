@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class LeaderboardActivity extends AppCompatActivity {
-    private AlertDialog loadingScreenForGetLeaderboard;
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -41,19 +40,40 @@ public class LeaderboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.leaderboard);
         Toolbar toolbar = findViewById(R.id.leaderboard_toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setMessage("Loading leaderboard")
+        String difficultyStr = getIntent().getStringExtra(StartScreenActivity.DIFFICULTY_STR);
+        String gameModeStr = getIntent().getStringExtra(StartScreenActivity.GAME_MODE);
+
+        TextView difficultyModeText = findViewById(R.id.leaderboardTitleText);
+        difficultyModeText.setText(convertCaseForUI(difficultyStr + " " + gameModeStr + "-mode"));
+
+        AlertDialog noInternetDialog = new AlertDialog.Builder(this)
+                .setMessage("Enable internet to load the leaderboard.")
                 .create();
-        loadingScreenForGetLeaderboard.show();
+
+        AlertDialog loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
+                .setMessage("Loading " + difficultyStr + ", " + gameModeStr + "-mode leaderboard")
+                .show();
+
         //calls AWS to get leaderboard + update UI
-        (new LeaderboardThread()).start();
+        new LeaderboardThread(difficultyStr, gameModeStr, noInternetDialog, loadingScreenForGetLeaderboard).start();
+    }
+
+    private String convertCaseForUI(String text) {
+        String[] words = text.replace('-', ' ').split(" ");
+        StringBuilder titleCase = new StringBuilder();
+        for (String word : words) {
+            if (word.length() > 0) {
+                titleCase.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(' ');
+            }
+        }
+        return titleCase.toString();
     }
 
     private void updateLeaderboardUITable(JSONArray leaderboardJson) throws JSONException {
@@ -97,14 +117,27 @@ public class LeaderboardActivity extends AppCompatActivity {
 
             leaderboard_ui_table.addView(newLeaderboardEntry);
         }
-        loadingScreenForGetLeaderboard.dismiss();
     }
 
     private class LeaderboardThread extends Thread {
+        private String difficultyStr, gameModeStr;
+        private AlertDialog noInternetDialog, loadingScreenForGetLeaderboard;
+
+        LeaderboardThread(String difficultyStr, String gameModeStr, AlertDialog noInternetDialog, AlertDialog loadingScreenForGetLeaderboard) {
+            this.difficultyStr = difficultyStr;
+            this.gameModeStr = gameModeStr;
+            this.noInternetDialog = noInternetDialog;
+            this.loadingScreenForGetLeaderboard = loadingScreenForGetLeaderboard;
+        }
+
         @Override
         public void run() {
             try {
-                URL url = new URL("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com/get_leaderboard?difficulty_mode=beginner_normal");
+                StringBuilder urlRaw = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
+                urlRaw.append("/get_leaderboard");
+                urlRaw.append("?difficulty_mode=" + difficultyStr + "_" + gameModeStr);
+
+                URL url = new URL(urlRaw.toString());
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("User-Agent", "lrvideckis_minesweeper_android_app");
@@ -120,10 +153,15 @@ public class LeaderboardActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         try {
                             updateLeaderboardUITable(leaderboardJson);
+                            loadingScreenForGetLeaderboard.dismiss();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     });
+                } catch (UnknownHostException e) {//internet is disabled
+                    e.printStackTrace();
+                    runOnUiThread(()-> loadingScreenForGetLeaderboard.dismiss());
+                    runOnUiThread(()-> noInternetDialog.show());
                 } finally {
                     urlConnection.disconnect();
                 }
