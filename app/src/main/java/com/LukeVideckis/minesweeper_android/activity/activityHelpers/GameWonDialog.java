@@ -1,6 +1,8 @@
 package com.LukeVideckis.minesweeper_android.activity.activityHelpers;
 
-import android.app.Dialog;
+import static java.lang.Integer.parseInt;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputFilter;
@@ -22,8 +24,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -67,47 +69,11 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
 
         if (difficultyDeterminer.isStandardDifficulty() && !usedHelpDuringGame && !hasAn8) {
             String difficultyStr = difficultyDeterminer.getDifficultyAsString();
-
-            String gameWonGenericText = "You completed " + difficultyStr + " " + modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!";
-
-            //server stores time format as longs to avoid type conversion
-            //server stores unique keys (completion time is the key), so I'm
-            //assuming no 2 times will have the same exact nano-time
-            int leaderboardRank = 5;//TODO - send request to get this info
-
-            if (false) {//TODO
-                getNewDialogBuilder()
-                        .setMessage(gameWonGenericText + " Either your time is too slow or internet is disabled to make the leaderboard.")
-                        .show();
-                return;
-            }
-
-            AlertDialog.Builder builder = getNewDialogBuilder()
-                    .setMessage(gameWonGenericText + " This achieves rank " + leaderboardRank + ".\n\nEnter your name below to add this time to the leaderboard.");
-
-            EditText playerNameInput = new EditText(gameContext);
-            final int maxLength = 15;
-            playerNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
-            playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-            builder.setView(playerNameInput);
-
-            //onClick is run on the main thread
-            builder.setPositiveButton("Add Entry to Leaderboard", (dialog, which) -> {
-                String playerName = playerNameInput.getText().toString();
-                AlertDialog loadingScreenForLeaderboard = getNewDialogBuilder()
-                        .setMessage("Adding entry to leaderboard")
-                        .create();
-                loadingScreenForLeaderboard.show();
-                new AddEntryToLeaderboardThread(difficultyStr, modeStr, playerName, completionTime, loadingScreenForLeaderboard).start();
-            });
-
-            //to prevent accidentally tapping outside the dialog, closing it, and losing the chance to add entry to leaderboard.
-            builder.setCancelable(false);
-            builder.setNegativeButton("Cancel", (dialog, which) -> {
-                dialog.dismiss();
-            });
-
-            builder.show();
+            AlertDialog loadingGetRank =
+                    getNewDialogBuilder()
+                            .setMessage("Checking leaderboard")
+                            .create();
+            new CheckLeaderboardForRankThread(difficultyStr, modeStr, completionTime, loadingGetRank, (Activity) gameContext).start();
 
         } else {
             StringBuilder gameWonMessage = new StringBuilder();
@@ -136,7 +102,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
     @Override
     public void onCancel(DialogInterface dialogInterface) {
         try {
-            ((GameActivity)gameContext).startNewGame();
+            ((GameActivity) gameContext).startNewGame();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,7 +111,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
     @Override
     public void onDismiss(DialogInterface dialogInterface) {
         try {
-            ((GameActivity)gameContext).startNewGame();
+            ((GameActivity) gameContext).startNewGame();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -207,6 +173,104 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     loadingScreenForLeaderboard.dismiss();
                 }
             } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class CheckLeaderboardForRankThread extends Thread {
+        private final String difficultyStr, modeStr;
+        private final long completionTime;
+        private final AlertDialog loadingGetRank;
+        private final Activity gameActivity;
+
+        CheckLeaderboardForRankThread(String difficultyStr, String modeStr, long completionTime, AlertDialog loadingGetRank, Activity gameActivity) {
+            this.difficultyStr = difficultyStr;
+            this.modeStr = modeStr;
+            this.completionTime = completionTime;
+            this.loadingGetRank = loadingGetRank;
+            this.gameActivity = gameActivity;
+
+        }
+
+        private void handleGameWonCase(int rank) {
+            String gameWonGenericText = "You completed " + difficultyStr + " " + modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!";
+            AlertDialog.Builder builder = getNewDialogBuilder()
+                    .setMessage(gameWonGenericText + " This achieves rank " + rank + ".\n\nEnter your name below to add this time to the leaderboard.");
+
+            EditText playerNameInput = new EditText(gameContext);
+            final int maxLength = 15;
+            playerNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+            playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            builder.setView(playerNameInput);
+
+            //onClick is run on the main thread
+            builder.setPositiveButton("Add Entry to Leaderboard", (dialog, which) -> {
+                String playerName = playerNameInput.getText().toString();
+                AlertDialog loadingScreenForLeaderboard = getNewDialogBuilder()
+                        .setMessage("Adding entry to leaderboard")
+                        .create();
+                loadingScreenForLeaderboard.show();
+                new AddEntryToLeaderboardThread(difficultyStr, modeStr, playerName, completionTime, loadingScreenForLeaderboard).start();
+            });
+
+            //to prevent accidentally tapping outside the dialog, closing it, and losing the chance to add entry to leaderboard.
+            builder.setCancelable(false);
+            builder.setNegativeButton("Cancel", (dialog, which) -> {
+                dialog.dismiss();
+            });
+
+            gameActivity.runOnUiThread(builder::show);
+        }
+
+        @Override
+        public void run() {
+            try {
+                gameActivity.runOnUiThread(loadingGetRank::show);
+
+                String rawUrl = "https://j8u9lipy35.execute-api.us-east-2.amazonaws.com" + "/get_rank" +
+                        "?difficulty_mode=" + difficultyStr + "_" + modeStr +
+                        "&completion_time=" + completionTime;
+                URL url = new URL(rawUrl);
+
+                HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("User-Agent", "lrvideckis_minesweeper_android_app");
+
+                try {
+                    urlConnection.connect();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    try {
+                        int leaderboardRank = parseInt(result.toString());
+                        gameActivity.runOnUiThread(loadingGetRank::dismiss);
+                        handleGameWonCase(leaderboardRank);
+                    } catch (NumberFormatException e) {//didn't make leaderboard
+                        gameActivity.runOnUiThread(loadingGetRank::show);
+                        loadingGetRank.dismiss();
+                        getNewDialogBuilder()
+                                .setMessage("Your time is too slow to make the leaderboard.")
+                                .show();
+                        //TODO
+                    }
+                } catch (UnknownHostException e) {//internet is disabled
+                    //TODO: test this
+                    gameActivity.runOnUiThread(loadingGetRank::dismiss);
+                    gameActivity.runOnUiThread(() ->
+                            getNewDialogBuilder()
+                                    .setMessage("Enable internet to add time to leaderboard")
+                                    .show()
+                    );
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                    //loadingScreenForLeaderboard.dismiss();
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

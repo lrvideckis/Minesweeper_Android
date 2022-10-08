@@ -287,6 +287,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void showWinPopup() {
         long completionTime = System.nanoTime() - startGameTime;
         try {
+            //server stores time format as longs to avoid type conversion
+            //server stores unique keys (completion time is the key), so I'm
+            //assuming no 2 times will have the same exact nano-time
             gameWonDialog.showGameWonDialog(completionTime, usedHelpDuringGame);
         } catch (Exception e) {
             e.printStackTrace();
