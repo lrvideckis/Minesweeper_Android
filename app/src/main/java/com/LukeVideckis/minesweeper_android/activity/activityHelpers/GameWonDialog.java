@@ -257,7 +257,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     gameActivity.runOnUiThread(() -> {
                         loadingGetRank.dismiss();
                         getNewDialogBuilder()
-                                .setMessage("Your time is too slow to make the leaderboard.")
+                                .setMessage("Your time of " + CompletionTimeFormatter.formatTime(completionTime) + " seconds is too slow to make the " + difficultyStr + " " + modeStr + "-mode leaderboard.")
                                 .show();
                     });
                 } catch (UnknownHostException e) {//internet is disabled
@@ -270,7 +270,6 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     e.printStackTrace();
                 } finally {
                     urlConnection.disconnect();
-                    //loadingScreenForLeaderboard.dismiss();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
