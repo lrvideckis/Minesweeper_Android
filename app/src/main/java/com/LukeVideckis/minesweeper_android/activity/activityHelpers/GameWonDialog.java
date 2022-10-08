@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -95,6 +96,10 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
             }
             getNewDialogBuilder()
                     .setMessage(gameWonMessage)
+                    .setCancelable(false)
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
                     .show();
         }
     }
@@ -167,7 +172,6 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     while ((line = bufferedReader.readLine()) != null) {
                         result.append(line);
                     }
-                    //TODO: handle exception from `result`
                 } finally {
                     urlConnection.disconnect();
                     loadingScreenForLeaderboard.dismiss();
@@ -245,24 +249,22 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                     while ((line = bufferedReader.readLine()) != null) {
                         result.append(line);
                     }
-                    try {
-                        int leaderboardRank = parseInt(result.toString());
-                        gameActivity.runOnUiThread(loadingGetRank::dismiss);
-                        handleGameWonCase(leaderboardRank);
-                    } catch (NumberFormatException e) {//didn't make leaderboard
-                        gameActivity.runOnUiThread(loadingGetRank::show);
+                    int leaderboardRank = parseInt(result.toString());
+                    gameActivity.runOnUiThread(loadingGetRank::dismiss);
+                    handleGameWonCase(leaderboardRank);
+
+                } catch (FileNotFoundException e) {//time too slow to make leaderboard
+                    gameActivity.runOnUiThread(() -> {
                         loadingGetRank.dismiss();
                         getNewDialogBuilder()
                                 .setMessage("Your time is too slow to make the leaderboard.")
                                 .show();
-                        //TODO
-                    }
+                    });
                 } catch (UnknownHostException e) {//internet is disabled
-                    //TODO: test this
                     gameActivity.runOnUiThread(loadingGetRank::dismiss);
                     gameActivity.runOnUiThread(() ->
                             getNewDialogBuilder()
-                                    .setMessage("Enable internet to add time to leaderboard")
+                                    .setMessage("Enable internet to add time to leaderboard.")
                                     .show()
                     );
                     e.printStackTrace();
