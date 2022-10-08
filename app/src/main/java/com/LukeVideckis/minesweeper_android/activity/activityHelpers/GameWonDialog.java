@@ -171,6 +171,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
                 //like congrats bro!!!!! you now added a time to the leaderboard which you didn't achieve. congrats!!!!
                 //have fun going through life being a liar!!!
                 //this is personal
+                //if I catch you, I will tweet about it as you deserve PUBLIC SHAME
                 StringBuilder rawUrl = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
                 rawUrl.append("/add_entry");
                 rawUrl.append("?difficulty_mode=" + difficultyStr + "_" + modeStr);
