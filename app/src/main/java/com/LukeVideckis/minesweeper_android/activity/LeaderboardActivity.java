@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class LeaderboardActivity extends AppCompatActivity {
-    private AlertDialog loadingScreenForGetLeaderboard;
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -54,14 +53,16 @@ public class LeaderboardActivity extends AppCompatActivity {
         TextView difficultyModeText = findViewById(R.id.leaderboardTitleText);
         difficultyModeText.setText(convertCaseForUI(difficultyStr + " " + gameModeStr + "-mode"));
 
-        loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
-                .setMessage("Loading " + difficultyStr + ", " + gameModeStr + "-mode leaderboard")
-                .setCancelable(false)
+        AlertDialog noInternetDialog = new AlertDialog.Builder(this)
+                .setMessage("Enable internet to load the leaderboard.")
                 .create();
 
+        AlertDialog loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
+                .setMessage("Loading " + difficultyStr + ", " + gameModeStr + "-mode leaderboard")
+                .show();
+
         //calls AWS to get leaderboard + update UI
-        loadingScreenForGetLeaderboard.show();
-        new LeaderboardThread(difficultyStr, gameModeStr).start();
+        new LeaderboardThread(difficultyStr, gameModeStr, noInternetDialog, loadingScreenForGetLeaderboard).start();
     }
 
     private String convertCaseForUI(String text) {
@@ -116,15 +117,17 @@ public class LeaderboardActivity extends AppCompatActivity {
 
             leaderboard_ui_table.addView(newLeaderboardEntry);
         }
-        loadingScreenForGetLeaderboard.dismiss();
     }
 
     private class LeaderboardThread extends Thread {
         private String difficultyStr, gameModeStr;
+        private AlertDialog noInternetDialog, loadingScreenForGetLeaderboard;
 
-        LeaderboardThread(String difficultyStr, String gameModeStr) {
+        LeaderboardThread(String difficultyStr, String gameModeStr, AlertDialog noInternetDialog, AlertDialog loadingScreenForGetLeaderboard) {
             this.difficultyStr = difficultyStr;
             this.gameModeStr = gameModeStr;
+            this.noInternetDialog = noInternetDialog;
+            this.loadingScreenForGetLeaderboard = loadingScreenForGetLeaderboard;
         }
 
         @Override
@@ -150,10 +153,15 @@ public class LeaderboardActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         try {
                             updateLeaderboardUITable(leaderboardJson);
+                            loadingScreenForGetLeaderboard.dismiss();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     });
+                } catch (UnknownHostException e) {//internet is disabled
+                    e.printStackTrace();
+                    runOnUiThread(()-> loadingScreenForGetLeaderboard.dismiss());
+                    runOnUiThread(()-> noInternetDialog.show());
                 } finally {
                     urlConnection.disconnect();
                 }

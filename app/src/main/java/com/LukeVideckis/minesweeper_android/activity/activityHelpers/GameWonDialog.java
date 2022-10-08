@@ -1,5 +1,6 @@
 package com.LukeVideckis.minesweeper_android.activity.activityHelpers;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputFilter;
@@ -67,7 +68,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
         if (difficultyDeterminer.isStandardDifficulty() && !usedHelpDuringGame && !hasAn8) {
             String difficultyStr = difficultyDeterminer.getDifficultyAsString();
 
-            String gameWonGenericText = "You completed " + difficultyStr + ", " + modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!";
+            String gameWonGenericText = "You completed " + difficultyStr + " " + modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!";
 
             //server stores time format as longs to avoid type conversion
             //server stores unique keys (completion time is the key), so I'm
