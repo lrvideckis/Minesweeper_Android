@@ -104,18 +104,25 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
             builder.show();
 
         } else {
-            StringBuilder errorMessage = new StringBuilder();
+            StringBuilder gameWonMessage = new StringBuilder();
+            gameWonMessage.append("You completed ");
+            try {
+                gameWonMessage.append(difficultyDeterminer.getDifficultyAsString() + " ");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            gameWonMessage.append(modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!\n\nReason(s) why adding to leaderboard is disabled:\n");
             if (!difficultyDeterminer.isStandardDifficulty()) {
-                errorMessage.append("- Game dimension is not one of: beginner, intermediate, or expert.\n");
+                gameWonMessage.append("- Game dimension is not one of: beginner, intermediate, or expert.\n");
             }
             if (hasAn8) {
-                errorMessage.append("- Generate boards with an 8 is enabled.\n");
+                gameWonMessage.append("- Generate boards with an 8 is enabled.\n");
             }
             if (usedHelpDuringGame) {
-                errorMessage.append("- You used help during the game (Deducible Squares or Mine Probability).\n");
+                gameWonMessage.append("- You used help during the game (Deducible Squares or Mine Probability).\n");
             }
             getNewDialogBuilder()
-                    .setMessage("You completed " + modeStr + "-mode minesweeper in " + CompletionTimeFormatter.formatTime(completionTime) + " seconds!\n\nReason(s) why adding to leaderboard is disabled:\n" + errorMessage)
+                    .setMessage(gameWonMessage)
                     .show();
         }
     }

@@ -52,7 +52,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         String gameModeStr = getIntent().getStringExtra(StartScreenActivity.GAME_MODE);
 
         TextView difficultyModeText = findViewById(R.id.leaderboardTitleText);
-        difficultyModeText.setText(difficultyStr + " " + gameModeStr + "-mode");
+        difficultyModeText.setText(convertCaseForUI(difficultyStr + " " + gameModeStr + "-mode"));
 
         loadingScreenForGetLeaderboard = new AlertDialog.Builder(this)
                 .setMessage("Loading " + difficultyStr + ", " + gameModeStr + "-mode leaderboard")
@@ -62,6 +62,17 @@ public class LeaderboardActivity extends AppCompatActivity {
         //calls AWS to get leaderboard + update UI
         loadingScreenForGetLeaderboard.show();
         new LeaderboardThread(difficultyStr, gameModeStr).start();
+    }
+
+    private String convertCaseForUI(String text) {
+        String[] words = text.replace('-', ' ').split(" ");
+        StringBuilder titleCase = new StringBuilder();
+        for (String word : words) {
+            if (word.length() > 0) {
+                titleCase.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(' ');
+            }
+        }
+        return titleCase.toString();
     }
 
     private void updateLeaderboardUITable(JSONArray leaderboardJson) throws JSONException {
