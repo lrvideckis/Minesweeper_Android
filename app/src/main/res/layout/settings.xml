@@ -29,7 +29,6 @@
         android:id="@+id/gameControls"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerVertical="true"
         android:layout_marginStart="20dp"
         android:gravity="center_vertical"
         android:orientation="vertical">
@@ -57,7 +56,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="Note: this setting changes the difficulty of the game, so separate leaderboards are needed. I chose not to add these leaderboards now, but may add them in the future."/>
+                android:text="@string/leaderboard_has8_note"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

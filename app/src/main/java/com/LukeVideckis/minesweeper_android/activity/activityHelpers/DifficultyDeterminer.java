@@ -3,7 +3,7 @@ package com.LukeVideckis.minesweeper_android.activity.activityHelpers;
 import com.LukeVideckis.minesweeper_android.miscHelpers.DifficultyConstants;
 
 public class DifficultyDeterminer {
-    private int numberOfRows, numberOfCols, numberOfMines;
+    private final int numberOfRows, numberOfCols, numberOfMines;
     public DifficultyDeterminer(int numberOfRows, int numberOfCols, int numberOfMines) {
         this.numberOfRows = numberOfRows;
         this.numberOfCols = numberOfCols;

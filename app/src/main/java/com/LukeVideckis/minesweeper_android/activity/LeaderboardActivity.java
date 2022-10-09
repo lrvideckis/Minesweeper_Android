@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -120,8 +119,8 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private class LeaderboardThread extends Thread {
-        private String difficultyStr, gameModeStr;
-        private AlertDialog noInternetDialog, loadingScreenForGetLeaderboard;
+        private final String difficultyStr, gameModeStr;
+        private final AlertDialog noInternetDialog, loadingScreenForGetLeaderboard;
 
         LeaderboardThread(String difficultyStr, String gameModeStr, AlertDialog noInternetDialog, AlertDialog loadingScreenForGetLeaderboard) {
             this.difficultyStr = difficultyStr;
@@ -133,11 +132,10 @@ public class LeaderboardActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                StringBuilder urlRaw = new StringBuilder("https://j8u9lipy35.execute-api.us-east-2.amazonaws.com");
-                urlRaw.append("/get_leaderboard");
-                urlRaw.append("?difficulty_mode=" + difficultyStr + "_" + gameModeStr);
+                String urlRaw = "https://j8u9lipy35.execute-api.us-east-2.amazonaws.com" + "/get_leaderboard" +
+                        "?difficulty_mode=" + difficultyStr + "_" + gameModeStr;
 
-                URL url = new URL(urlRaw.toString());
+                URL url = new URL(urlRaw);
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("User-Agent", "lrvideckis_minesweeper_android_app");
@@ -160,16 +158,12 @@ public class LeaderboardActivity extends AppCompatActivity {
                     });
                 } catch (UnknownHostException e) {//internet is disabled
                     e.printStackTrace();
-                    runOnUiThread(()-> loadingScreenForGetLeaderboard.dismiss());
-                    runOnUiThread(()-> noInternetDialog.show());
+                    runOnUiThread(loadingScreenForGetLeaderboard::dismiss);
+                    runOnUiThread(noInternetDialog::show);
                 } finally {
                     urlConnection.disconnect();
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
         }

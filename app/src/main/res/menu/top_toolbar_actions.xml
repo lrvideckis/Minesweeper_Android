@@ -5,7 +5,7 @@
     <item
         android:id="@+id/action_leaderboard"
         android:icon="@drawable/leaderboard_icon"
-        android:title="leaderboard"
+        android:title="@string/leaderboard_icon"
         app:showAsAction="always" />
 
     <item

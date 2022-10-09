@@ -24,42 +24,45 @@
             android:textColor="#000000" />
     </androidx.appcompat.widget.Toolbar>
 
-    <ScrollView
+    <HorizontalScrollView
         android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    <ScrollView
+        android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_weight="1"
         android:scrollbars="vertical">
 
         <TableLayout
             android:id="@+id/leaderboard_ui_table"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TableRow>
 
                 <TextView
-                    android:paddingLeft="8px"
-                    android:paddingRight="8px"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
                     android:text=""
-                    android:textSize="20dp" />
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:paddingLeft="8px"
-                    android:paddingRight="8px"
-                    android:text="Name"
-                    android:textSize="20dp" />
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="@string/leaderboard_name"
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:paddingLeft="8px"
-                    android:paddingRight="8px"
-                    android:text="Time"
-                    android:textSize="20dp" />
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="@string/leaderboard_time"
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:paddingLeft="8px"
-                    android:paddingRight="8px"
-                    android:text="Date Added"
-                    android:textSize="20dp" />
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="@string/leaderboard_date_added"
+                    android:textSize="20sp" />
             </TableRow>
 
             <View
@@ -71,4 +74,5 @@
         </TableLayout>
 
     </ScrollView>
+    </HorizontalScrollView>
 </LinearLayout>

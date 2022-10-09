@@ -40,10 +40,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class GameWonDialog implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {
 
-    private DifficultyDeterminer difficultyDeterminer;
-    private int gameMode;
-    private boolean hasAn8;
-    private Context gameContext;
+    private final DifficultyDeterminer difficultyDeterminer;
+    private final int gameMode;
+    private final boolean hasAn8;
+    private final Context gameContext;
 
     public GameWonDialog(Context gameContext, int numberOfRows, int numberOfCols, int numberOfMines, int gameMode, boolean hasAn8) {
         difficultyDeterminer = new DifficultyDeterminer(numberOfRows, numberOfCols, numberOfMines);
@@ -97,9 +97,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
             getNewDialogBuilder()
                     .setMessage(gameWonMessage)
                     .setCancelable(false)
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .show();
         }
     }
@@ -205,7 +203,8 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
             EditText playerNameInput = new EditText(gameContext);
             final int maxLength = 15;
             playerNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
-            playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            //playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            playerNameInput.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(playerNameInput);
 
             //onClick is run on the main thread
@@ -220,9 +219,7 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
 
             //to prevent accidentally tapping outside the dialog, closing it, and losing the chance to add entry to leaderboard.
             builder.setCancelable(false);
-            builder.setNegativeButton("Cancel", (dialog, which) -> {
-                dialog.dismiss();
-            });
+            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
             gameActivity.runOnUiThread(builder::show);
         }

@@ -192,7 +192,7 @@ public class DrawCellHelpers {
             float fractionHeight = -textBounds.top + pixelsBetweenNumAndDen;
 
             black.getTextBounds(probability.getNumerator().toString(), 0, digitsNumerator, textBounds);
-            fractionHeight += -textBounds.top;
+            fractionHeight -= textBounds.top;
 
             canvas.drawText(probability.getNumerator().toString(), startX + (GameActivity.cellPixelLength - widthNum) / 2f, startY + (-textBounds.top) + (GameActivity.cellPixelLength - fractionHeight) / 2f, black);
             canvas.drawText(probability.getDenominator().toString(), startX + (GameActivity.cellPixelLength - widthDen) / 2f, startY + 2 * (-textBounds.top) + (GameActivity.cellPixelLength - fractionHeight) / 2f + pixelsBetweenNumAndDen, black);
