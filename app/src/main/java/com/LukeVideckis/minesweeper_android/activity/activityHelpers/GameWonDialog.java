@@ -203,7 +203,6 @@ public class GameWonDialog implements DialogInterface.OnCancelListener, DialogIn
             EditText playerNameInput = new EditText(gameContext);
             final int maxLength = 15;
             playerNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
-            //playerNameInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             playerNameInput.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(playerNameInput);
 
