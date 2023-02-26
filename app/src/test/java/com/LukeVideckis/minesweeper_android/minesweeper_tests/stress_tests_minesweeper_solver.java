@@ -17,6 +17,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsFo
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
+import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
 import com.LukeVideckis.minesweeper_android.test_helpers.NoSolutionFoundException;
 import com.LukeVideckis.minesweeper_android.test_helpers.SlowBacktrackingSolver;
 import com.LukeVideckis.minesweeper_android.test_helpers.TestEngine;
@@ -288,6 +289,32 @@ public class stress_tests_minesweeper_solver {
         }
     }
 
+    private static void checkProbabilitiesAroundClueAddToClue(
+            Board<TileWithProbability> boardFast
+    ) throws Exception {
+        for (int i = 0; i < boardFast.getRows(); ++i) {
+            for (int j = 0; j < boardFast.getCols(); ++j) {
+                TileWithProbability centerTile = boardFast.getCell(i, j);
+                if (!centerTile.isVisible) {
+                    continue;
+                }
+                if (!centerTile.mineProbability.equals(0)) {
+                    throw new Exception("visible tile doesn't have 0 probability");
+                }
+                BigFraction probabilitySum = new BigFraction(0);
+                for (TileWithProbability surroundingTile : boardFast.getAdjacentCells(i, j)) {
+                    if (surroundingTile.isVisible) {
+                        continue;
+                    }
+                    probabilitySum.addWith(surroundingTile.mineProbability);
+                }
+                if (!probabilitySum.equals(centerTile.numberSurroundingMines)) {
+                    throw new Exception("Sum of adjacent squares' probabilities should match clue.");
+                }
+            }
+        }
+    }
+
     //throws exception if test failed
     private static void throwIfFailed_compareGaussBoardToBacktrackingBoard(Board<TileWithProbability> boardBacktracking, Board<TileWithLogistics> boardGauss) throws Exception {
         if (boardBacktracking.getRows() != boardGauss.getRows() || boardBacktracking.getCols() != boardGauss.getCols() || boardBacktracking.getMines() != boardGauss.getMines()) {
@@ -416,6 +443,7 @@ public class stress_tests_minesweeper_solver {
                     break;
                 }
                 throwIfBoardsAreDifferent(fastOut, slowOut);
+                checkProbabilitiesAroundClueAddToClue(fastOut);
                 numberOfTimesSolverIsRun++;
                 //click all logical frees
                 boolean clickedFree = false;
