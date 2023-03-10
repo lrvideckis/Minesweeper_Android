@@ -152,6 +152,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             newGameButton.setImageResource(R.drawable.smiley_face);
             try {
                 startNewGame();
+                updateNumberOfMines(engineGetHelpMode.getNumberOfMines() - engineGetHelpMode.getNumberOfFlags());
             } catch (Exception e) {
                 e.printStackTrace();
             }
