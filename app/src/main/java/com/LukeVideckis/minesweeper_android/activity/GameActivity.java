@@ -139,7 +139,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         updateNumberOfMines(engineGetHelpMode.getNumberOfMines() - engineGetHelpMode.getNumberOfFlags());
-        lastActionWasGetHelpButton = false;
+        if (engineGetHelpMode.getGameState() == GameState.STILL_GOING) {
+            lastActionWasGetHelpButton = false;
+        }
         findViewById(R.id.gridCanvas).invalidate();
     }
 
