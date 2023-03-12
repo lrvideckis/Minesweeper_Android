@@ -77,16 +77,15 @@ public class EngineGetHelpMode extends GameEngine {
             initializeMineLocationsAndClickStartCell(getHelpRow, getHelpCol);
             return;
         }
-        ArrayList<ArrayList<Pair<Integer, Integer>>> freeCells = new ArrayList<>(3);
-        for (int i = 0; i < 3; ++i) {
-            freeCells.add(new ArrayList<>());
-        }
+        ArrayList<Pair<Integer, Integer>> freeCells = new ArrayList<>();
         for (int i = 0; i < grid.getRows(); ++i) {
             for (int j = 0; j < grid.getCols(); ++j) {
                 TileWithMine curr = grid.getCell(i, j);
                 if (curr.state != TileState.VISIBLE && !curr.isMine) {
                     if (curr.numberSurroundingMines == 0) {
-                        freeCells.get(0).add(new Pair<>(i, j));
+                        for (int k = 0; k < 20; k++) {
+                            freeCells.add(new Pair<>(i, j));
+                        }
                     } else {
                         boolean cellIsNextToANumber = false;
                         for (TileWithMine adjTile : grid.getAdjacentCells(i, j)) {
@@ -96,26 +95,24 @@ public class EngineGetHelpMode extends GameEngine {
                             }
                         }
                         if (cellIsNextToANumber) {
-                            freeCells.get(1).add(new Pair<>(i, j));
+                            for (int k = 0; k < 10; k++) {
+                                freeCells.add(new Pair<>(i, j));
+                            }
                         } else {
-                            freeCells.get(2).add(new Pair<>(i, j));
+                            freeCells.add(new Pair<>(i, j));
                         }
                     }
                 }
             }
         }
-        for (int type = 0; type < 3; ++type) {
-            if (freeCells.get(type).isEmpty()) {
-                continue;
-            }
-            Collections.shuffle(freeCells.get(type));
-            final int i = freeCells.get(type).get(0).first;
-            final int j = freeCells.get(type).get(0).second;
-            revealCell(i, j);
-            getHelpRow = i;
-            getHelpCol = j;
-            return;
+        if (freeCells.isEmpty()) {
+            throw new Exception("there should have been at least 1 free cell since the game isn't won");
         }
-        throw new Exception("there should have been at least 1 free cell since the game isn't won");
+        Collections.shuffle(freeCells);
+        final int i = freeCells.get(0).first;
+        final int j = freeCells.get(0).second;
+        revealCell(i, j);
+        getHelpRow = i;
+        getHelpCol = j;
     }
 }
