@@ -51,8 +51,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private final AtomicBoolean finishedBoardGen = new AtomicBoolean(false);
     private boolean
             toggleFlagModeOn,
-            toggleBacktrackingHintsOn = false,
-            toggleMineProbabilityOn = false,
             gameEndedFromHelpButton = false,
             lastActionWasGetHelpButton = false;
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
@@ -120,14 +118,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (engineGetHelpMode.getGameState() == GameState.LOST) {
                 //run solver if in get help mode to correctly display deducible stuff (after losing)
                 if (isGetHelpMode()) {
-                    toggleBacktrackingHintsOn = true;
                     try {
                         runSolver();
                     } catch (HitIterationLimitException ignored) {
                         solverHitIterationLimit();
                     }
                 }
-            } else if (!(toggleFlag && engineGetHelpMode.getCell(row, col).state != TileState.VISIBLE) && (toggleBacktrackingHintsOn || toggleMineProbabilityOn)) {
+            } else if (!(toggleFlag && engineGetHelpMode.getCell(row, col).state != TileState.VISIBLE) && (getToggleBacktrackingHintsOn() || getToggleMineProbabilityOn())) {
                 try {
                     runSolver();
                 } catch (HitIterationLimitException ignored) {
@@ -218,17 +215,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void solverHitIterationLimit() {
-        //TODO: think about changing this behavior to just (temporarily) switching modes to back to normal mode
-        if (toggleBacktrackingHintsOn) {
-            SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
-            toggleHints.setChecked(false);
-            toggleBacktrackingHintsOn = false;
-        }
-        if (toggleMineProbabilityOn) {
-            SwitchCompat toggleProb = findViewById(R.id.toggleMineProbability);
-            toggleProb.setChecked(false);
-            toggleMineProbabilityOn = false;
-        }
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        toggleHints.setChecked(false);
+        SwitchCompat toggleProb = findViewById(R.id.toggleMineProbability);
+        toggleProb.setChecked(false);
         PopupHelper.displayPopup(solverHitLimitPopup, findViewById(R.id.gameLayout), getResources());
     }
 
@@ -290,11 +280,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public boolean getToggleBacktrackingHintsOn() {
-        return toggleBacktrackingHintsOn;
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        return toggleHints.isChecked();
     }
 
     public boolean getToggleMineProbabilityOn() {
-        return toggleMineProbabilityOn;
+        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
+        return toggleProbability.isChecked();
     }
 
     public int getLastTapRow() {
@@ -316,12 +308,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
                 engineGetHelpMode.revealRandomCell();
                 lastActionWasGetHelpButton = true;//only show red indicating square when we've newly revealed a cell
-                if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {//resolve now that board is updated
+                if (getToggleBacktrackingHintsOn() || getToggleMineProbabilityOn()) {//resolve now that board is updated
                     try {
                         runSolver();
                     } catch (HitIterationLimitException ignored) {
                         solverHitIterationLimit();
-                        toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
                     }
                 }
             } else {
@@ -330,17 +321,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 //run solver when game ends to show user what deducible stuff they missed
                 try {
                     runSolver();
-                    toggleBacktrackingHintsOn = true;
                 } catch (HitIterationLimitException ignored) {
-                    //end of game, fail quietly (no error popup)
-                    toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
+                    //end of game, fail quietly (no error popup, don't change hint/probability toggles)
                 }
             }
         } catch (HitIterationLimitException ignored) {
             //solver doesn't succeed - display error message and reveal random cell
             displayGetHelpDisabledPopup();
             engineGetHelpMode.revealRandomCell();
-            toggleBacktrackingHintsOn = toggleMineProbabilityOn = false;
+            SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
+            toggleHints.setChecked(false);
+            SwitchCompat toggleProb = findViewById(R.id.toggleMineProbability);
+            toggleProb.setChecked(false);
         }
         findViewById(R.id.gridCanvas).invalidate();
     }
@@ -356,7 +348,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     tmpBoard[i][j] = new TileWithProbability();
                 }
             }
-            if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {
+            if (getToggleBacktrackingHintsOn() || getToggleMineProbabilityOn()) {
                 try {
                     runSolver();
                 } catch (HitIterationLimitException e) {
@@ -380,7 +372,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleToggleMineProbability(boolean isChecked) throws Exception {
-        toggleMineProbabilityOn = isChecked;
+        handleEitherHintOrProbToggle(isChecked);
+    }
+
+    private void handleHintToggle(boolean isChecked) throws Exception {
+        handleEitherHintOrProbToggle(isChecked);
+    }
+
+    private void handleEitherHintOrProbToggle(boolean isChecked) throws Exception {
         if (isChecked) {
             try {
                 runSolver();
@@ -390,20 +389,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         lastActionWasGetHelpButton = false;
         findViewById(R.id.gridCanvas).invalidate();
-    }
-
-    private void handleHintToggle(boolean isChecked) throws Exception {
-        toggleBacktrackingHintsOn = isChecked;
-        GameCanvas gameCanvas = findViewById(R.id.gridCanvas);
-        if (isChecked) {
-            try {
-                runSolver();
-            } catch (HitIterationLimitException ignored) {
-                solverHitIterationLimit();
-            }
-        }
-        lastActionWasGetHelpButton = false;
-        gameCanvas.invalidate();
     }
 
     private void setUpIterationLimitPopup() {
