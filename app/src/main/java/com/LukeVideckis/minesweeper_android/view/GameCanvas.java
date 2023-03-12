@@ -63,10 +63,10 @@ public class GameCanvas extends View {
             displayedLogicalStuff = true;
             drawCellHelpers.drawEndGameTap(canvas, i, j);
 
-        } else if (mineProb.equals(1) && gameActivity.getToggleBacktrackingHintsOn() && gameCell.state != TileState.FLAGGED) {
+        } else if (mineProb.equals(1) && (gameActivity.getToggleBacktrackingHintsOn() || gameActivity.getGameEndedFromHelpButton()) && gameCell.state != TileState.FLAGGED) {
             displayedLogicalStuff = true;
             drawCellHelpers.drawLogicalMine(canvas, i, j, getResources());
-        } else if (mineProb.equals(0) && gameActivity.getToggleBacktrackingHintsOn() && gameCell.state != TileState.FLAGGED) {
+        } else if (mineProb.equals(0) && (gameActivity.getToggleBacktrackingHintsOn() || gameActivity.getGameEndedFromHelpButton()) && gameCell.state != TileState.FLAGGED) {
             displayedLogicalStuff = true;
             drawCellHelpers.drawLogicalFree(canvas, i, j, getResources());
         } else {
@@ -88,7 +88,7 @@ public class GameCanvas extends View {
                 } else if (gameActivity.isGetHelpMode() && !mineProb.equals(1)) {
                     drawCellHelpers.drawBlackX(canvas, startX, startY);
                 }
-            } else if (mineProb.equals(0) && (gameActivity.getToggleBacktrackingHintsOn() || gameActivity.getToggleMineProbabilityOn())) {
+            } else if (mineProb.equals(0) && (gameActivity.getToggleBacktrackingHintsOn() || gameActivity.getToggleMineProbabilityOn() || gameActivity.getGameEndedFromHelpButton())) {
                 drawCellHelpers.drawBlackX(canvas, startX, startY);
             }
         } else if (currGameState == GameState.LOST && isMine != null && isMine) {
