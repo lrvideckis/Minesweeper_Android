@@ -246,36 +246,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         numberOfMines.setText(minesLeft);
     }
 
-    public void disableSwitchesAndButtons() {
+    public void setClickabilityOfSwitchesAndButtons(boolean isClickable) {
         SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
-        toggleHints.setClickable(false);
+        toggleHints.setClickable(isClickable);
 
         SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
-        toggleProbability.setClickable(false);
+        toggleProbability.setClickable(isClickable);
 
         Button flagModeButton = findViewById(R.id.toggleFlagMode);
-        flagModeButton.setClickable(false);
+        flagModeButton.setClickable(isClickable);
 
         ImageButton getHelp = findViewById(R.id.getHelpButton);
-        getHelp.setClickable(false);
-    }
-
-    public void enableButtonsAndSwitchesAndSetToFalse() {
-        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
-        toggleHints.setClickable(true);
-        toggleHints.setChecked(false);
-
-        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
-        toggleProbability.setClickable(true);
-        toggleProbability.setChecked(false);
-
-        Button flagModeButton = findViewById(R.id.toggleFlagMode);
-        flagModeButton.setClickable(true);
-        flagModeButton.setText(mineEmoji);
-        toggleFlagModeOn = false;
-
-        ImageButton getHelp = findViewById(R.id.getHelpButton);
-        getHelp.setClickable(true);
+        getHelp.setClickable(isClickable);
     }
 
     public void setNewGameButtonDeadFace() {
@@ -374,22 +356,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     tmpBoard[i][j] = new TileWithProbability();
                 }
             }
-            boardSolverOutput = new Board<>(tmpBoard, numberOfMines);
+            if (toggleBacktrackingHintsOn || toggleMineProbabilityOn) {
+                try {
+                    runSolver();
+                } catch (HitIterationLimitException e) {
+                    boardSolverOutput = new Board<>(tmpBoard, numberOfMines);
+                    e.printStackTrace();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        enableButtonsAndSwitchesAndSetToFalse();
-        handleHintToggle(false);
+        setClickabilityOfSwitchesAndButtons(true);
         gameEndedFromHelpButton = false;
 
         if (timerToBreakBoardGen.isAlive()) {
             timerToBreakBoardGen.interrupt();
-        }
-
-        if (toggleFlagModeOn) {
-            toggleFlagModeOn = false;
-            Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
-            toggleFlagMode.setText(mineEmoji);
         }
 
         stopTimerThread();

@@ -176,11 +176,11 @@ public class GameCanvas extends View {
         }
         try {
             if (currGameState == GameState.WON) {
-                gameActivity.disableSwitchesAndButtons();
+                gameActivity.setClickabilityOfSwitchesAndButtons(false);
                 gameActivity.setNewGameButtonWinFace();
                 gameActivity.stopTimerThread();
             } else if (currGameState == GameState.LOST) {
-                gameActivity.disableSwitchesAndButtons();
+                gameActivity.setClickabilityOfSwitchesAndButtons(false);
                 gameActivity.setNewGameButtonDeadFace();
                 gameActivity.stopTimerThread();
             }
