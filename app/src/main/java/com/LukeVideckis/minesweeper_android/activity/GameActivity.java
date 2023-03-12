@@ -111,6 +111,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             lastTapCol = col;
         }
 
+        if (engineGetHelpMode.getGameState() == GameState.STILL_GOING) {
+            lastActionWasGetHelpButton = false;
+        }
+
         try {
             //TODO: bug here: when you click a visible cell which results in revealing extra cells in easy/hard mode - make sure you win/lose
             //TODO: don't change mine configuration when the current config matches what you want
@@ -136,9 +140,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         updateNumberOfMines(engineGetHelpMode.getNumberOfMines() - engineGetHelpMode.getNumberOfFlags());
-        if (engineGetHelpMode.getGameState() == GameState.STILL_GOING) {
-            lastActionWasGetHelpButton = false;
-        }
         findViewById(R.id.gridCanvas).invalidate();
     }
 
