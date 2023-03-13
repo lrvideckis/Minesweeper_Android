@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -31,7 +30,6 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsFo
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
-import com.LukeVideckis.minesweeper_android.miscHelpers.PopupHelper;
 import com.LukeVideckis.minesweeper_android.view.GameCanvas;
 
 import java.text.NumberFormat;
@@ -54,8 +52,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             gameEndedFromHelpButton = false,
             lastActionWasGetHelpButton = false;
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
-    private PopupWindow solverHitLimitPopup, getHelpModeIsDisabledPopup;
-    private volatile PopupWindow couldNotFindNoGuessBoardPopup;
     private volatile EngineGetHelpMode engineGetHelpMode;
     private SolverWithProbability holyGrailSolver;
     private Board<TileWithProbability> boardSolverOutput;
@@ -89,7 +85,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                 new Thread(new DelayLoadingScreenRunnable(finishedBoardGen)).start();
 
-                solvableBoardRunnable = new SolvableBoardRunnable(row, col);
+                solvableBoardRunnable = new SolvableBoardRunnable(row, col, this);
                 createSolvableBoardThread = new Thread(solvableBoardRunnable) {
                     @Override
                     public void interrupt() {
@@ -220,7 +216,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         toggleHints.setChecked(false);
         SwitchCompat toggleProb = findViewById(R.id.toggleMineProbability);
         toggleProb.setChecked(false);
-        PopupHelper.displayPopup(solverHitLimitPopup, findViewById(R.id.gameLayout), getResources());
+        String text = "Solver took more than ";
+        text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
+        text += " iterations. Deducible squares and mine probability are currently not available.";
+        new AlertDialog.Builder(this)
+                .setMessage(text)
+                .show();
     }
 
     public void updateNumberOfMines(int numberOfMinesLeft) {
@@ -328,12 +329,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         } catch (HitIterationLimitException ignored) {
             //solver doesn't succeed - display error message and reveal random cell
-            displayGetHelpDisabledPopup();
+            String text = "Solver took more than ";
+            text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
+            text += " iterations. A random square will be revealed without checking if there are missed deducible squares.";
+            new AlertDialog.Builder(this)
+                    .setMessage(text)
+                    .show();
             engineGetHelpMode.revealRandomCell();
             SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
             toggleHints.setChecked(false);
             SwitchCompat toggleProb = findViewById(R.id.toggleMineProbability);
             toggleProb.setChecked(false);
+            lastActionWasGetHelpButton = true;
         }
         findViewById(R.id.gridCanvas).invalidate();
     }
@@ -355,6 +362,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (HitIterationLimitException e) {
                     boardSolverOutput = new Board<>(tmpBoard, numberOfMines);
                     e.printStackTrace();
+                    solverHitIterationLimit();
                 }
             }
         } catch (Exception e) {
@@ -390,42 +398,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         lastActionWasGetHelpButton = false;
         findViewById(R.id.gridCanvas).invalidate();
-    }
-
-    private void setUpIterationLimitPopup() {
-        solverHitLimitPopup = PopupHelper.initializePopup(this, R.layout.solver_hit_limit_popup);
-        Button okButton = solverHitLimitPopup.getContentView().findViewById(R.id.solverHitLimitOkButton);
-        okButton.setOnClickListener(view -> solverHitLimitPopup.dismiss());
-        TextView textView = solverHitLimitPopup.getContentView().findViewById(R.id.iterationLimitText);
-        String text = "Solver took more than ";
-        text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
-        text += " iterations. Deducible squares and mine probability are currently not available.";
-        textView.setText(text);
-    }
-
-    private void setUpGetHelpDisabledPopup() {
-        getHelpModeIsDisabledPopup = PopupHelper.initializePopup(this, R.layout.get_help_disabled_popup);
-        Button okButton = getHelpModeIsDisabledPopup.getContentView().findViewById(R.id.getHelpDisabledOkButton);
-        okButton.setOnClickListener(view -> getHelpModeIsDisabledPopup.dismiss());
-        TextView textView = getHelpModeIsDisabledPopup.getContentView().findViewById(R.id.getHelpDisabledText);
-        String text = "Solver took more than ";
-        text += NumberFormat.getNumberInstance(Locale.US).format(IntenseRecursiveSolver.iterationLimit);
-        text += " iterations. A random square will be revealed without checking if there are missed deducible squares.";
-        textView.setText(text);
-    }
-
-    private void setUpNoGuessBoardPopup() {
-        couldNotFindNoGuessBoardPopup = PopupHelper.initializePopup(this, R.layout.couldnt_find_no_guess_board_popup);
-        Button okButton = couldNotFindNoGuessBoardPopup.getContentView().findViewById(R.id.noGuessBoardOkButton);
-        okButton.setOnClickListener(view -> couldNotFindNoGuessBoardPopup.dismiss());
-    }
-
-    private void displayNoGuessBoardPopup() {
-        PopupHelper.displayPopup(couldNotFindNoGuessBoardPopup, findViewById(R.id.gameLayout), getResources());
-    }
-
-    private void displayGetHelpDisabledPopup() {
-        PopupHelper.displayPopup(getHelpModeIsDisabledPopup, findViewById(R.id.gameLayout), getResources());
     }
 
     private void updateTime(int newTime) {
@@ -485,10 +457,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private final AtomicBoolean backButtonWasPressed = new AtomicBoolean(false);
         private final int row;
         private final int col;
+        private final AppCompatActivity gameActivity;
 
-        public SolvableBoardRunnable(int row, int col) {
+        public SolvableBoardRunnable(int row, int col, AppCompatActivity gameActivity) {
             this.row = row;
             this.col = col;
+            this.gameActivity = gameActivity;
         }
 
         public void run() {
@@ -529,7 +503,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 runOnUiThread(() -> {
-                    displayNoGuessBoardPopup();
+                    new AlertDialog.Builder(gameActivity)
+                            .setMessage("Could not find a no guess board. Instead, this is a Normal Mode game (mines are randomly chosen), and it might have guesses.")
+                            .show();
                     loadingScreenForSolvableBoardGeneration.dismiss();
                     lastActionWasGetHelpButton = false;
                     findViewById(R.id.gridCanvas).invalidate();
@@ -620,9 +596,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         updateNumberOfMines(numberOfMines);
-        setUpIterationLimitPopup();
-        setUpGetHelpDisabledPopup();
-        setUpNoGuessBoardPopup();
 
         updateTimeThread = new TimeUpdateThread();
 
