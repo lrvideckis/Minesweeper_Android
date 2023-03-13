@@ -1,13 +1,11 @@
 <resources>
 
     <string name="app_name">Minesweeper</string>
-    <string name="ok">OK</string>
     <string name="start_new_game">Start New Game</string>
     <string name="beginner">beginner</string>
     <string name="intermediate">intermediate</string>
     <string name="expert">expert</string>
     <string name="show_mine_probability">Mine Probability</string>
-    <string name="is_linear_layout">is_linear_layout</string>
     <string name="is_game_canvas_layout">is_game_canvas_layout</string>
     <string name="two_decimal_places">%.2f</string>
     <string name="is_relative_layout">is_relative_layout</string>

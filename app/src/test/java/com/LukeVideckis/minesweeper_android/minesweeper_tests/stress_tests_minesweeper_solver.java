@@ -28,7 +28,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-public class stress_tests_minesweeper_solver {
+public class MinesweeperSolverTests {
     @SuppressWarnings("SpellCheckingInspection")
 
     private final static String[][] previousFailedBoards = {
