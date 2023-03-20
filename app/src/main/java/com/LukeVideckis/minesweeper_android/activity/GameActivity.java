@@ -167,6 +167,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else if(v.getId() == R.id.checkLogicalCorrectness) {
+            executeCheckProgressButton();
         }
     }
 
@@ -239,6 +241,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void setClickabilityOfSwitchesAndButtons(boolean isClickable) {
+        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
+        checkLogicalCorrectness.setClickable(isClickable);
+
         SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setClickable(isClickable);
 
@@ -343,6 +348,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             lastActionWasGetHelpButton = true;
         }
         findViewById(R.id.gridCanvas).invalidate();
+    }
+
+    private void executeCheckProgressButton() {
+
+        try {
+            runSolver();
+
+        } catch (HitIterationLimitException ignored) {
+            new AlertDialog.Builder(this)
+                    .setMessage("Solver hit iteration limit, and cannot determine whether all deducible mines are flagged and there are no deducible frees.")
+                    .show();
+        }
     }
 
     private void startNewGame() throws Exception {
@@ -589,6 +606,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
         toggleProbability.setOnCheckedChangeListener(this);
 
+        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
+        checkLogicalCorrectness.setOnClickListener(this);
         ImageButton getHelpButton = findViewById(R.id.getHelpButton);
         getHelpButton.setOnClickListener(this);
         if (gameMode == R.id.get_help_mode) {
