@@ -21,7 +21,7 @@ public class HolyGrailSolver implements SolverWithProbability {
         this.cols = cols;
         recursiveSolver = new IntenseRecursiveSolver(rows, cols);
         gaussSolver = new GaussianEliminationSolver(rows, cols);
-        localSolver = new CheckForLocalStuff();
+        localSolver = new CheckForSimpleLocalDeductions();
         logisticsGrid = new TileWithLogistics[rows][cols];
     }
 

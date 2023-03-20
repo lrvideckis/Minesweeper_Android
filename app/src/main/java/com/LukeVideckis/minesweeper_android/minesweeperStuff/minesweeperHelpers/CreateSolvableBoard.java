@@ -4,7 +4,7 @@ import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitEx
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineForCreatingSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForLocalStuff;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForSimpleLocalDeductions;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
@@ -37,7 +37,7 @@ public abstract class CreateSolvableBoard {
         Board<TileWithLogistics> solverBoard = new Board<>(tmpBoard, mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
-        SolverAddLogisticsInPlace localSolver = new CheckForLocalStuff();
+        SolverAddLogisticsInPlace localSolver = new CheckForSimpleLocalDeductions();
         SolverAddLogisticsInPlace gaussSolver = new GaussianEliminationSolver(rows, cols);
 
         if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {

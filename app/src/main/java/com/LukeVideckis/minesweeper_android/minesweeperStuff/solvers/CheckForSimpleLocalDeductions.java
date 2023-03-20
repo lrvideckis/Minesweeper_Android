@@ -8,7 +8,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogis
 
 import java.util.ArrayList;
 
-public class CheckForLocalStuff implements SolverAddLogisticsInPlace {
+public class CheckForSimpleLocalDeductions implements SolverAddLogisticsInPlace {
 
     @Override
     public boolean solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
