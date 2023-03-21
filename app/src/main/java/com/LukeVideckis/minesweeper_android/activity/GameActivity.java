@@ -167,7 +167,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if(v.getId() == R.id.checkLogicalCorrectness) {
+        } else if (v.getId() == R.id.checkLogicalCorrectness) {
             try {
                 executeCheckProgressButton();
             } catch (Exception e) {
@@ -357,7 +357,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void executeCheckProgressButton() throws Exception {
         try {
             runSolver();
-            if(engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
+            if (engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
                 new AlertDialog.Builder(this)
                         .setMessage("You have correctly flagged all deducible mines, and there " +
                                 "are no deducible non-mines to be tapped.")
@@ -442,6 +442,88 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         TextView timeText = findViewById(R.id.timeTextView);
         timeText.setText(currTime);
+    }
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        numberOfRows = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_ROWS, 1);
+        numberOfCols = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_COLS, 1);
+        numberOfMines = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_MINES, 1);
+        //default game mode is normal mode
+        gameMode = getIntent().getIntExtra(StartScreenActivity.GAME_MODE, R.id.normal_mode);
+        setContentView(R.layout.game);
+
+        try {
+            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
+            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
+            holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
+            TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
+                    tmpIn[i][j] = new TileNoFlagsForSolver();
+                }
+            }
+            boardSolverInput = new Board<>(tmpIn, numberOfMines);
+            TileWithProbability[][] tmpOut = new TileWithProbability[numberOfRows][numberOfCols];
+            for (int i = 0; i < numberOfRows; i++) {
+                for (int j = 0; j < numberOfCols; j++) {
+                    tmpOut[i][j] = new TileWithProbability();
+                }
+            }
+            boardSolverOutput = new Board<>(tmpOut, numberOfMines);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ImageButton newGameButton = findViewById(R.id.newGameButton);
+        newGameButton.setOnClickListener(this);
+        Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
+        toggleFlagMode.setOnClickListener(this);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        toggleFlagModeOn = sharedPreferences.getBoolean(SettingsActivity.TOGGLE_FLAGS_SETTING, false);
+        if (toggleFlagModeOn) {
+            toggleFlagMode.setText(flagEmoji);
+        } else {
+            toggleFlagMode.setText(mineEmoji);
+        }
+
+        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
+        toggleHints.setOnCheckedChangeListener(this);
+        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
+        toggleProbability.setOnCheckedChangeListener(this);
+
+        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
+        checkLogicalCorrectness.setOnClickListener(this);
+        ImageButton getHelpButton = findViewById(R.id.getHelpButton);
+        getHelpButton.setOnClickListener(this);
+        if (gameMode == R.id.get_help_mode) {
+            getHelpButton.setVisibility(View.VISIBLE);
+        }
+
+        updateNumberOfMines(numberOfMines);
+
+        updateTimeThread = new TimeUpdateThread();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setOnKeyListener((dialog, keyCode, event) -> {
+                    if (keyCode == KeyEvent.KEYCODE_BACK &&
+                            event.getAction() == KeyEvent.ACTION_UP &&
+                            !event.isCanceled()) {
+                        dialog.cancel();
+                        solvableBoardRunnable.setBackButtonPressed();
+                        createSolvableBoardThread.interrupt();
+                        onBackPressed();
+                        return true;
+                    }
+                    return false;
+                });
+
+        builder.setCancelable(false);
+        builder.setView(R.layout.layout_loading_dialog);
+        loadingScreenForSolvableBoardGeneration = builder.create();
     }
 
     //TODO: move to it's own file
@@ -567,87 +649,5 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } catch (InterruptedException ignored) {
             }
         }
-    }
-
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        numberOfRows = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_ROWS, 1);
-        numberOfCols = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_COLS, 1);
-        numberOfMines = getIntent().getIntExtra(StartScreenActivity.NUMBER_OF_MINES, 1);
-        //default game mode is normal mode
-        gameMode = getIntent().getIntExtra(StartScreenActivity.GAME_MODE, R.id.normal_mode);
-        setContentView(R.layout.game);
-
-        try {
-            SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
-            final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
-            engineGetHelpMode = new EngineGetHelpMode(numberOfRows, numberOfCols, numberOfMines, hasAn8);
-            holyGrailSolver = new HolyGrailSolver(numberOfRows, numberOfCols);
-            TileNoFlagsForSolver[][] tmpIn = new TileNoFlagsForSolver[numberOfRows][numberOfCols];
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfCols; j++) {
-                    tmpIn[i][j] = new TileNoFlagsForSolver();
-                }
-            }
-            boardSolverInput = new Board<>(tmpIn, numberOfMines);
-            TileWithProbability[][] tmpOut = new TileWithProbability[numberOfRows][numberOfCols];
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfCols; j++) {
-                    tmpOut[i][j] = new TileWithProbability();
-                }
-            }
-            boardSolverOutput = new Board<>(tmpOut, numberOfMines);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        ImageButton newGameButton = findViewById(R.id.newGameButton);
-        newGameButton.setOnClickListener(this);
-        Button toggleFlagMode = findViewById(R.id.toggleFlagMode);
-        toggleFlagMode.setOnClickListener(this);
-
-        SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
-        toggleFlagModeOn = sharedPreferences.getBoolean(SettingsActivity.TOGGLE_FLAGS_SETTING, false);
-        if (toggleFlagModeOn) {
-            toggleFlagMode.setText(flagEmoji);
-        } else {
-            toggleFlagMode.setText(mineEmoji);
-        }
-
-        SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
-        toggleHints.setOnCheckedChangeListener(this);
-        SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
-        toggleProbability.setOnCheckedChangeListener(this);
-
-        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
-        checkLogicalCorrectness.setOnClickListener(this);
-        ImageButton getHelpButton = findViewById(R.id.getHelpButton);
-        getHelpButton.setOnClickListener(this);
-        if (gameMode == R.id.get_help_mode) {
-            getHelpButton.setVisibility(View.VISIBLE);
-        }
-
-        updateNumberOfMines(numberOfMines);
-
-        updateTimeThread = new TimeUpdateThread();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setOnKeyListener((dialog, keyCode, event) -> {
-                    if (keyCode == KeyEvent.KEYCODE_BACK &&
-                            event.getAction() == KeyEvent.ACTION_UP &&
-                            !event.isCanceled()) {
-                        dialog.cancel();
-                        solvableBoardRunnable.setBackButtonPressed();
-                        createSolvableBoardThread.interrupt();
-                        onBackPressed();
-                        return true;
-                    }
-                    return false;
-                });
-
-        builder.setCancelable(false);
-        builder.setView(R.layout.layout_loading_dialog);
-        loadingScreenForSolvableBoardGeneration = builder.create();
     }
 }

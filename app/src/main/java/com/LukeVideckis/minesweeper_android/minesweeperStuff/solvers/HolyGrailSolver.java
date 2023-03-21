@@ -1,6 +1,5 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
-import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;

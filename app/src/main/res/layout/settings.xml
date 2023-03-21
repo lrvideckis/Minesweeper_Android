@@ -36,15 +36,15 @@
             android:id="@+id/defaultSetFlags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
             android:layout_marginBottom="10dp"
-            android:text="@string/make_toggling_flags_the_default" />
+            android:text="@string/make_toggling_flags_the_default"
+            android:textSize="18sp" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/isGuaranteed8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="@string/generate_games_with_an_8" />
+            android:text="@string/generate_games_with_an_8"
+            android:textSize="18sp" />
     </LinearLayout>
 </RelativeLayout>
