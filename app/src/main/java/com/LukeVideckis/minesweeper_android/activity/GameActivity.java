@@ -167,6 +167,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else if(v.getId() == R.id.checkLogicalCorrectness) {
+            try {
+                executeCheckProgressButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -250,6 +256,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         ImageButton getHelp = findViewById(R.id.getHelpButton);
         getHelp.setClickable(isClickable);
+
+        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
+        checkLogicalCorrectness.setClickable(isClickable);
     }
 
     public void setNewGameButtonDeadFace() {
@@ -343,6 +352,28 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             lastActionWasGetHelpButton = true;
         }
         findViewById(R.id.gridCanvas).invalidate();
+    }
+
+    private void executeCheckProgressButton() throws Exception {
+        try {
+            runSolver();
+            if(engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
+                new AlertDialog.Builder(this)
+                        .setMessage("You have correctly flagged all deducible mines, and there " +
+                                "are no deducible non-mines to be tapped.")
+                        .show();
+            } else {
+                new AlertDialog.Builder(this)
+                        .setMessage("There exists at least one unflagged deducible mine, or at " +
+                                "least one flagged non-deducible mine, or at least one deducible " +
+                                "non-mine.")
+                        .show();
+            }
+        } catch (HitIterationLimitException ignored) {
+            new AlertDialog.Builder(this)
+                    .setMessage("Solver hit iteration limit, and cannot determine whether all deducible mines are flagged and there are no deducible non-mines.")
+                    .show();
+        }
     }
 
     private void startNewGame() throws Exception {
@@ -589,6 +620,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         SwitchCompat toggleProbability = findViewById(R.id.toggleMineProbability);
         toggleProbability.setOnCheckedChangeListener(this);
 
+        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
+        checkLogicalCorrectness.setOnClickListener(this);
         ImageButton getHelpButton = findViewById(R.id.getHelpButton);
         getHelpButton.setOnClickListener(this);
         if (gameMode == R.id.get_help_mode) {
