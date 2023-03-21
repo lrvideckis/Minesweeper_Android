@@ -10,6 +10,7 @@ public abstract class DifficultyConstants {
     public static final int EXPERT_ROWS = 16;
     public static final int EXPERT_COLS = 30;
     public static final int EXPERT_MINES = 99;
+
     private DifficultyConstants() throws Exception {
         throw new Exception("No instances allowed!");
     }
