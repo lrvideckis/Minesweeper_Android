@@ -168,7 +168,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         } else if(v.getId() == R.id.checkLogicalCorrectness) {
-            executeCheckProgressButton();
+            try {
+                executeCheckProgressButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -350,14 +354,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.gridCanvas).invalidate();
     }
 
-    private void executeCheckProgressButton() {
-
+    private void executeCheckProgressButton() throws Exception {
         try {
             runSolver();
-
+            if(engineGetHelpMode.userIdentifiedAllLogicalStuffCorrectly(boardSolverOutput)) {
+                new AlertDialog.Builder(this)
+                        .setMessage("You have correctly flagged all deducible mines, and there " +
+                                "are no deducible non-mines to be tapped.")
+                        .show();
+            } else {
+                new AlertDialog.Builder(this)
+                        .setMessage("There exists at least one unflagged deducible mine, or at " +
+                                "least one flagged non-deducible mine, or at least one deducible " +
+                                "non-mine.")
+                        .show();
+            }
         } catch (HitIterationLimitException ignored) {
             new AlertDialog.Builder(this)
-                    .setMessage("Solver hit iteration limit, and cannot determine whether all deducible mines are flagged and there are no deducible frees.")
+                    .setMessage("Solver hit iteration limit, and cannot determine whether all deducible mines are flagged and there are no deducible non-mines.")
                     .show();
         }
     }
