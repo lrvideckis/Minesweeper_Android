@@ -245,9 +245,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void setClickabilityOfSwitchesAndButtons(boolean isClickable) {
-        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
-        checkLogicalCorrectness.setClickable(isClickable);
-
         SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setClickable(isClickable);
 
@@ -259,6 +256,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         ImageButton getHelp = findViewById(R.id.getHelpButton);
         getHelp.setClickable(isClickable);
+
+        ImageButton checkLogicalCorrectness = findViewById(R.id.checkLogicalCorrectness);
+        checkLogicalCorrectness.setClickable(isClickable);
     }
 
     public void setNewGameButtonDeadFace() {
