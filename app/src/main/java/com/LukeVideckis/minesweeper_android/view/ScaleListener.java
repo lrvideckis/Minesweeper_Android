@@ -3,6 +3,7 @@ package com.LukeVideckis.minesweeper_android.view;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -17,7 +18,7 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
     private final ScaleGestureDetector SGD;
     private final GameCanvas gameCanvas;
     private final Matrix matrix = new Matrix();
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final int rows, cols;
     private final Context context;
     private final Runnable mLongPressed;
