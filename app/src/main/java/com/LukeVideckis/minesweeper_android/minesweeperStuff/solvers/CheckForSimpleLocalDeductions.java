@@ -8,6 +8,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogis
 
 import java.util.ArrayList;
 
+//Plan: completely re-write this class
 public class CheckForSimpleLocalDeductions implements SolverAddLogisticsInPlace {
 
     @Override

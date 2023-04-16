@@ -43,6 +43,9 @@ public class HolyGrailSolver implements SolverWithProbability {
 
         //Local & Gauss solver will leave logical frees/mines stored in logisticsBoard.
         //noinspection StatementWithEmptyBody
+        //may need to only call local solver once after these changes
+        //TODO: see what the gauss solver can deduce which new local BFS solver can't
+        // if nothing, then delete gauss solver completely (I feel nervous that gauss solver uses icky doubles)
         while (localSolver.solvePosition(logisticsBoard) || gaussSolver.solvePosition(logisticsBoard))
             ;
 
