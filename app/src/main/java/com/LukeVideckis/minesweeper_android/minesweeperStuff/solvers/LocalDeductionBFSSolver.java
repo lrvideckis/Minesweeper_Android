@@ -31,65 +31,27 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         }
         Board<TileWithLogistics> boardWithLogistics = new Board<>(tmpBoard, board.getMines());
 
-        boolean foundNewStuff = true;
-        while(foundNewStuff) {
-            foundNewStuff = false;
-            for (int i = 0; i < boardWithLogistics.getRows(); ++i) {
-                for (int j = 0; j < boardWithLogistics.getCols(); ++j) {
-                    TileNoFlagsForSolver cell = boardWithLogistics.getCell(i, j);
-                    if (!cell.isVisible) {
-                        continue;
-                    }
-                    ArrayList<TileWithLogistics> adjCells = boardWithLogistics.getAdjacentCells(i, j);
-                    int cntAdjacentMines = 0, cntAdjacentFrees = 0, cntTotalAdjacentCells = 0;
-                    for (TileWithLogistics adjTile : adjCells) {
-                        if (adjTile.isVisible) {
-                            continue;
-                        }
-                        ++cntTotalAdjacentCells;
-                        if (adjTile.logic == LogisticState.MINE) {
-                            ++cntAdjacentMines;
-                        }
-                        if (adjTile.logic == LogisticState.FREE) {
-                            ++cntAdjacentFrees;
-                        }
-                    }
-                    if (cntTotalAdjacentCells == 0) {
-                        continue;
-                    }
-                    if (cntAdjacentMines == cell.numberSurroundingMines) {
-                        //anything that's not a mine is free
-                        for (TileWithLogistics adjTile : adjCells) {
-                            if (adjTile.isVisible) {
-                                continue;
-                            }
-                            if (adjTile.logic == LogisticState.MINE) {
-                                continue;
-                            }
-                            if (adjTile.logic != LogisticState.FREE) {
-                                foundNewStuff = true;
-                                adjTile.logic = LogisticState.FREE;
-                            }
-                        }
-                    }
-                    if (cntTotalAdjacentCells - cntAdjacentFrees == cell.numberSurroundingMines) {
-                        //anything that's not free is a mine
-                        for (TileWithLogistics adjTile : adjCells) {
-                            if (adjTile.isVisible) {
-                                continue;
-                            }
-                            if (adjTile.logic == LogisticState.FREE) {
-                                continue;
-                            }
-                            if (adjTile.logic != LogisticState.MINE) {
-                                foundNewStuff = true;
-                                adjTile.logic = LogisticState.MINE;
-                            }
-                        }
-                    }
+        for (int i = 0; i < boardWithLogistics.getRows(); ++i) {
+            for (int j = 0; j < boardWithLogistics.getCols(); ++j) {
+                if(!boardWithLogistics.getCell(i, j).isVisible) {
+                    continue;
                 }
             }
         }
+
         return boardWithLogistics;
+    }
+    private class bfs_state {
+        //represents index of cell
+        private int centerI, centerJ;
+        //number in range [0, 2^8)
+        //012
+        //3 4
+        //567
+        //each on-bit means that that relative tile is in the subset
+        private int subsetSurroundingSquares;
+        private int minPossibleMines, maxPossibleMines;
+    }
+    private class bfs_transition {
     }
 }

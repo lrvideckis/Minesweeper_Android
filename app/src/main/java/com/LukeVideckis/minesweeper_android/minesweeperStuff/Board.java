@@ -8,6 +8,17 @@ public class Board<tile> {
     private final int mines;
     private final tile[][] grid;
 
+    public static final int[][] deltas = new int[][] {
+            {-1, -1},
+            {-1, 0},
+            {-1, 1},
+            {0, -1},
+            {0, 1},
+            {1, -1},
+            {1, 0},
+            {1, 1}
+    };
+
     public Board(tile[][] _grid, int _mines) throws Exception {
         if (_grid.length == 0 || _grid[0].length == 0) {
             throw new Exception("grid can't be empty");
@@ -52,36 +63,26 @@ public class Board<tile> {
 
     public ArrayList<tile> getAdjacentCells(int i, int j) throws Exception {
         ArrayList<tile> adjCells = new ArrayList<>();
-        for (int di = -1; di <= 1; ++di) {
-            for (int dj = -1; dj <= 1; ++dj) {
-                if (di == 0 && dj == 0) {
-                    continue;
-                }
-                final int adjI = i + di;
-                final int adjJ = j + dj;
-                if (outOfBounds(adjI, adjJ)) {
-                    continue;
-                }
-                adjCells.add(getCell(adjI, adjJ));
+        for (int dir = 0; dir < 8; dir++) {
+            final int adjI = i + deltas[dir][0];
+            final int adjJ = j + deltas[dir][1];
+            if (outOfBounds(adjI, adjJ)) {
+                continue;
             }
+            adjCells.add(getCell(adjI, adjJ));
         }
         return adjCells;
     }
 
     public ArrayList<int[]> getAdjacentIndexes(int i, int j) {
         ArrayList<int[]> adjIndexes = new ArrayList<>();
-        for (int di = -1; di <= 1; ++di) {
-            for (int dj = -1; dj <= 1; ++dj) {
-                if (di == 0 && dj == 0) {
-                    continue;
-                }
-                final int adjI = i + di;
-                final int adjJ = j + dj;
-                if (outOfBounds(adjI, adjJ)) {
-                    continue;
-                }
-                adjIndexes.add(new int[]{adjI, adjJ});
+        for (int dir = 0; dir < 8; dir++) {
+            final int adjI = i + deltas[dir][0];
+            final int adjJ = j + deltas[dir][1];
+            if (outOfBounds(adjI, adjJ)) {
+                continue;
             }
+            adjIndexes.add(new int[]{adjI, adjJ});
         }
         return adjIndexes;
     }
