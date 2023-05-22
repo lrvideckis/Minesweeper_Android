@@ -4,7 +4,7 @@ import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitEx
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineForCreatingSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForSimpleLocalDeductions;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.LocalDeductionBFSSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
@@ -36,7 +36,7 @@ public abstract class CreateSolvableBoard {
         Board<TileWithLogistics> solverBoard = new Board<>(tmpBoard, mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
-        SolverAddLogisticsInPlace localSolver = new CheckForSimpleLocalDeductions();
+        SolverAddLogisticsInPlace localSolver = new LocalDeductionBFSSolver();
 
         if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
             throw new Exception("first click is out of bounds");

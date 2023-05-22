@@ -20,7 +20,7 @@ public class HolyGrailSolver implements SolverWithProbability {
         this.rows = rows;
         this.cols = cols;
         recursiveSolver = new IntenseRecursiveSolver(rows, cols);
-        localSolver = new CheckForSimpleLocalDeductions();
+        localSolver = new LocalDeductionBFSSolver();
         logisticsGrid = new TileWithLogistics[rows][cols];
     }
 
