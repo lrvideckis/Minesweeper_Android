@@ -10,6 +10,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 
@@ -27,18 +28,18 @@ public abstract class CreateSolvableBoard {
     //
     //really, this should only return the positions of mines
     public static Board<TileWithMine> getSolvableBoard(final int rows, final int cols, final int mines, final int firstClickI, final int firstClickJ, final boolean hasAn8, AtomicBoolean isInterrupted) throws Exception {
-        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
+        TileNoFlagsForSolver[][] tmpBoard = new TileNoFlagsForSolver[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                tmpBoard[i][j] = new TileWithLogistics();
+                tmpBoard[i][j] = new TileNoFlagsForSolver();
             }
         }
-        Board<TileWithLogistics> solverBoard = new Board<>(tmpBoard, mines);
+        Board<TileNoFlagsForSolver> inputBoard = new Board<>(tmpBoard, mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverLogisticsToProbability myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
-        SolverNothingToLogistics localSolver = new LocalDeductionBFSSolver();
+        SolverNothingToLogistics localSolver = new LocalDeductionBFSSolver(rows, cols);
 
-        if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
+        if (inputBoard.outOfBounds(firstClickI, firstClickJ)) {
             throw new Exception("first click is out of bounds");
         }
 
@@ -92,24 +93,21 @@ public abstract class CreateSolvableBoard {
                     throw new Exception("game is lost, but board generator should never lose");
                 }
 
-                for (int i = 0; i < solverBoard.getRows(); i++) {
-                    for (int j = 0; j < solverBoard.getCols(); j++) {
-                        TileWithLogistics curr = solverBoard.getCell(i, j);
-                        curr.set(gameEngine.getCell(i, j));
-                        curr.logic = LogisticState.UNKNOWN;
+                for (int i = 0; i < inputBoard.getRows(); i++) {
+                    for (int j = 0; j < inputBoard.getCols(); j++) {
+                        inputBoard.getCell(i, j).set(gameEngine.getCell(i, j));
                     }
                 }
 
                 /* Try to deduce free squares with local rules, and then Gaussian Elimination. There
                  * is the possibility of not finding deducible free squares, even if they exist.
                  */
-                if (localSolver.solvePosition(solverBoard)) {
-                    if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
-                        gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
-                    }
-                    if (clickedLogicalFrees(gameEngine, solverBoard)) {
-                        continue;
-                    }
+                Board<TileWithLogistics> solverBoard = localSolver.solvePosition(inputBoard);
+                if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
+                    gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
+                }
+                if (clickedLogicalFrees(gameEngine, solverBoard)) {
+                    continue;
                 }
 
                 try {

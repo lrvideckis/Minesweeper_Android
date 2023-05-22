@@ -9,65 +9,27 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogis
 import java.util.ArrayList;
 
 public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
+    private final int rows, cols;
+
+    public LocalDeductionBFSSolver(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+    }
 
     @Override
-    public boolean solvePosition(Board<TileWithLogistics> board) throws Exception {
-        boolean foundNewStuff = false;
-        for (int i = 0; i < board.getRows(); ++i) {
-            for (int j = 0; j < board.getCols(); ++j) {
-                TileNoFlagsForSolver cell = board.getCell(i, j);
-                if (!cell.isVisible) {
-                    continue;
-                }
-                ArrayList<TileWithLogistics> adjCells = board.getAdjacentCells(i, j);
-                int cntAdjacentMines = 0, cntAdjacentFrees = 0, cntTotalAdjacentCells = 0;
-                for (TileWithLogistics adjTile : adjCells) {
-                    if (adjTile.isVisible) {
-                        continue;
-                    }
-                    ++cntTotalAdjacentCells;
-                    if (adjTile.logic == LogisticState.MINE) {
-                        ++cntAdjacentMines;
-                    }
-                    if (adjTile.logic == LogisticState.FREE) {
-                        ++cntAdjacentFrees;
-                    }
-                }
-                if (cntTotalAdjacentCells == 0) {
-                    continue;
-                }
-                if (cntAdjacentMines == cell.numberSurroundingMines) {
-                    //anything that's not a mine is free
-                    for (TileWithLogistics adjTile : adjCells) {
-                        if (adjTile.isVisible) {
-                            continue;
-                        }
-                        if (adjTile.logic == LogisticState.MINE) {
-                            continue;
-                        }
-                        if (adjTile.logic != LogisticState.FREE) {
-                            foundNewStuff = true;
-                            adjTile.logic = LogisticState.FREE;
-                        }
-                    }
-                }
-                if (cntTotalAdjacentCells - cntAdjacentFrees == cell.numberSurroundingMines) {
-                    //anything that's not free is a mine
-                    for (TileWithLogistics adjTile : adjCells) {
-                        if (adjTile.isVisible) {
-                            continue;
-                        }
-                        if (adjTile.logic == LogisticState.FREE) {
-                            continue;
-                        }
-                        if (adjTile.logic != LogisticState.MINE) {
-                            foundNewStuff = true;
-                            adjTile.logic = LogisticState.MINE;
-                        }
-                    }
-                }
+    public Board<TileWithLogistics> solvePosition(Board<TileNoFlagsForSolver> board) throws Exception {
+        if(board.getRows() != rows || board.getCols() != cols) {
+            throw new Exception("array bounds don't match");
+        }
+        //always allocate new board to avoid any potential issues with shallow copies between solver runs
+        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                tmpBoard[i][j] = new TileWithLogistics();
             }
         }
-        return foundNewStuff;
+        Board<TileWithLogistics> boardWithLogistics = new Board<>(tmpBoard, board.getMines());
+
+        return boardWithLogistics;
     }
 }

@@ -19,8 +19,8 @@ public class HolyGrailSolver implements SolverNothingToProbability {
     public HolyGrailSolver(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
+        localSolver = new LocalDeductionBFSSolver(rows, cols);
         recursiveSolver = new IntenseRecursiveSolver(rows, cols);
-        localSolver = new LocalDeductionBFSSolver();
         logisticsGrid = new TileWithLogistics[rows][cols];
     }
 
@@ -31,16 +31,8 @@ public class HolyGrailSolver implements SolverNothingToProbability {
         if (rows != board.getRows() || cols != board.getCols()) {
             throw new Exception("board dimensions don't match");
         }
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                logisticsGrid[i][j] = new TileWithLogistics();
-                logisticsGrid[i][j].set(board.getCell(i, j));
-                logisticsGrid[i][j].logic = LogisticState.UNKNOWN;
-            }
-        }
-        Board<TileWithLogistics> logisticsBoard = new Board<>(logisticsGrid, board.getMines());
 
-        localSolver.solvePosition(logisticsBoard);
+        Board<TileWithLogistics> logisticsBoard = localSolver.solvePosition(board);
 
         //Now use gauss solver findings in IntenseRecursiveSolver to help split by components
         return recursiveSolver.solvePositionWithLogistics(logisticsBoard);
