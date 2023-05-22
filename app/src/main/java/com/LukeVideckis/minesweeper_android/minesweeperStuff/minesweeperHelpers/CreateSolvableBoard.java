@@ -5,7 +5,6 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineForCreatingSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.CheckForSimpleLocalDeductions;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
@@ -38,7 +37,6 @@ public abstract class CreateSolvableBoard {
         //intentionally not holy grail solver to be more precise when we do backtracking
         SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
         SolverAddLogisticsInPlace localSolver = new CheckForSimpleLocalDeductions();
-        SolverAddLogisticsInPlace gaussSolver = new GaussianEliminationSolver(rows, cols);
 
         if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
             throw new Exception("first click is out of bounds");
@@ -105,7 +103,7 @@ public abstract class CreateSolvableBoard {
                 /* Try to deduce free squares with local rules, and then Gaussian Elimination. There
                  * is the possibility of not finding deducible free squares, even if they exist.
                  */
-                if (localSolver.solvePosition(solverBoard) || gaussSolver.solvePosition(solverBoard)) {
+                if (localSolver.solvePosition(solverBoard)) {
                     if (everyComponentHasLogicalFrees(gameEngine, solverBoard)) {
                         gameStack.push(new EngineForCreatingSolvableBoard(gameEngine));
                     }

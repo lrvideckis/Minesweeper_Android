@@ -12,7 +12,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProba
 public class HolyGrailSolver implements SolverWithProbability {
 
     private final SolverStartingWithLogistics recursiveSolver;
-    private final SolverAddLogisticsInPlace gaussSolver, localSolver;
+    private final SolverAddLogisticsInPlace localSolver;
     private final int rows, cols;
     private final TileWithLogistics[][] logisticsGrid;
 
@@ -20,7 +20,6 @@ public class HolyGrailSolver implements SolverWithProbability {
         this.rows = rows;
         this.cols = cols;
         recursiveSolver = new IntenseRecursiveSolver(rows, cols);
-        gaussSolver = new GaussianEliminationSolver(rows, cols);
         localSolver = new CheckForSimpleLocalDeductions();
         logisticsGrid = new TileWithLogistics[rows][cols];
     }
@@ -42,12 +41,11 @@ public class HolyGrailSolver implements SolverWithProbability {
         Board<TileWithLogistics> logisticsBoard = new Board<>(logisticsGrid, board.getMines());
 
         //Local & Gauss solver will leave logical frees/mines stored in logisticsBoard.
-        //noinspection StatementWithEmptyBody
         //may need to only call local solver once after these changes
         //TODO: see what the gauss solver can deduce which new local BFS solver can't
         // if nothing, then delete gauss solver completely (I feel nervous that gauss solver uses icky doubles)
-        while (localSolver.solvePosition(logisticsBoard) || gaussSolver.solvePosition(logisticsBoard))
-            ;
+        //noinspection StatementWithEmptyBody
+        while (localSolver.solvePosition(logisticsBoard));
 
         //Now use gauss solver findings in IntenseRecursiveSolver to help split by components
         return recursiveSolver.solvePositionWithLogistics(logisticsBoard);
