@@ -5,7 +5,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogis
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 
 //starting with some known mines/frees from more naive solvers, solve completely with backtracking
-public interface SolverStartingWithLogistics {
+public interface SolverLogisticsToProbability {
     //TODO: wrap board parameter to simulate const
     //https://stackoverflow.com/questions/41361252/const-function-arguments-in-java
     Board<TileWithProbability> solvePositionWithLogistics(Board<TileWithLogistics> board) throws Exception;

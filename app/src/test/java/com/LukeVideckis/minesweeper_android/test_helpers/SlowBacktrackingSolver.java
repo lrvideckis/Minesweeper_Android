@@ -3,7 +3,7 @@ package com.LukeVideckis.minesweeper_android.test_helpers;
 import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitException;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.AllCellsAreHidden;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 import com.LukeVideckis.minesweeper_android.miscHelpers.BigFraction;
@@ -12,7 +12,7 @@ import com.LukeVideckis.minesweeper_android.miscHelpers.Pair;
 
 import java.util.ArrayList;
 
-public class SlowBacktrackingSolver implements SolverWithProbability {
+public class SlowBacktrackingSolver implements SolverNothingToProbability {
 
     private final static int iterationLimit = 1000000; //1e6
     private final int[][][] lastUnvisitedSpot;

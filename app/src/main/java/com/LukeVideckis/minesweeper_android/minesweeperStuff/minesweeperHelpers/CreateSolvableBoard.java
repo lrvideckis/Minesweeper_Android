@@ -6,8 +6,8 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineF
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.LocalDeductionBFSSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
@@ -35,8 +35,8 @@ public abstract class CreateSolvableBoard {
         }
         Board<TileWithLogistics> solverBoard = new Board<>(tmpBoard, mines);
         //intentionally not holy grail solver to be more precise when we do backtracking
-        SolverStartingWithLogistics myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
-        SolverAddLogisticsInPlace localSolver = new LocalDeductionBFSSolver();
+        SolverLogisticsToProbability myBacktrackingSolver = new IntenseRecursiveSolver(rows, cols);
+        SolverNothingToLogistics localSolver = new LocalDeductionBFSSolver();
 
         if (solverBoard.outOfBounds(firstClickI, firstClickJ)) {
             throw new Exception("first click is out of bounds");

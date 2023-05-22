@@ -4,6 +4,6 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 
-public interface SolverWithProbability {
+public interface SolverNothingToProbability {
     Board<TileWithProbability> solvePositionWithProbability(Board<TileNoFlagsForSolver> board) throws Exception;
 }

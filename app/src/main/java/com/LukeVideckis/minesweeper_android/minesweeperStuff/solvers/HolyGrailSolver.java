@@ -1,18 +1,18 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithProbability;
 
-public class HolyGrailSolver implements SolverWithProbability {
+public class HolyGrailSolver implements SolverNothingToProbability {
 
-    private final SolverStartingWithLogistics recursiveSolver;
-    private final SolverAddLogisticsInPlace localSolver;
+    private final SolverLogisticsToProbability recursiveSolver;
+    private final SolverNothingToLogistics localSolver;
     private final int rows, cols;
     private final TileWithLogistics[][] logisticsGrid;
 
@@ -40,12 +40,7 @@ public class HolyGrailSolver implements SolverWithProbability {
         }
         Board<TileWithLogistics> logisticsBoard = new Board<>(logisticsGrid, board.getMines());
 
-        //Local & Gauss solver will leave logical frees/mines stored in logisticsBoard.
-        //may need to only call local solver once after these changes
-        //TODO: see what the gauss solver can deduce which new local BFS solver can't
-        // if nothing, then delete gauss solver completely (I feel nervous that gauss solver uses icky doubles)
-        //noinspection StatementWithEmptyBody
-        while (localSolver.solvePosition(logisticsBoard));
+        localSolver.solvePosition(logisticsBoard);
 
         //Now use gauss solver findings in IntenseRecursiveSolver to help split by components
         return recursiveSolver.solvePositionWithLogistics(logisticsBoard);

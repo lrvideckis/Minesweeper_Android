@@ -1,17 +1,17 @@
 package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 
 import java.util.ArrayList;
 
-public class LocalDeductionBFSSolver implements SolverAddLogisticsInPlace {
+public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
 
     @Override
-    public boolean solvePosition(Board<TileWithLogistics> board/*input-output param, assumes logical stuff is correct*/) throws Exception {
+    public boolean solvePosition(Board<TileWithLogistics> board) throws Exception {
         boolean foundNewStuff = false;
         for (int i = 0; i < board.getRows(); ++i) {
             for (int j = 0; j < board.getCols(); ++j) {

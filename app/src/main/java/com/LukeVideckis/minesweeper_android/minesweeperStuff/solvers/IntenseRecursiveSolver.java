@@ -10,7 +10,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.GetSubComponentByRemovedNodes;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.RowColToIndex;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
@@ -29,7 +29,7 @@ import java.util.TreeSet;
 
 //TODO: also break out early the moment we find a (conditioned) solution
 //implementation of the intense recursive alg described in my pdf
-public class IntenseRecursiveSolver implements SolverStartingWithLogistics {
+public class IntenseRecursiveSolver implements SolverLogisticsToProbability {
 
     public final static int iterationLimit = 10000;
     //TODO: play around with this number

@@ -25,7 +25,7 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameSta
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CreateSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithMine;
@@ -53,7 +53,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             lastActionWasGetHelpButton = false;
     private int numberOfRows, numberOfCols, numberOfMines, gameMode;
     private volatile EngineGetHelpMode engineGetHelpMode;
-    private SolverWithProbability holyGrailSolver;
+    private SolverNothingToProbability holyGrailSolver;
     private Board<TileWithProbability> boardSolverOutput;
     private Board<TileNoFlagsForSolver> boardSolverInput;
     private int lastTapRow, lastTapCol;

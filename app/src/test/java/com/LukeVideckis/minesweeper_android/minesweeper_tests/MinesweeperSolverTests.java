@@ -9,9 +9,9 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverAddLogisticsInPlace;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverStartingWithLogistics;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverWithProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
@@ -377,8 +377,8 @@ public class MinesweeperSolverTests {
             final int rows = stringBoard.length - 1;
             final int cols = stringBoard[0].length();
 
-            SolverWithProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
-            SolverWithProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
+            SolverNothingToProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
+            SolverNothingToProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
 
             Board<TileWithProbability> fastOut, slowOut;
 
@@ -417,8 +417,8 @@ public class MinesweeperSolverTests {
             final boolean hasAn8 = (bounds[3] == 1);
             System.out.print(" dimensions (rows, cols, mines, has8) = (" + rows + " " + cols + " " + mines + " " + hasAn8 + ") ");
 
-            SolverWithProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
-            SolverWithProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
+            SolverNothingToProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
+            SolverNothingToProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
 
             TestEngine gameEngine = new TestEngine(rows, cols, mines, hasAn8);
             gameEngine.clickCell(MyMath.getRand(0, rows - 1), MyMath.getRand(0, cols - 1), false);
@@ -478,8 +478,8 @@ public class MinesweeperSolverTests {
             final int mines = MyMath.getRand(8, rows * cols - 10);//if you click in the middle of a 3-by-8 grid, you can fit an 8 above/below and then 6 extra mines below/above
             System.out.println(" rows, cols, mines " + rows + " " + cols + " " + mines);
 
-            SolverStartingWithLogistics fastSolver = new IntenseRecursiveSolver(rows, cols);
-            SolverAddLogisticsInPlace gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
+            SolverLogisticsToProbability fastSolver = new IntenseRecursiveSolver(rows, cols);
+            SolverNothingToLogistics gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
 
             GameEngine gameEngine = new GameEngine(rows, cols, mines, testID <= numberOfTests / 2 /*exactly half the tests*/);
             {
@@ -519,9 +519,9 @@ public class MinesweeperSolverTests {
             final int mines = bounds[2];
             final boolean hasAn8 = (bounds[3] == 1);
 
-            SolverWithProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
-            SolverAddLogisticsInPlace gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
-            SolverWithProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
+            SolverNothingToProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
+            SolverNothingToLogistics gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
+            SolverNothingToProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
 
             GameEngine gameEngine = new GameEngine(rows, cols, mines, hasAn8);
             int numberOfClicks = MyMath.getRand(0, 4);
@@ -568,7 +568,7 @@ public class MinesweeperSolverTests {
             System.out.print(" rows, cols, mines, hasAn8: " + rows + " " + cols + " " + mines + " " + hasAn8);
             System.out.print(" percentage: " + mines / (float) (rows * cols));
 
-            SolverWithProbability solver = new HolyGrailSolver(rows, cols);
+            SolverNothingToProbability solver = new HolyGrailSolver(rows, cols);
 
             final int firstClickI = MyMath.getRand(0, rows - 1);
             final int firstClickJ = MyMath.getRand(0, cols - 1);
