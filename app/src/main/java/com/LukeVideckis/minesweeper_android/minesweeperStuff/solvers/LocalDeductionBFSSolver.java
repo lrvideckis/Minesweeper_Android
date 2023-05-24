@@ -13,10 +13,26 @@ import java.util.TreeMap;
 
 public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     private final int rows, cols;
+    private final Queue<bfsState> q;
+    //gridLocationToStates[i][j] = list of bfsState's which include cell (i,j) in their subset
+    private final List<List<List<bfsState>>> gridLocationToStates;
+    //stateToValue[i][j][subset] = bfsValue, used like a visited array
+    private final List<List<TreeMap<Integer, bfsValue>>> stateToValue;
 
     public LocalDeductionBFSSolver(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
+        q = new LinkedList<>();
+        gridLocationToStates = new ArrayList<>(rows);
+        stateToValue = new ArrayList<>(rows);
+        for (int i = 0; i < rows; ++i) {
+            gridLocationToStates.add(new ArrayList<>(cols));
+            stateToValue.add(new ArrayList<>(cols));
+            for (int j = 0; j < cols; ++j) {
+                gridLocationToStates.get(i).add(new ArrayList<>());
+                stateToValue.get(i).add(new TreeMap<>());
+            }
+        }
     }
 
     @Override
@@ -25,10 +41,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
             throw new Exception("array bounds don't match");
         }
 
-        Queue<bfsState> q = new LinkedList<>();
-        List<List<List<bfsState>>> gridLocationToStates = new ArrayList<>(rows);
-        List<List<TreeMap<Integer, bfsValue>>> stateToValue = new ArrayList<>(rows);
-        Board<TileWithLogistics> boardWithLogistics = initializeStructures(board, q, gridLocationToStates, stateToValue);
+        Board<TileWithLogistics> boardWithLogistics = initializeStructures(board);
 
         //TODO: a-star style approach when destination square is given
         while (!q.isEmpty()) {
@@ -40,20 +53,19 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         return boardWithLogistics;
     }
 
-    private Board<TileWithLogistics> initializeStructures(
-            Board<TileNoFlagsForSolver> board,
-            Queue<bfsState> q,
-            List<List<List<bfsState>>> gridLocationToStates,
-            List<List<TreeMap<Integer, bfsValue>>> stateToValue) throws Exception {
-        final int rows = board.getRows();
-        final int cols = board.getCols();
+    private Board<TileWithLogistics> initializeStructures(Board<TileNoFlagsForSolver> board) throws Exception {
+        q.clear();
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                //can't clear as you go because you might clear a newly added bfsState
+                //so instead clear all at once in the beginning
+                gridLocationToStates.get(i).get(j).clear();
+                stateToValue.get(i).get(j).clear();
+            }
+        }
         TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
         for (int i = 0; i < rows; ++i) {
-            gridLocationToStates.add(new ArrayList<>(cols));
-            stateToValue.add(new ArrayList<>(cols));
             for (int j = 0; j < cols; ++j) {
-                gridLocationToStates.get(i).add(new ArrayList<>());
-                stateToValue.get(i).add(new TreeMap<>());
                 tmpBoard[i][j] = new TileWithLogistics();
                 tmpBoard[i][j].set(board.getCell(i, j));
                 if (!board.getCell(i, j).isVisible) {
