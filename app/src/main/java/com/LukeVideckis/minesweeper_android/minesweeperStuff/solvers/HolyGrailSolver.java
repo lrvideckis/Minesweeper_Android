@@ -31,7 +31,6 @@ public class HolyGrailSolver implements SolverNothingToProbability {
         if (rows != board.getRows() || cols != board.getCols()) {
             throw new Exception("board dimensions don't match");
         }
-
         Board<TileWithLogistics> logisticsBoard = localSolver.solvePosition(board);
 
         //Now use gauss solver findings in IntenseRecursiveSolver to help split by components
