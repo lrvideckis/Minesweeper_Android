@@ -16,6 +16,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     private final int rows, cols;
     private Queue<bfsState> q;
     //gridLocationToStates[i][j] = list of bfsState's which include cell (i,j) in their subset
+    //used to efficiently retrieve all intersecting states
     private List<List<List<bfsState>>> gridLocationToStates;
 
     //stateToValue[i][j][subset] = bfsValue, used like a visited array
@@ -47,7 +48,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         if (board.getRows() != rows || board.getCols() != cols) {
             throw new Exception("array bounds don't match");
         }
-        Board<TileWithLogistics> boardWithLogistics = initializeStructures(board);
+        initializeStructures(board);
         //TODO: a-star style approach when destination square is given
         while (!q.isEmpty()) {
             bfsState currState = q.remove();
@@ -60,10 +61,42 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 throw new Exception("invalid min and max mines for current value");
             }
 
+            //or maybe check if there's already deducible stuff in the subset, and if so,
+            //immediately push a new state onto the q without this deducable stuff
+
+            int numKnownMinesInSubset = 0, numKnownFreesInSubset = 0;
+            for (int dir = 0; dir < 8; dir++) {
+                if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
+                    continue;
+                }
+                final int adjI = currState.centerI + Board.deltas[dir][0];
+                final int adjJ = currState.centerJ + Board.deltas[dir][1];
+                if (board.outOfBounds(adjI, adjJ) || board.getCell(adjI, adjJ).isVisible) {
+                    throw new Exception("subset of squares from BFS queue should always be inbounds and invisible");
+                }
+                if (Objects.isNull(endValue.get(adjI).get(adjJ))) {
+                    continue;
+                }
+
+            }
+
+
             //handle case where size of subset == 0 or min number of mines
             if (sizeSubset == currValue.minNumMines) {
-                //all squares in subset are deducible mines
-                //TODO: mark them as such
+                //all squares in subset are deducible mines, let's mark them
+                for (int dir = 0; dir < 8; dir++) {
+                    if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
+                        continue;
+                    }
+                    final int adjI = currState.centerI + Board.deltas[dir][0];
+                    final int adjJ = currState.centerJ + Board.deltas[dir][1];
+                    //only set if null to keep shortest path
+                    if (Objects.isNull(endValue.get(adjI).get(adjJ))) {
+                        //final int minNumMines, maxNumMines;
+                        //bfsState prevState1 = null, prevState2 = null, prevState3 = null;
+                        endValue.get(adjI).set(adjJ, new bfsValue(/*TODO*/));
+                    }
+                }
                 continue;
             }
 
@@ -78,7 +111,17 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
 
             //TODO: for each pair of intersecting bfsStates, check deduction 4, 4.5
         }
-        return boardWithLogistics;
+
+        //always allocate new board to avoid any potential issues with shallow copies between solver runs
+        //initialize return board from endValue
+        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                tmpBoard[i][j] = new TileWithLogistics();
+                tmpBoard[i][j].set(board.getCell(i, j));
+            }
+        }
+        return new Board<>(tmpBoard, board.getMines());
     }
 
     public class bfsTransition {
@@ -99,7 +142,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         return Objects.requireNonNull(stateToValue.get(state.centerI).get(state.centerJ).get(state.subsetSurroundingSquares));
     }
 
-    private Board<TileWithLogistics> initializeStructures(Board<TileNoFlagsForSolver> board) throws Exception {
+    private void initializeStructures(Board<TileNoFlagsForSolver> board) throws Exception {
         q.clear();
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
@@ -110,11 +153,8 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 endValue.get(i).set(j, null);
             }
         }
-        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                tmpBoard[i][j] = new TileWithLogistics();
-                tmpBoard[i][j].set(board.getCell(i, j));
                 if (!board.getCell(i, j).isVisible) {
                     continue;
                 }
@@ -150,14 +190,11 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 }
             }
         }
-
-        //always allocate new board to avoid any potential issues with shallow copies between solver runs
-        return new Board<>(tmpBoard, board.getMines());
     }
 
     private class bfsState {
         //represents location of center-cell
-        private final int centerI, centerJ;
+        final int centerI, centerJ;
         //number in range [0, 2^8)
         //012
         //3 4
@@ -177,9 +214,9 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     }
 
     private class bfsValue {
-        private final int minNumMines;
-        private final int maxNumMines;
-        private bfsState prevState1 = null, prevState2 = null, prevState3 = null;
+        //[inclusive, inclusive] range
+        final int minNumMines, maxNumMines;
+        bfsState prevState1 = null, prevState2 = null, prevState3 = null;
 
         public bfsValue(int minNumMines, int maxNumMines, bfsState prevState1, bfsState prevState2, bfsState prevState3) {
             this.minNumMines = minNumMines;
