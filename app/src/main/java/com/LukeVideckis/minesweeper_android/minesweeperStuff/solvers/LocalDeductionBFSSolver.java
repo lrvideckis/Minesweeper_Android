@@ -18,10 +18,9 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     //gridLocationToStates[i][j] = list of bfsState's which include cell (i,j) in their subset
     private List<List<List<bfsState>>> gridLocationToStates;
 
-    //stateToValue[i][j][subset] = bfsValue
+    //stateToValue[i][j][subset] = bfsValue, used like a visited array
     private List<List<TreeMap<Integer, bfsValue>>> stateToValue;
 
-    //used like a visited array
     private List<List<bfsValue>> endValue;//TODO: initialize in that init function
 
     public LocalDeductionBFSSolver(int rows, int cols) {
@@ -80,6 +79,20 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
             //TODO: for each pair of intersecting bfsStates, check deduction 4, 4.5
         }
         return boardWithLogistics;
+    }
+
+    public class bfsTransition {
+        //TODO: decide fields
+    }
+    public ArrayList<bfsTransition> getListOfTransitions(int tileI, int tileJ) {
+        //idea to retrieve this: dfs-style topo sort:
+        //call dfs initially on endValue[tileI][tileJ], then push state/value onto return ArrayList
+        //only after all dfs recursive calls return
+        //
+        //this gives reverse topo order, but the adjacency list is already reversed, giving it in order
+
+        ArrayList<bfsTransition> transitionList = new ArrayList<>();
+        return transitionList;
     }
 
     private bfsValue getValue(bfsState state) {
@@ -143,9 +156,8 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     }
 
     private class bfsState {
-        //represents index of center-cell
-        private final int centerI;
-        private final int centerJ;
+        //represents location of center-cell
+        private final int centerI, centerJ;
         //number in range [0, 2^8)
         //012
         //3 4
