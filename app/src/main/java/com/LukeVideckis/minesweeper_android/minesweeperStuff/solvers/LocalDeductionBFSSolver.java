@@ -63,9 +63,6 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 throw new Exception("invalid min and max mines for current value");
             }
 
-            //or maybe check if there's already deducible stuff in the subset, and if so,
-            //immediately push a new state onto the q without this deducable stuff
-
             int numKnownMinesInSubset = 0, numKnownFreesInSubset = 0;
             for (int dir = 0; dir < 8; dir++) {
                 if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
@@ -82,9 +79,10 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                     numKnownFreesInSubset++;
             }
 
-            //handle case where size of subset == 0 or min number of mines
-            //TODO make this more generalized: max mines == num already logical mines in subset -> then rest are free
-            if (sizeSubset == currValue.minNumMines || currValue.maxNumMines == 0) {
+            //handle trivial case where the remaining cells in the subset are either all mines or all frees
+            boolean remainingAreFrees = (currValue.maxNumMines == numKnownMinesInSubset);
+            boolean remainingAreMines = (currValue.minNumMines == sizeSubset - numKnownFreesInSubset);
+            if (remainingAreFrees || remainingAreMines) {
                 //all squares in subset are deducible mines, let's mark them
                 for (int dir = 0; dir < 8; dir++) {
                     if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
@@ -93,12 +91,23 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                     final int adjI = currState.centerI + Board.deltas[dir][0];
                     final int adjJ = currState.centerJ + Board.deltas[dir][1];
                     //only set if null to keep shortest path
-                    if (Objects.isNull(endValue.get(adjI).get(adjJ))) {
-                        endValue.get(adjI).set(adjJ, currValue);
+                    boolean endValueInitialized = !Objects.isNull(endValue.get(adjI).get(adjJ));
+                    boolean boardLogisticsInitialized = (boardLogistics.getCell(adjI, adjJ).logic != LogisticState.UNKNOWN);
+                    if(endValueInitialized != boardLogisticsInitialized) {
+                        throw new Exception("logistics board initialization should match endValue initialization");
                     }
-                    if(sizeSubset == currValue.minNumMines) {
+                    if(endValueInitialized) {
+                        continue;
+                    }
+                    if (remainingAreFrees && remainingAreMines) {
+                        throw new Exception("remaining squares can't be both deducible frees and mines");
+                    }
+                    endValue.get(adjI).set(adjJ, currValue);
+                    addBackAdjacentStatesToQueue(adjI, adjJ, board);
+                    if(remainingAreMines) {
                         boardLogistics.getCell(adjI, adjJ).logic = LogisticState.MINE;
-                    } else {
+                    }
+                    if(remainingAreFrees) {
                         boardLogistics.getCell(adjI, adjJ).logic = LogisticState.FREE;
                     }
                 }
@@ -111,6 +120,24 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         }
 
         return boardLogistics;
+    }
+
+    //everytime we find a new deduction, we need to add back surrounding logical states to bfs queue
+    //to make sure we don't miss anything.
+    //this ultimately is because we don't know what order to visit states in
+    private void addBackAdjacentStatesToQueue(int tileI, int tileJ, Board<TileNoFlagsForSolver> board) {
+        for(int di = -1; di <= 1; di++) {
+            for(int dj = -1; dj <= 1; dj++){
+                int adjI = tileI + di;
+                int adjJ = tileJ + dj;
+                if(board.outOfBounds(adjI, adjJ)) {
+                    continue;
+                }
+                for(bfsState state : gridLocationToStates.get(adjI).get(adjJ)) {
+                    q.add(state);
+                }
+            }
+        }
     }
 
     public class bfsTransition {
@@ -209,6 +236,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     private class bfsValue {
         //[inclusive, inclusive] range
         final int minNumMines, maxNumMines;
+        //may need to change to arraylist of previous states
         bfsState prevState1 = null, prevState2 = null, prevState3 = null;
 
         public bfsValue(int minNumMines, int maxNumMines, bfsState prevState1, bfsState prevState2, bfsState prevState3) {
