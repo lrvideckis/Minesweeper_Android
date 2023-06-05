@@ -2,6 +2,7 @@ package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.LogisticState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileNoFlagsForSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.tiles.TileWithLogistics;
 
@@ -48,7 +49,8 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         if (board.getRows() != rows || board.getCols() != cols) {
             throw new Exception("array bounds don't match");
         }
-        initializeStructures(board);
+        //always allocate new board to avoid any potential issues with shallow copies between solver runs
+        Board<TileWithLogistics> boardLogistics = initializeStructures(board);
         //TODO: a-star style approach when destination square is given
         while (!q.isEmpty()) {
             bfsState currState = q.remove();
@@ -74,15 +76,15 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 if (board.outOfBounds(adjI, adjJ) || board.getCell(adjI, adjJ).isVisible) {
                     throw new Exception("subset of squares from BFS queue should always be inbounds and invisible");
                 }
-                if (Objects.isNull(endValue.get(adjI).get(adjJ))) {
-                    continue;
-                }
-
+                if (boardLogistics.getCell(adjI, adjJ).logic == LogisticState.MINE)
+                    numKnownMinesInSubset++;
+                if (boardLogistics.getCell(adjI, adjJ).logic == LogisticState.FREE)
+                    numKnownFreesInSubset++;
             }
 
-
             //handle case where size of subset == 0 or min number of mines
-            if (sizeSubset == currValue.minNumMines) {
+            //TODO make this more generalized: max mines == num already logical mines in subset -> then rest are free
+            if (sizeSubset == currValue.minNumMines || currValue.maxNumMines == 0) {
                 //all squares in subset are deducible mines, let's mark them
                 for (int dir = 0; dir < 8; dir++) {
                     if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
@@ -92,18 +94,14 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                     final int adjJ = currState.centerJ + Board.deltas[dir][1];
                     //only set if null to keep shortest path
                     if (Objects.isNull(endValue.get(adjI).get(adjJ))) {
-                        //final int minNumMines, maxNumMines;
-                        //bfsState prevState1 = null, prevState2 = null, prevState3 = null;
-                        endValue.get(adjI).set(adjJ, new bfsValue(/*TODO*/));
+                        endValue.get(adjI).set(adjJ, currValue);
+                    }
+                    if(sizeSubset == currValue.minNumMines) {
+                        boardLogistics.getCell(adjI, adjJ).logic = LogisticState.MINE;
+                    } else {
+                        boardLogistics.getCell(adjI, adjJ).logic = LogisticState.FREE;
                     }
                 }
-                continue;
-            }
-
-            //TODO make this more generalized: max mines == num already logical mines in subset -> then rest are free
-            if (currValue.maxNumMines == 0) {
-                //all squares in subset are deducible frees
-                //TODO: mark them as such
                 continue;
             }
 
@@ -112,16 +110,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
             //TODO: for each pair of intersecting bfsStates, check deduction 4, 4.5
         }
 
-        //always allocate new board to avoid any potential issues with shallow copies between solver runs
-        //initialize return board from endValue
-        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                tmpBoard[i][j] = new TileWithLogistics();
-                tmpBoard[i][j].set(board.getCell(i, j));
-            }
-        }
-        return new Board<>(tmpBoard, board.getMines());
+        return boardLogistics;
     }
 
     public class bfsTransition {
@@ -142,7 +131,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         return Objects.requireNonNull(stateToValue.get(state.centerI).get(state.centerJ).get(state.subsetSurroundingSquares));
     }
 
-    private void initializeStructures(Board<TileNoFlagsForSolver> board) throws Exception {
+    private Board<TileWithLogistics> initializeStructures(Board<TileNoFlagsForSolver> board) throws Exception {
         q.clear();
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
@@ -153,8 +142,11 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 endValue.get(i).set(j, null);
             }
         }
+        TileWithLogistics[][] tmpBoard = new TileWithLogistics[rows][cols];
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
+                tmpBoard[i][j] = new TileWithLogistics();
+                tmpBoard[i][j].set(board.getCell(i, j));
                 if (!board.getCell(i, j).isVisible) {
                     continue;
                 }
@@ -190,6 +182,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 }
             }
         }
+        return new Board<TileWithLogistics>(tmpBoard, board.getMines());
     }
 
     private class bfsState {
