@@ -1,4 +1,4 @@
-package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers;
+package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.bfsSolver;
 
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
@@ -15,15 +15,15 @@ import java.util.TreeMap;
 
 public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     private final int rows, cols;
-    private Queue<bfsState> q;
-    //gridLocationToStates[i][j] = list of bfsState's which include cell (i,j) in their subset
+    private Queue<BfsState> q;
+    //gridLocationToStates[i][j] = list of BfsState's which include cell (i,j) in their subset
     //used to efficiently retrieve all intersecting states
-    private List<List<List<bfsState>>> gridLocationToStates;
+    private List<List<List<BfsState>>> gridLocationToStates;
 
-    //stateToValue[i][j][subset] = bfsValue, used like a visited array
-    private List<List<TreeMap<Integer, bfsValue>>> stateToValue;
+    //stateToValue[i][j][subset] = BfsValue, used like a visited array
+    private List<List<TreeMap<Integer, BfsValue>>> stateToValue;
 
-    private List<List<bfsValue>> endValue;//TODO: initialize in that init function
+    private List<List<BfsValue>> endValue;//TODO: initialize in that init function
 
     public LocalDeductionBFSSolver(int rows, int cols) {
         this.rows = rows;
@@ -53,8 +53,8 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         Board<TileWithLogistics> boardLogistics = initializeStructures(board);
         //TODO: a-star style approach when destination square is given
         while (!q.isEmpty()) {
-            bfsState currState = q.remove();
-            bfsValue currValue = getValue(currState);
+            BfsState currState = q.remove();
+            BfsValue currValue = getValue(currState);
             int sizeSubset = Integer.bitCount(currState.subsetSurroundingSquares);
 
             if(!(0 <= currValue.minNumMines &&
@@ -80,43 +80,45 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
             }
 
             //handle trivial case where the remaining cells in the subset are either all mines or all frees
-            boolean remainingAreFrees = (currValue.maxNumMines == numKnownMinesInSubset);
-            boolean remainingAreMines = (currValue.minNumMines == sizeSubset - numKnownFreesInSubset);
-            if (remainingAreFrees || remainingAreMines) {
-                //all squares in subset are deducible mines, let's mark them
-                for (int dir = 0; dir < 8; dir++) {
-                    if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
-                        continue;
+            {
+                boolean remainingAreFrees = (currValue.maxNumMines == numKnownMinesInSubset);
+                boolean remainingAreMines = (currValue.minNumMines == sizeSubset - numKnownFreesInSubset);
+                if (remainingAreFrees || remainingAreMines) {
+                    //all squares in subset are deducible mines, let's mark them
+                    for (int dir = 0; dir < 8; dir++) {
+                        if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
+                            continue;
+                        }
+                        final int adjI = currState.centerI + Board.deltas[dir][0];
+                        final int adjJ = currState.centerJ + Board.deltas[dir][1];
+                        //only set if null to keep shortest path
+                        boolean endValueInitialized = !Objects.isNull(endValue.get(adjI).get(adjJ));
+                        boolean boardLogisticsInitialized = (boardLogistics.getCell(adjI, adjJ).logic != LogisticState.UNKNOWN);
+                        if (endValueInitialized != boardLogisticsInitialized) {
+                            throw new Exception("logistics board initialization should match endValue initialization");
+                        }
+                        if (endValueInitialized) {
+                            continue;
+                        }
+                        if (remainingAreFrees && remainingAreMines) {
+                            throw new Exception("remaining squares can't be both deducible frees and mines");
+                        }
+                        endValue.get(adjI).set(adjJ, currValue);
+                        addBackAdjacentStatesToQueue(adjI, adjJ, board);
+                        if (remainingAreMines) {
+                            boardLogistics.getCell(adjI, adjJ).logic = LogisticState.MINE;
+                        }
+                        if (remainingAreFrees) {
+                            boardLogistics.getCell(adjI, adjJ).logic = LogisticState.FREE;
+                        }
                     }
-                    final int adjI = currState.centerI + Board.deltas[dir][0];
-                    final int adjJ = currState.centerJ + Board.deltas[dir][1];
-                    //only set if null to keep shortest path
-                    boolean endValueInitialized = !Objects.isNull(endValue.get(adjI).get(adjJ));
-                    boolean boardLogisticsInitialized = (boardLogistics.getCell(adjI, adjJ).logic != LogisticState.UNKNOWN);
-                    if(endValueInitialized != boardLogisticsInitialized) {
-                        throw new Exception("logistics board initialization should match endValue initialization");
-                    }
-                    if(endValueInitialized) {
-                        continue;
-                    }
-                    if (remainingAreFrees && remainingAreMines) {
-                        throw new Exception("remaining squares can't be both deducible frees and mines");
-                    }
-                    endValue.get(adjI).set(adjJ, currValue);
-                    addBackAdjacentStatesToQueue(adjI, adjJ, board);
-                    if(remainingAreMines) {
-                        boardLogistics.getCell(adjI, adjJ).logic = LogisticState.MINE;
-                    }
-                    if(remainingAreFrees) {
-                        boardLogistics.getCell(adjI, adjJ).logic = LogisticState.FREE;
-                    }
+                    continue;
                 }
-                continue;
             }
 
-            //TODO: for each intersecting bfsState, check deduction 2,3
+            //TODO: for each intersecting BfsState, check deduction 2,3
 
-            //TODO: for each pair of intersecting bfsStates, check deduction 4, 4.5
+            //TODO: for each pair of intersecting BfsStates, check deduction 4, 4.5
         }
 
         return boardLogistics;
@@ -126,35 +128,33 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     //to make sure we don't miss anything.
     //this ultimately is because we don't know what order to visit states in
     private void addBackAdjacentStatesToQueue(int tileI, int tileJ, Board<TileNoFlagsForSolver> board) {
-        for(int di = -1; di <= 1; di++) {
-            for(int dj = -1; dj <= 1; dj++){
+        for (int di = -1; di <= 1; di++) {
+            for (int dj = -1; dj <= 1; dj++){
                 int adjI = tileI + di;
                 int adjJ = tileJ + dj;
-                if(board.outOfBounds(adjI, adjJ)) {
+                if (board.outOfBounds(adjI, adjJ)) {
                     continue;
                 }
-                for(bfsState state : gridLocationToStates.get(adjI).get(adjJ)) {
+                //System.out.println("adding this many new states to q: " + gridLocationToStates.get(adjI).get(adjJ).size());
+                for (BfsState state : gridLocationToStates.get(adjI).get(adjJ)) {
                     q.add(state);
                 }
             }
         }
     }
 
-    public class bfsTransition {
-        //TODO: decide fields
-    }
-    public ArrayList<bfsTransition> getListOfTransitions(int tileI, int tileJ) {
+    public ArrayList<BfsValue> getListOfTransitions(int tileI, int tileJ) {
         //idea to retrieve this: dfs-style topo sort:
         //call dfs initially on endValue[tileI][tileJ], then push state/value onto return ArrayList
         //only after all dfs recursive calls return
         //
         //this gives reverse topo order, but the adjacency list is already reversed, giving it in order
 
-        ArrayList<bfsTransition> transitionList = new ArrayList<>();
+        ArrayList<BfsValue> transitionList = new ArrayList<>();
         return transitionList;
     }
 
-    private bfsValue getValue(bfsState state) {
+    private BfsValue getValue(BfsState state) {
         return Objects.requireNonNull(stateToValue.get(state.centerI).get(state.centerJ).get(state.subsetSurroundingSquares));
     }
 
@@ -162,7 +162,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         q.clear();
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                //can't clear as you go because you might clear a newly added bfsState
+                //can't clear as you go because you might clear a newly added BfsState
                 //so instead clear all at once in the beginning
                 gridLocationToStates.get(i).get(j).clear();
                 stateToValue.get(i).get(j).clear();
@@ -194,8 +194,10 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                     if (numMines == 0) {
                         throw new Exception("visible squares with at least 1 non-visible neighbor should have non-zero number of mines.");
                     }
-                    bfsState currState = new bfsState(i, j, dirMask);
-                    bfsValue currValue = new bfsValue(numMines, numMines, null, null, null);
+                    BfsState currState = new BfsState(i, j, dirMask, true);
+                    ArrayList<BfsState> tmpList = new ArrayList<>(1);
+                    tmpList.add(currState);
+                    BfsValue currValue = new BfsValue(numMines, numMines, BfsTransitionType.BASE_CASE_FROM_NUMBER, tmpList);
                     q.add(currState);
                     stateToValue.get(i).get(j).put(dirMask, currValue);
                     for (int dir = 0; dir < 8; dir++) {
@@ -212,39 +214,4 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
         return new Board<TileWithLogistics>(tmpBoard, board.getMines());
     }
 
-    private class bfsState {
-        //represents location of center-cell
-        final int centerI, centerJ;
-        //number in range [0, 2^8)
-        //012
-        //3 4
-        //567
-        //each on-bit means that that relative tile is in the subset
-        private final int subsetSurroundingSquares;
-
-        public bfsState(int centerI, int centerJ, int subsetSurroundingSquares) {
-            this.centerI = centerI;
-            this.centerJ = centerJ;
-            this.subsetSurroundingSquares = subsetSurroundingSquares;
-        }
-
-        public boolean intersects(bfsState otherState) {
-            return false;//TODO
-        }
-    }
-
-    private class bfsValue {
-        //[inclusive, inclusive] range
-        final int minNumMines, maxNumMines;
-        //may need to change to arraylist of previous states
-        bfsState prevState1 = null, prevState2 = null, prevState3 = null;
-
-        public bfsValue(int minNumMines, int maxNumMines, bfsState prevState1, bfsState prevState2, bfsState prevState3) {
-            this.minNumMines = minNumMines;
-            this.maxNumMines = maxNumMines;
-            this.prevState1 = prevState1;
-            this.prevState2 = prevState2;
-            this.prevState3 = prevState3;
-        }
-    }
 }
