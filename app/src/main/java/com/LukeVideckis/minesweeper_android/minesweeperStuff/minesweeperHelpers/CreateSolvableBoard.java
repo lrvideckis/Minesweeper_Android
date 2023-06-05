@@ -4,7 +4,7 @@ import com.LukeVideckis.minesweeper_android.customExceptions.HitIterationLimitEx
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.EngineForCreatingSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.bfsSolver.LocalDeductionBFSSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BfsSolver.LocalDeductionBFSSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;

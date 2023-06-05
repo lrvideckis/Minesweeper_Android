@@ -1,4 +1,4 @@
-package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.bfsSolver;
+package com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BfsSolver;
 
 import java.util.ArrayList;
 
