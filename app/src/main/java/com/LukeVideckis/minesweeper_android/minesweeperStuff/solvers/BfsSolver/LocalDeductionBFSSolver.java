@@ -208,7 +208,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                     if (numMines == 0) {
                         throw new Exception("visible squares with at least 1 non-visible neighbor should have non-zero number of mines.");
                     }
-                    BfsState currState = new BfsState(i, j, dirMask, true);
+                    BfsState currState = new BfsState(i, j, dirMask);
                     //TODO: pull out common code into private function: addStateValueToMembers
                     ArrayList<BfsState> tmpList = new ArrayList<>(1);
                     tmpList.add(currState);
