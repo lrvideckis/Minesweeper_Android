@@ -54,11 +54,15 @@ public class BfsState {
         int centerJ = this.centerJ;
         int subset = 0;
         for (int dir = 0; dir < 8; dir++) {
-            if (((otherState.subsetSurroundingSquares >> dir) & 1) == 0) {
+            if (((this.subsetSurroundingSquares >> dir) & 1) == 0) {
                 continue;
             }
-            final int adjI = otherState.centerI + Board.deltas[dir][0];
-            final int adjJ = otherState.centerJ + Board.deltas[dir][1];
+            final int adjI = this.centerI + Board.deltas[dir][0];
+            final int adjJ = this.centerJ + Board.deltas[dir][1];
+            if (otherState.containsCell(adjI, adjJ)) {
+                continue;
+            }
+            subset += (1 << dir);
         }
         return new BfsState(centerI, centerJ, subset);
     }
