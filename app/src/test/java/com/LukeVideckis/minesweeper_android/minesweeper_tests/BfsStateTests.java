@@ -37,6 +37,18 @@ public class BfsStateTests {
         if(state2.isSubsetOfMe(state1)) {
             throw new Exception("failed");
         }
+        for(int subset1 = 0; subset1 < 256; subset1++) {
+            for(int subset2 = subset1 + 1; subset2 < 256; subset2++) {
+                state1 = new BfsState(3, 5, subset1);
+                state2 = new BfsState(3, 5, subset2);
+                //larger numeric value for a subset will never be contained
+                //think of the most significant differing bit:
+                //   it will always be on in subset2 and off in subset1
+                if(state1.isSubsetOfMe(state2)) {
+                    throw new Exception("failed");
+                }
+            }
+        }
         state1 = new BfsState(3, 5, 37);
         state2 = new BfsState(3, 5, 255 - 37);
         if(state1.isSubsetOfMe(state2)) {
