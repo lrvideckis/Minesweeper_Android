@@ -18,7 +18,12 @@ public class BfsState {
         this.centerIsVisible = centerIsVisible;
     }
 
-    public boolean intersects(BfsState otherState) {
+    //returns true iff otherState is a subset of me
+    public boolean isSubsetOfMe(BfsState otherState) {
         return false;//TODO
+    }
+    //returns the set difference: a new BfsState, where each square in it's subset is in me and not in otherState
+    public BfsState inMeNotInThem(BfsState otherState) {
+        return null;//TODO
     }
 }

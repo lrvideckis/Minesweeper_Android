@@ -15,15 +15,15 @@ import java.util.TreeMap;
 
 public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
     private final int rows, cols;
-    private Queue<BfsState> q;
+    private final Queue<BfsState> q;
     //gridLocationToStates[i][j] = list of BfsState's which include cell (i,j) in their subset
     //used to efficiently retrieve all intersecting states
-    private List<List<List<BfsState>>> gridLocationToStates;
+    private final List<List<List<BfsState>>> gridLocationToStates;
 
     //stateToValue[i][j][subset] = BfsValue, used like a visited array
-    private List<List<TreeMap<Integer, BfsValue>>> stateToValue;
+    private final List<List<TreeMap<Integer, BfsValue>>> stateToValue;
 
-    private List<List<BfsValue>> endValue;//TODO: initialize in that init function
+    private final List<List<BfsValue>> endValue;//TODO: initialize in that init function
 
     public LocalDeductionBFSSolver(int rows, int cols) {
         this.rows = rows;
@@ -117,6 +117,20 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
             }
 
             //TODO: for each intersecting BfsState, check deduction 2,3
+            for (int dir = 0; dir < 8; dir++) {
+                if (((currState.subsetSurroundingSquares >> dir) & 1) == 0) {
+                    continue;
+                }
+                final int adjI = currState.centerI + Board.deltas[dir][0];
+                final int adjJ = currState.centerJ + Board.deltas[dir][1];
+                for (BfsState adjState : gridLocationToStates.get(adjI).get(adjJ)) {
+                    if (currState.isSubsetOfMe(adjState)) {
+                        BfsState setDifference = currState.inMeNotInThem(adjState);
+                    } else {
+
+                    }
+                }
+            }
 
             //TODO: for each pair of intersecting BfsStates, check deduction 4, 4.5
         }
@@ -195,6 +209,7 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                         throw new Exception("visible squares with at least 1 non-visible neighbor should have non-zero number of mines.");
                     }
                     BfsState currState = new BfsState(i, j, dirMask, true);
+                    //TODO: pull out common code into private function: addStateValueToMembers
                     ArrayList<BfsState> tmpList = new ArrayList<>(1);
                     tmpList.add(currState);
                     BfsValue currValue = new BfsValue(numMines, numMines, BfsTransitionType.BASE_CASE_FROM_NUMBER, tmpList);
