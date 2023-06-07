@@ -6,9 +6,9 @@ import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameEng
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.CreateSolvableBoard;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.minesweeperHelpers.MyMath;
-import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.GaussianEliminationSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.HolyGrailSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.IntenseRecursiveSolver;
+import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.BfsSolver.LocalDeductionBFSSolver;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToLogistics;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverLogisticsToProbability;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.solvers.interfaces.SolverNothingToProbability;
@@ -316,19 +316,19 @@ public class MinesweeperSolverTests {
     }
 
     //throws exception if test failed
-    private static void throwIfFailed_compareGaussBoardToBacktrackingBoard(Board<TileWithProbability> boardBacktracking, Board<TileWithLogistics> boardGauss) throws Exception {
-        if (boardBacktracking.getRows() != boardGauss.getRows() || boardBacktracking.getCols() != boardGauss.getCols() || boardBacktracking.getMines() != boardGauss.getMines()) {
+    private static void throwIfFailed_compareBFSBoardToBacktrackingBoard(Board<TileWithProbability> boardBacktracking, Board<TileWithLogistics> boardBfs) throws Exception {
+        if (boardBacktracking.getRows() != boardBfs.getRows() || boardBacktracking.getCols() != boardBfs.getCols() || boardBacktracking.getMines() != boardBfs.getMines()) {
             throw new Exception("board dimensions/mines don't match");
         }
         for (int i = 0; i < boardBacktracking.getRows(); ++i) {
             for (int j = 0; j < boardBacktracking.getCols(); ++j) {
-                if (!boardBacktracking.getCell(i, j).mineProbability.equals(1) && boardGauss.getCell(i, j).logic == LogisticState.MINE) {
+                if (!boardBacktracking.getCell(i, j).mineProbability.equals(1) && boardBfs.getCell(i, j).logic == LogisticState.MINE) {
                     printBoardWithProb(boardBacktracking);
-                    throw new Exception("it isn't a logical mine, but Gauss solver says it's a logical mine " + i + " " + j);
+                    throw new Exception("it isn't a logical mine, but BFS solver says it's a logical mine " + i + " " + j);
                 }
-                if (!boardBacktracking.getCell(i, j).mineProbability.equals(0) && boardGauss.getCell(i, j).logic == LogisticState.FREE) {
+                if (!boardBacktracking.getCell(i, j).mineProbability.equals(0) && boardBfs.getCell(i, j).logic == LogisticState.FREE) {
                     printBoardWithProb(boardBacktracking);
-                    throw new Exception("it isn't a logical free, but Gauss solver says it's a logical free " + i + " " + j);
+                    throw new Exception("it isn't a logical free, but BFS solver says it's a logical free " + i + " " + j);
                 }
             }
         }
@@ -479,7 +479,7 @@ public class MinesweeperSolverTests {
             System.out.println(" rows, cols, mines " + rows + " " + cols + " " + mines);
 
             SolverLogisticsToProbability fastSolver = new IntenseRecursiveSolver(rows, cols);
-            SolverNothingToLogistics gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
+            SolverNothingToLogistics bfsSolver = new LocalDeductionBFSSolver(rows, cols);
 
             GameEngine gameEngine = new GameEngine(rows, cols, mines, testID <= numberOfTests / 2 /*exactly half the tests*/);
             {
@@ -501,9 +501,8 @@ public class MinesweeperSolverTests {
                 System.out.println("backtracking solver hit iteration limit, void test");
                 continue;
             }
-            Board<TileWithLogistics> boardGauss = convertToAddLogistics(convertToNewBoard(gameEngine));
-            gaussianEliminationSolver.solvePosition(boardGauss);
-            throwIfFailed_compareGaussBoardToBacktrackingBoard(fastOut, boardGauss);
+            Board<TileWithLogistics> boardBfs = bfsSolver.solvePosition(convertToNewBoard(gameEngine));
+            throwIfFailed_compareBFSBoardToBacktrackingBoard(fastOut, boardBfs);
         }
         System.out.println("passed all tests!!!!!!!!!!!!!!!!!!!");
     }
@@ -520,7 +519,7 @@ public class MinesweeperSolverTests {
             final boolean hasAn8 = (bounds[3] == 1);
 
             SolverNothingToProbability holyGrailSolver = new HolyGrailSolver(rows, cols);
-            SolverNothingToLogistics gaussianEliminationSolver = new GaussianEliminationSolver(rows, cols);
+            SolverNothingToLogistics bfsSolver = new LocalDeductionBFSSolver(rows, cols);
             SolverNothingToProbability slowBacktrackingSolver = new SlowBacktrackingSolver(rows, cols);
 
             GameEngine gameEngine = new GameEngine(rows, cols, mines, hasAn8);
@@ -544,9 +543,8 @@ public class MinesweeperSolverTests {
                 Board<TileWithProbability> fastOut = holyGrailSolver.solvePositionWithProbability(convertToNewBoard(gameEngine));
                 throwIfBoardsAreDifferent(fastOut, slowOut);
 
-                Board<TileWithLogistics> boardGauss = convertToAddLogistics(convertToNewBoard(gameEngine));
-                gaussianEliminationSolver.solvePosition(boardGauss);
-                throwIfFailed_compareGaussBoardToBacktrackingBoard(fastOut, boardGauss);
+                Board<TileWithLogistics> boardBfs = bfsSolver.solvePosition(convertToNewBoard(gameEngine));
+                throwIfFailed_compareBFSBoardToBacktrackingBoard(fastOut, boardBfs);
             }
         }
         System.out.println("passed all tests!!!!!!!!!!!!!!!!!!!");
