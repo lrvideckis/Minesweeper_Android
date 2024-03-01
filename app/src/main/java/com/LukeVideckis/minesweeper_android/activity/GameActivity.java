@@ -245,7 +245,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         numberOfMines.setText(minesLeft);
     }
 
-    public void setClickabilityOfSwitchesAndButtons(boolean isClickable) {
+    public void setPermissionToUseSwitchesAndButtons(boolean isClickable) {
         SwitchCompat toggleHints = findViewById(R.id.toggleBacktrackingHints);
         toggleHints.setClickable(isClickable);
 
@@ -358,7 +358,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         .show();
             } else {
                 new AlertDialog.Builder(this)
-                        .setMessage("There exists at least one unflagged deducible mine, or at " +
+                        .setMessage("There exists at least one un-flagged deducible mine, or at " +
                                 "least one flagged non-deducible mine, or at least one deducible " +
                                 "non-mine.")
                         .show();
@@ -393,7 +393,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setClickabilityOfSwitchesAndButtons(true);
+        setPermissionToUseSwitchesAndButtons(true);
         gameEndedFromHelpButton = false;
 
         if (timerToBreakBoardGen.isAlive()) {

@@ -8,6 +8,8 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.LukeVideckis.minesweeper_android.activity.GameActivity;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.Board;
 import com.LukeVideckis.minesweeper_android.minesweeperStuff.GameEngines.GameState;
@@ -103,8 +105,8 @@ public class GameCanvas extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int old_width, int old_height) {
+        super.onSizeChanged(w, h, old_width, old_height);
         // I need the # of pixels for this view -> it doesn't include the top/bottom bars. But
         // because of how Android is set up, `getWidth()` and `getHeight()` return 0 in `GameCanvas`
         // constructor. This is the workaround.
@@ -113,7 +115,7 @@ public class GameCanvas extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         canvas.setMatrix(scaleListener.getMatrix());
 
@@ -176,11 +178,11 @@ public class GameCanvas extends View {
         }
         try {
             if (currGameState == GameState.WON) {
-                gameActivity.setClickabilityOfSwitchesAndButtons(false);
+                gameActivity.setPermissionToUseSwitchesAndButtons(false);
                 gameActivity.setNewGameButtonWinFace();
                 gameActivity.stopTimerThread();
             } else if (currGameState == GameState.LOST) {
-                gameActivity.setClickabilityOfSwitchesAndButtons(false);
+                gameActivity.setPermissionToUseSwitchesAndButtons(false);
                 gameActivity.setNewGameButtonDeadFace();
                 gameActivity.stopTimerThread();
             }

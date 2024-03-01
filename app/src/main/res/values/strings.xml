@@ -20,6 +20,7 @@
     <string name="make_toggling_flags_the_default">Make toggling flags the default</string>
     <string name="generate_games_with_an_8">Generate games with an 8</string>
     <string name="minesweeper">Minesweeper</string>
+    <string name="check_logical_correctness_button">check logical correctness button</string>
 
     <!--
     TODO: these modes
