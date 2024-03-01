@@ -124,10 +124,14 @@ public class LocalDeductionBFSSolver implements SolverNothingToLogistics {
                 final int adjI = currState.centerI + Board.deltas[dir][0];
                 final int adjJ = currState.centerJ + Board.deltas[dir][1];
                 for (BfsState adjState : gridLocationToStates.get(adjI).get(adjJ)) {
+                    //TODO: add assert here for "currState and adjState must have non-empty intersection"
                     if (currState.isSubsetOfMe(adjState)) {
                         BfsState setDifference = currState.inMeNotInThem(adjState);
                     } else {
-
+                        BfsState myWing = currState.inMeNotInThem(adjState);
+                        int myWingSize = Integer.bitCount(myWing.subsetSurroundingSquares);
+                        BfsState theirWing = adjState.inMeNotInThem(currState);
+                        int theirWingSize = Integer.bitCount(theirWing.subsetSurroundingSquares);
                     }
                 }
             }
