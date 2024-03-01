@@ -9,13 +9,12 @@ android {
             keyPassword findProperty('key_pw')
         }
     }
-    compileSdkVersion 33
 
     defaultConfig {
         applicationId 'com.LukeVideckis.minesweeper'
         minSdkVersion 21
-        targetSdkVersion 33
-        versionCode 14
+        targetSdkVersion 34
+        versionCode 15
         versionName '2.2'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
