@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -271,13 +272,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton.setImageResource(R.drawable.win_face);
     }
 
-    @Override
-    public void onBackPressed() {
-        stopTimerThread();
-        Intent intent = new Intent(GameActivity.this, StartScreenActivity.class);
-        startActivity(intent);
-    }
-
     public EngineGetHelpMode getEngineGetHelpMode() {
         return engineGetHelpMode;
     }
@@ -454,6 +448,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         gameMode = getIntent().getIntExtra(StartScreenActivity.GAME_MODE, R.id.normal_mode);
         setContentView(R.layout.game);
 
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                stopTimerThread();
+                Intent intent = new Intent(GameActivity.this, StartScreenActivity.class);
+                startActivity(intent);
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this,onBackPressedCallback);
+
         try {
             SharedPreferences sharedPreferences = getSharedPreferences(StartScreenActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
             final boolean hasAn8 = sharedPreferences.getBoolean(SettingsActivity.GENERATE_GAMES_WITH_8_SETTING, false);
@@ -515,7 +519,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         dialog.cancel();
                         solvableBoardRunnable.setBackButtonPressed();
                         createSolvableBoardThread.interrupt();
-                        onBackPressed();
                         return true;
                     }
                     return false;

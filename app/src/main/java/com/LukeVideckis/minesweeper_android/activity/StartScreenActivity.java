@@ -12,6 +12,7 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -143,11 +144,6 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
     }
 
     @Override
-    public void onBackPressed() {
-        moveTaskToBack(true);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {//needed to show settings gear
         getMenuInflater().inflate(R.menu.top_toolbar_actions, menu);
         return true;
@@ -217,6 +213,13 @@ public class StartScreenActivity extends AppCompatActivity implements SeekBar.On
         // Sets the Toolbar to act as the ActionBar for this Activity window.
         // Make sure the toolbar exists in the activity and is not null
         setSupportActionBar(toolbar);
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                moveTaskToBack(true);
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this,onBackPressedCallback);
 
         sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
