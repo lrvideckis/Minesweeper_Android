@@ -1,9 +1,3 @@
-<a href="https://play.google.com/store/apps/details?id=com.LukeVideckis.minesweeper">
-<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" 
-alt="Get it on Google Play"
-height="80" />
-</a>
-
 ## Overview
 
 Relevant code found [here](https://github.com/lrvideckis/Minesweeper_Android/tree/main/app/src/main/java/com/LukeVideckis/minesweeper_android).
