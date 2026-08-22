@@ -1,3 +1,7 @@
+## Demo
+
+https://github.com/user-attachments/assets/1bf2f020-3849-4de7-a693-9a3b0a708347
+
 ## Overview
 
 Relevant code found [here](https://github.com/lrvideckis/Minesweeper_Android/tree/main/app/src/main/java/com/LukeVideckis/minesweeper_android).
